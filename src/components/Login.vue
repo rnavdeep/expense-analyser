@@ -1,28 +1,17 @@
 <template>
-  <div class="register-container">
-    <h1>Register</h1>
-    <form @submit.prevent="handleRegister">
+  <div class="login-container">
+    <h1>Login</h1>
+    <form @submit.prevent="handlelogin">
       <div class="form-group">
         <label for="username">Username:</label>
         <input type="text" id="username" v-model="formData.username" required />
       </div>
       <div class="form-group">
-        <label for="email">Email:</label>
-        <input type="email" id="email" v-model="formData.email" required />
-      </div>
-      <div class="form-group">
         <label for="password">Password:</label>
         <input type="password" id="password" v-model="formData.password" required />
       </div>
-      <div class="form-group">
-        <label for="confirmPassword">Confirm Password:</label>
-        <input type="password" id="confirmPassword" v-model="formData.confirmPassword" required />
-      </div>
       <div class="button-group">
         <button type="submit" class="btn submit-btn">Submit</button>
-        <router-link to="/login">
-          <button class="btn login-btn">Login</button>
-        </router-link>
         <router-link to="/">
           <button class="btn home-btn">Home</button>
         </router-link>
@@ -35,71 +24,36 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-import { type RegisterData } from '@/models/RegisterData'
 import { useRouter } from 'vue-router'
 import AuthService from '@/services/AuthService'
-import { RegisterRequestDto } from '@/models/RegisterData'
 import EncryptionService from '@/services/EncryptionService'
-
+import { LoginDataDto, type LoginData } from '@/models/LoginData'
 export default defineComponent({
-  name: 'eaRegister',
+  name: 'eaLogin',
   setup() {
-    const formData = ref<RegisterData>({
+    const formData = ref<LoginData>({
       username: '',
-      email: '',
-      password: '',
-      confirmPassword: ''
+      password: ''
     })
 
     const errorMessage = ref('')
     const successMessage = ref('')
     const router = useRouter()
 
-    const validatePassword = (password: string): boolean => {
-      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
-      return passwordRegex.test(password)
-    }
-
-    const handleRegister = async () => {
-      if (formData.value.password !== formData.value.confirmPassword) {
-        errorMessage.value = 'Passwords do not match!'
-        return
-      }
-      if (formData.value.username !== formData.value.email) {
-        errorMessage.value = 'Username should be same as Email'
-        return
-      }
-      //add password validation
-      if (validatePassword(formData.value.password)) {
-        errorMessage.value = 'Invalid  password'
-        return
-      }
-      const registerRequest = new RegisterRequestDto(
-        formData.value.email,
-        formData.value.password,
-        ['Reader', 'Writer']
-      )
-
+    const handlelogin = async () => {
       try {
-        const encryptedData = EncryptionService.encrypt(registerRequest)
-        await AuthService.Register(encryptedData)
+        const loginDataDto = new LoginDataDto(formData.value.username, formData.value.password)
+        const encryptedData = EncryptionService.encrypt(loginDataDto)
+        var resp = await AuthService.Login(encryptedData)
 
-        // Clear fields after successful registration
         formData.value.username = ''
-        formData.value.email = ''
         formData.value.password = ''
-        formData.value.confirmPassword = ''
-        errorMessage.value = ''
-        successMessage.value = 'Registration successful! Redirecting...'
-
-        // Redirect to the homepage
-        setTimeout(() => {
-          router.push('/')
-        }, 2000) // Delay for user to see the success message
+        errorMessage.value = resp.jwtToken
+        successMessage.value = 'Login successful!'
       } catch (error) {
         // Handle unknown error
         if (error instanceof Error) {
-          errorMessage.value = error.message || 'Registration failed. Please try again.'
+          errorMessage.value = error.message || 'Login failed. Please try again.'
         } else {
           errorMessage.value = 'An unexpected error occurred'
         }
@@ -110,14 +64,14 @@ export default defineComponent({
       formData,
       errorMessage,
       successMessage,
-      handleRegister
+      handlelogin
     }
   }
 })
 </script>
 
 <style scoped>
-.register-container {
+.login-container {
   max-width: 4000px;
   width: 700px;
   margin-left: 300px;
@@ -158,11 +112,6 @@ input {
   cursor: pointer;
   border: #0a0909;
   border-radius: 10px;
-}
-
-.login-btn {
-  background-color: #3498db;
-  color: white;
 }
 .home-btn {
   background-color: green;
