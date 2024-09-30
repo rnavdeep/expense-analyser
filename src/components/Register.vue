@@ -4,65 +4,94 @@
     <form @submit.prevent="handleRegister">
       <div class="form-group">
         <label for="username">Username:</label>
-        <input type="text" id="username" v-model="username" required />
+        <input type="text" id="username" v-model="formData.username" required />
       </div>
       <div class="form-group">
         <label for="email">Email:</label>
-        <input type="email" id="email" v-model="email" required />
+        <input type="email" id="email" v-model="formData.email" required />
       </div>
       <div class="form-group">
         <label for="password">Password:</label>
-        <input type="password" id="password" v-model="password" required />
+        <input type="password" id="password" v-model="formData.password" required />
       </div>
       <div class="form-group">
         <label for="confirmPassword">Confirm Password:</label>
-        <input type="password" id="confirmPassword" v-model="confirmPassword" required />
+        <input type="password" id="confirmPassword" v-model="formData.confirmPassword" required />
       </div>
-      <button type="submit" class="btn register-btn">Register</button>
+      <div class="button-group">
+        <button type="submit" class="btn submit-btn">Submit</button>
+        <router-link to="/login">
+          <button class="btn login-btn">Login</button>
+        </router-link>
+        <router-link to="/">
+          <button class="btn home-btn">Home</button>
+        </router-link>
+      </div>
     </form>
     <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+    <p v-if="successMessage" class="success">{{ successMessage }}</p>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-
+import { type RegisterData } from '@/models/RegisterData'
+import { useRouter } from 'vue-router'
 export default defineComponent({
   name: 'eaRegister',
   setup() {
-    const username = ref('')
-    const email = ref('')
-    const password = ref('')
-    const confirmPassword = ref('')
+    const formData = ref<RegisterData>({
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: ''
+    })
+
     const errorMessage = ref('')
+    const successMessage = ref('')
+    const router = useRouter()
+
+    const validatePassword = (password: string): boolean => {
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+      return passwordRegex.test(password)
+    }
 
     const handleRegister = () => {
-      if (password.value !== confirmPassword.value) {
+      if (formData.value.password !== formData.value.confirmPassword) {
         errorMessage.value = 'Passwords do not match!'
         return
       }
-
+      if (formData.value.username !== formData.value.email) {
+        errorMessage.value = 'Username should be same as Email'
+        return
+      }
+      //add password validation
+      if (!validatePassword(formData.value.password)) {
+        errorMessage.value = 'Invalid  password'
+        return
+      }
       // Add your registration logic here (e.g., API call)
-      console.log('User registered:', {
-        username: username.value,
-        email: email.value,
-        password: password.value
-      })
+      //   console.log('User registered:', {
+      //     username: formData.value.username,
+      //     email: formData.value.email,
+      //     password: formData.value.password
+      //   })
 
       // Clear fields after successful registration
-      username.value = ''
-      email.value = ''
-      password.value = ''
-      confirmPassword.value = ''
+      formData.value.username = ''
+      formData.value.email = ''
+      formData.value.password = ''
+      formData.value.confirmPassword = ''
       errorMessage.value = ''
+      successMessage.value = 'successfully registered'
+      setTimeout(() => router.push('/'), 5000)
+      // for now redirect
     }
 
     return {
-      username,
-      email,
-      password,
-      confirmPassword,
+      formData,
       errorMessage,
+      successMessage,
       handleRegister
     }
   }
@@ -71,8 +100,9 @@ export default defineComponent({
 
 <style scoped>
 .register-container {
-  max-width: 400px;
-  margin: 50px auto;
+  max-width: 4000px;
+  width: 700px;
+  margin-left: 200px;
   padding: 20px;
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -99,23 +129,38 @@ input {
   border: 1px solid #ccc;
   border-radius: 4px;
 }
-
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
 .btn {
-  width: 100%;
-  padding: 10px;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 20px;
   cursor: pointer;
+  border: #0a0909;
+  border-radius: 10px;
 }
 
+.login-btn {
+  background-color: #3498db;
+  color: white;
+}
+.home-btn {
+  background-color: green;
+  color: white;
+}
 .btn:hover {
-  opacity: 0.9;
+  transform: translateY(-2px); /* Lift effect on hover */
 }
 
 .error {
   color: red;
+  text-align: center;
+  margin-top: 10px;
+}
+.success {
+  color: green;
   text-align: center;
   margin-top: 10px;
 }
