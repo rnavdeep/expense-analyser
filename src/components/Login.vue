@@ -48,7 +48,7 @@ export default defineComponent({
 
         formData.value.username = ''
         formData.value.password = ''
-        errorMessage.value = resp.jwtToken
+        // errorMessage.value = resp.jwtToken
         successMessage.value = 'Login successful!'
       } catch (error) {
         // Handle unknown error
