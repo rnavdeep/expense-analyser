@@ -95,7 +95,12 @@ export default defineComponent({
           router.push('/')
         }, 2000) // Delay for user to see the success message
       } catch (error) {
-        errorMessage.value = error.message || 'Registration failed. Please try again.'
+        // Handle unknown error
+        if (error instanceof Error) {
+          errorMessage.value = error.message || 'Registration failed. Please try again.'
+        } else {
+          errorMessage.value = 'An unexpected error occurred'
+        }
       }
     }
 

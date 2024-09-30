@@ -10,8 +10,10 @@ class AuthService {
       const response = await axios.post(`${API_URL}/Register`, data)
       return response.data // Adjust this according to your API response
     } catch (error) {
-      // Handle the error and provide a more user-friendly message
-      throw new Error(error.response?.data?.message || 'Registration failed')
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Registration failed')
+      }
+      throw new Error('An unexpected error occurred')
     }
   }
 }
