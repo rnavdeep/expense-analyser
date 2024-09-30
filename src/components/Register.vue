@@ -37,6 +37,9 @@
 import { defineComponent, ref } from 'vue'
 import { type RegisterData } from '@/models/RegisterData'
 import { useRouter } from 'vue-router'
+import AuthService from '@/services/AuthService'
+import { RegisterRequestDto } from '@/models/RegisterRequestDto'
+
 export default defineComponent({
   name: 'eaRegister',
   setup() {
@@ -56,7 +59,7 @@ export default defineComponent({
       return passwordRegex.test(password)
     }
 
-    const handleRegister = () => {
+    const handleRegister = async () => {
       if (formData.value.password !== formData.value.confirmPassword) {
         errorMessage.value = 'Passwords do not match!'
         return
@@ -66,26 +69,34 @@ export default defineComponent({
         return
       }
       //add password validation
-      if (!validatePassword(formData.value.password)) {
+      if (validatePassword(formData.value.password)) {
         errorMessage.value = 'Invalid  password'
         return
       }
-      // Add your registration logic here (e.g., API call)
-      //   console.log('User registered:', {
-      //     username: formData.value.username,
-      //     email: formData.value.email,
-      //     password: formData.value.password
-      //   })
+      const registerRequest = new RegisterRequestDto(
+        formData.value.email,
+        formData.value.password,
+        ['Reader', 'Writer']
+      )
 
-      // Clear fields after successful registration
-      formData.value.username = ''
-      formData.value.email = ''
-      formData.value.password = ''
-      formData.value.confirmPassword = ''
-      errorMessage.value = ''
-      successMessage.value = 'successfully registered'
-      setTimeout(() => router.push('/'), 5000)
-      // for now redirect
+      try {
+        await AuthService.register(registerRequest)
+
+        // Clear fields after successful registration
+        formData.value.username = ''
+        formData.value.email = ''
+        formData.value.password = ''
+        formData.value.confirmPassword = ''
+        errorMessage.value = ''
+        successMessage.value = 'Registration successful! Redirecting...'
+
+        // Redirect to the homepage
+        setTimeout(() => {
+          router.push('/')
+        }, 2000) // Delay for user to see the success message
+      } catch (error) {
+        errorMessage.value = error.message || 'Registration failed. Please try again.'
+      }
     }
 
     return {
