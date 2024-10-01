@@ -25,9 +25,9 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import AuthService from '@/services/AuthService'
-import EncryptionService from '@/services/EncryptionService'
-import { LoginDataDto, type LoginData } from '@/models/LoginData'
+import { type LoginData } from '@/models/LoginData'
+import { useAuthStore } from '@/stores/Auth'
+
 export default defineComponent({
   name: 'eaLogin',
   setup() {
@@ -39,17 +39,17 @@ export default defineComponent({
     const errorMessage = ref('')
     const successMessage = ref('')
     const router = useRouter()
+    const authStore = useAuthStore()
 
     const handlelogin = async () => {
       try {
-        const loginDataDto = new LoginDataDto(formData.value.username, formData.value.password)
-        const encryptedData = EncryptionService.encrypt(loginDataDto)
-        var resp = await AuthService.Login(encryptedData)
-
+        await authStore.login(formData.value.username, formData.value.password)
         formData.value.username = ''
         formData.value.password = ''
         // errorMessage.value = resp.jwtToken
-        successMessage.value = 'Login successful!'
+        successMessage.value = 'Login successful! Redirecting to Home....'
+
+        router.push('/')
       } catch (error) {
         // Handle unknown error
         if (error instanceof Error) {

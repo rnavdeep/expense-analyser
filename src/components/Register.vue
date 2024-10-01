@@ -40,7 +40,6 @@ import { useRouter } from 'vue-router'
 import AuthService from '@/services/AuthService'
 import { RegisterRequestDto } from '@/models/RegisterData'
 import EncryptionService from '@/services/EncryptionService'
-
 export default defineComponent({
   name: 'eaRegister',
   setup() {

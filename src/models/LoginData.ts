@@ -11,3 +11,6 @@ export class LoginDataDto {
     this.password = password
   }
 }
+export class LoginToken {
+  token: string | undefined
+}

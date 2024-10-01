@@ -2,6 +2,7 @@
   <div class="home-container">
     <!-- Hero Section -->
     <div class="hero-section">
+      <!-- Uncomment this to display the app icon -->
       <!-- <img src="@/assets/eaIcon.png" alt="App Icon" class="app-icon" /> -->
       <!-- <h1>Expense Analyser</h1> -->
       <p class="subtitle">
@@ -12,8 +13,8 @@
         understand their spending patterns. With a user-friendly interface and export options for
         reports, the Expense Analyzer simplifies expense tracking and enhances financial insights.
       </p>
-      <p class="next">Register or Login to Continue</p>
-      <div class="button-group">
+      <p v-if="!isUserLoggedIn" class="next">Register or Login to Continue</p>
+      <div v-if="!isUserLoggedIn" class="button-group">
         <router-link to="/login">
           <button class="btn login-btn">Login</button>
         </router-link>
@@ -61,10 +62,22 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, computed } from 'vue'
+import { useAuthStore } from '@/stores/Auth'
 
 export default defineComponent({
-  name: 'eaHome'
+  name: 'eaHome',
+  setup() {
+    const authStore = useAuthStore()
+
+    // Create a computed property for isUserLoggedIn
+    const isUserLoggedIn = computed(() => authStore.isAuthenticated)
+
+    return {
+      ...authStore,
+      isUserLoggedIn
+    }
+  }
 })
 </script>
 
