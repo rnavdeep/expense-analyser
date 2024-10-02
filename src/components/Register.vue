@@ -64,18 +64,19 @@ export default defineComponent({
         errorMessage.value = 'Passwords do not match!'
         return
       }
-      if (formData.value.username !== formData.value.email) {
-        errorMessage.value = 'Username should be same as Email'
-        return
-      }
+      // if (formData.value.username !== formData.value.email) {
+      //   errorMessage.value = 'Username should be same as Email'
+      //   return
+      // }
       //add password validation
       if (validatePassword(formData.value.password)) {
         errorMessage.value = 'Invalid  password'
         return
       }
       const registerRequest = new RegisterRequestDto(
-        formData.value.email,
+        formData.value.username,
         formData.value.password,
+        formData.value.email,
         ['Reader', 'Writer']
       )
 

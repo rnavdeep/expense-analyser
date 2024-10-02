@@ -15,34 +15,41 @@ const router = createRouter({
     {
       path: '/about',
       name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue')
+      component: () => import('../views/AboutView.vue'),
+      meta: { requiresLogin: true } // Requires login
     },
     {
       path: '/register',
       name: 'register',
-      component: RegisterView
+      component: RegisterView,
+      meta: { requiresGuest: true } // Requires guest (i.e., user should not be logged in)
     },
     {
       path: '/login',
-      name: 'login',
+      name: 'Login',
       component: LoginView
     }
   ]
 })
-router.beforeEach((to, from, next) => {
+
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
 
-  if (to.matched.some((record) => record.meta.requiredLogin)) {
+  // Ensure the session is validated before each route change
+  await authStore.checkSession()
+
+  if (to.matched.some((record) => record.meta.requiresLogin)) {
+    // Route requires login
     if (!authStore.isAuthenticated) {
-      next({ path: '/login' })
+      next({ name: 'Login' }) // Redirect to login if not logged in
     } else {
-      next()
+      next() // Proceed to the route
     }
+  } else if (to.meta.requiresGuest && authStore.isAuthenticated) {
+    // Route is guest-only, redirect to home if logged in
+    next({ name: 'home' })
   } else {
-    next()
+    next() // No restrictions, proceed to the route
   }
 })
 

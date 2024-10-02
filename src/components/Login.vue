@@ -44,18 +44,21 @@ export default defineComponent({
     const handlelogin = async () => {
       try {
         await authStore.login(formData.value.username, formData.value.password)
-        formData.value.username = ''
-        formData.value.password = ''
-        // errorMessage.value = resp.jwtToken
-        successMessage.value = 'Login successful! Redirecting to Home....'
+        if (authStore.loginResponse?.isLoggedIn) {
+          formData.value.username = ''
+          formData.value.password = ''
+          // errorMessage.value = resp.jwtToken
+          successMessage.value = 'Login successful! Redirecting to Home....'
+          errorMessage.value = ''
 
-        router.push('/')
+          router.push('/')
+        } else {
+          errorMessage.value = authStore.loginResponse.errors
+        }
       } catch (error) {
         // Handle unknown error
         if (error instanceof Error) {
-          errorMessage.value = error.message || 'Login failed. Please try again.'
-        } else {
-          errorMessage.value = 'An unexpected error occurred'
+          errorMessage.value = 'Unexpected Error'
         }
       }
     }

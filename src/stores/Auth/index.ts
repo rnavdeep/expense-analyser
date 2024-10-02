@@ -2,46 +2,59 @@ import { defineStore } from 'pinia'
 import AuthService from '@/services/AuthService'
 import EncryptionService from '@/services/EncryptionService'
 import { LoginDataDto } from '@/models/LoginData'
+import axios from 'axios'
+import { LoginResponse } from '@/models/LoginResponse'
+
 interface AuthState {
-  token: string | null
-  userName: string | null
+  userName: string
+  isSessionActive: boolean
+  loginResponse: LoginResponse
 }
 
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
-    token: localStorage.getItem('jwtToken'),
-    userName: localStorage.getItem('userName')
+    userName: '',
+    isSessionActive: false,
+    loginResponse: new LoginResponse(false, '')
   }),
 
   actions: {
     async login(username: string, password: string) {
       try {
-        // Encrypt login data
-        const loginDataDto = new LoginDataDto(username, password)
-        const encryptedData = EncryptionService.encrypt(loginDataDto)
-        // Call AuthService to log in
+        const encryptedData = EncryptionService.encrypt(new LoginDataDto(username, password))
 
-        const tokenLogin = await AuthService.Login(encryptedData)
-        localStorage.setItem('jwtToken', tokenLogin)
-        localStorage.setItem('userName', username)
-        this.token = tokenLogin
+        // Call AuthService to log in and get JWT token
+        const resp = await AuthService.Login(encryptedData)
+        this.loginResponse = new LoginResponse(resp.isLoggedIn, resp.errors)
+        // Optionally set username in the state directly
         this.userName = username
-
-        // Store the token in localStorage and state
+        this.isSessionActive = resp.isLoggedIn
       } catch (error) {
         throw new Error('Login failed. Please check your credentials.')
       }
     },
 
-    logout() {
-      this.token = null
-      this.userName = null
-      localStorage.removeItem('jwtToken')
-      localStorage.removeItem('userName')
+    async checkSession() {
+      try {
+        //call check session
+        const session = await AuthService.checkSession()
+
+        // Check if session is still valid, update the state accordingly
+        this.isSessionActive = session.isLoggedIn
+        this.userName = session.userName
+      } catch (error) {
+        this.logout() // If an error occurs, assume the session is invalid
+      }
+    },
+
+    async logout() {
+      await AuthService.Logout()
+      this.userName = ''
+      this.isSessionActive = false
     }
   },
 
   getters: {
-    isAuthenticated: (state) => !!state.token // Check if user is authenticated
+    isAuthenticated: (state) => state.isSessionActive // Check if user is authenticated
   }
 })
