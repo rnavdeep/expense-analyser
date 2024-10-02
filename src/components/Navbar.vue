@@ -12,12 +12,12 @@
       <div class="right-nav-container">
         <v-spacer> </v-spacer>
         <div v-if="!isUserLoggedIn" class="nav-links">
-          <v-btn text to="/login">Login</v-btn>
-          <v-btn text to="/register">Register</v-btn>
+          <v-btn to="/login">Login</v-btn>
+          <v-btn to="/register">Register</v-btn>
         </div>
         <div v-if="isUserLoggedIn && isLoggedIn">
-          <v-btn text @click.prevent="logout">Logout</v-btn>
-          <v-btn text to="/about">About</v-btn>
+          <v-btn @click.prevent="logout">Logout</v-btn>
+          <v-btn to="/about">About</v-btn>
         </div>
       </div>
     </v-container>
