@@ -20,6 +20,16 @@
         type="password"
       ></v-text-field>
 
+      <v-autocomplete
+        label="Roles"
+        v-model="formData.roles"
+        :items="roles"
+        multiple
+        required
+        chips
+        clearable
+      ></v-autocomplete>
+
       <div class="button-group">
         <v-btn type="submit" class="submit-btn" color="primary">Submit</v-btn>
       </div>
@@ -50,8 +60,11 @@ export default defineComponent({
       username: '',
       email: '',
       password: '',
-      confirmPassword: ''
+      confirmPassword: '',
+      roles: [] // Initialize roles as an empty array
     })
+
+    const roles = ref(['Reader', 'Writer', 'Editor', 'Admin']) // Predefined roles
 
     const errorMessage = ref('')
     const successMessage = ref('')
@@ -67,17 +80,17 @@ export default defineComponent({
         errorMessage.value = 'Passwords do not match!'
         return
       }
-      if (!validatePassword(formData.value.password)) {
-        errorMessage.value =
-          'Invalid password. It must be at least 8 characters long and include upper/lowercase letters, numbers, and special characters.'
-        return
-      }
+      // if (!validatePassword(formData.value.password)) {
+      //   errorMessage.value =
+      //     'Invalid password. It must be at least 8 characters long and include upper/lowercase letters, numbers, and special characters.'
+      //   return
+      // }
 
       const registerRequest = new RegisterRequestDto(
         formData.value.username,
         formData.value.password,
         formData.value.email,
-        ['Reader', 'Writer']
+        formData.value.roles // Include selected roles
       )
 
       try {
@@ -89,6 +102,7 @@ export default defineComponent({
         formData.value.email = ''
         formData.value.password = ''
         formData.value.confirmPassword = ''
+        formData.value.roles = [] // Clear roles after registration
         errorMessage.value = ''
         successMessage.value = 'Registration successful! Redirecting...'
 
@@ -108,6 +122,7 @@ export default defineComponent({
 
     return {
       formData,
+      roles,
       errorMessage,
       successMessage,
       handleRegister
@@ -134,9 +149,5 @@ export default defineComponent({
 
 .submit-btn {
   width: 100%; /* Full width for submit button */
-}
-.login-btn,
-.home-btn {
-  flex: 1; /* Flex to occupy equal space */
 }
 </style>

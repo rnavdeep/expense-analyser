@@ -22,7 +22,7 @@ export const useAuthStore = defineStore('auth', {
     async login(username: string, password: string) {
       try {
         const encryptedData = EncryptionService.encrypt(new LoginDataDto(username, password))
-
+        // const decryptedData = EncryptionService.decrypt(encryptedData)
         // Call AuthService to log in and get JWT token
         const resp = await AuthService.Login(encryptedData)
         this.loginResponse = new LoginResponse(resp.isLoggedIn, resp.errors)

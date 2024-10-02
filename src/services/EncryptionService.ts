@@ -30,6 +30,7 @@ class EncryptionService {
   decrypt(encryptedData: string): any {
     const bytes = CryptoJS.AES.decrypt(encryptedData, this.secretKey)
     const decryptedData = bytes.toString(CryptoJS.enc.Utf8)
+    console.log(decryptedData)
     return JSON.parse(decryptedData)
   }
 }

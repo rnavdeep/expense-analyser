@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import LoginView from '../views/LoginView.vue'
+import ExpenseCreateView from '../views/ExpenseCreateView.vue'
 import { useAuthStore } from '@/stores/Auth'
 
 const router = createRouter({
@@ -28,6 +29,12 @@ const router = createRouter({
       path: '/login',
       name: 'Login',
       component: LoginView
+    },
+    {
+      path: '/newExpense',
+      name: 'ExpenseCreate',
+      component: ExpenseCreateView,
+      meta: { requiresLogin: true } // Requires login
     }
   ]
 })

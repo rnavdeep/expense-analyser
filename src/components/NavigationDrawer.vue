@@ -5,6 +5,7 @@
         :prepend-avatar="userImage"
         :subtitle="userEmail"
         :title="userName"
+        href="/profile"
       ></v-list-item>
     </v-list>
 
@@ -12,30 +13,36 @@
 
     <v-list density="compact" nav>
       <v-list-item
-        prepend-icon="mdi-account-details"
+        prepend-icon="mdi-piggy-bank"
         title="My Expenses"
         value="expenses"
         to="/myExpenses"
       ></v-list-item>
       <v-list-item
-        prepend-icon="mdi-plus"
+        prepend-icon="mdi-receipt-text-plus"
         title="Create Expense"
         value="createExpense"
         to="/newExpense"
       ></v-list-item>
 
       <v-list-item
-        prepend-icon="mdi-star"
-        title="Starred"
-        value="starred"
-        to="/starred"
+        prepend-icon="mdi-account-group"
+        title="My Friends"
+        value="friends"
+        to="/friends"
       ></v-list-item>
       <!-- New List Item with Icon -->
       <v-list-item
-        prepend-icon="mdi-plus"
-        title="Settings"
-        value="settings"
-        to="/settings"
+        prepend-icon="mdi-account-plus"
+        title="Add Friend"
+        value="addFriend"
+        to="/addFriend"
+      ></v-list-item>
+      <v-list-item
+        prepend-icon="mdi-bell"
+        title="Notifications"
+        value="notifications"
+        to="/myNotification"
       ></v-list-item>
     </v-list>
   </v-navigation-drawer>
