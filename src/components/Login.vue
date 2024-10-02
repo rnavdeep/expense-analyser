@@ -1,25 +1,47 @@
 <template>
-  <div class="login-container">
-    <h1>Login</h1>
-    <form @submit.prevent="handlelogin">
-      <div class="form-group">
-        <label for="username">Username:</label>
-        <input type="text" id="username" v-model="formData.username" required />
-      </div>
-      <div class="form-group">
-        <label for="password">Password:</label>
-        <input type="password" id="password" v-model="formData.password" required />
-      </div>
-      <div class="button-group">
-        <button type="submit" class="btn submit-btn">Submit</button>
-        <router-link to="/">
-          <button class="btn home-btn">Home</button>
-        </router-link>
-      </div>
-    </form>
-    <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
-    <p v-if="successMessage" class="success">{{ successMessage }}</p>
-  </div>
+  <v-container class="login-container" fluid>
+    <v-card>
+      <v-card-title>
+        <h1>Login</h1>
+      </v-card-title>
+      <v-card-text>
+        <v-form @submit.prevent="handlelogin">
+          <v-text-field label="Username" v-model="formData.username" required></v-text-field>
+          <v-text-field
+            label="Password"
+            v-model="formData.password"
+            type="password"
+            required
+          ></v-text-field>
+
+          <div class="button-group">
+            <v-btn type="submit" color="primary">Submit</v-btn>
+            <router-link to="/">
+              <v-btn color="green">Home</v-btn>
+            </router-link>
+            <router-link to="/forgotPassword">
+              <v-btn color="red">Forgot Password?</v-btn>
+            </router-link>
+          </div>
+        </v-form>
+        <div class="alerts">
+          <v-alert
+            v-if="errorMessage"
+            border="start"
+            close-label="Close Alert"
+            color="red"
+            variant="tonal"
+            closable
+          >
+            {{ errorMessage }}
+          </v-alert>
+          <v-alert v-if="successMessage" type="success" dismissible>
+            {{ successMessage }}
+          </v-alert>
+        </div>
+      </v-card-text>
+    </v-card>
+  </v-container>
 </template>
 
 <script lang="ts">
@@ -43,11 +65,12 @@ export default defineComponent({
 
     const handlelogin = async () => {
       try {
+        errorMessage.value = ''
+
         await authStore.login(formData.value.username, formData.value.password)
         if (authStore.loginResponse?.isLoggedIn) {
           formData.value.username = ''
           formData.value.password = ''
-          // errorMessage.value = resp.jwtToken
           successMessage.value = 'Login successful! Redirecting to Home....'
           errorMessage.value = ''
 
@@ -75,63 +98,18 @@ export default defineComponent({
 
 <style scoped>
 .login-container {
-  max-width: 4000px;
-  width: 700px;
-  margin-left: 300px;
+  width: 750px;
+  margin: auto;
   padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-h1 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-label {
-  display: block;
-  margin-bottom: 5px;
-}
-
-input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
 .button-group {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-.btn {
-  padding: 10px 20px;
-  font-size: 20px;
-  cursor: pointer;
-  border: #0a0909;
-  border-radius: 10px;
-}
-.home-btn {
-  background-color: green;
-  color: white;
-}
-.btn:hover {
-  transform: translateY(-2px); /* Lift effect on hover */
-}
-
-.error {
-  color: red;
-  text-align: center;
+  display: list-item;
+  justify-content: space-between;
   margin-top: 10px;
 }
-.success {
-  color: green;
-  text-align: center;
+
+.alerts {
   margin-top: 10px;
 }
 </style>
