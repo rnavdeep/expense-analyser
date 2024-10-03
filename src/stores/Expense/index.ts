@@ -1,6 +1,5 @@
 import { ExpenseDataDto } from './../../models/ExpenseCreateForm'
 import { defineStore } from 'pinia'
-import EncryptionService from '@/services/EncryptionService'
 import ExpenseService from '@/services/ExpenseService'
 
 // Define the interface for NewExpense
@@ -8,6 +7,8 @@ interface NewExpense {
   title: string
   description: string
   amount: string
+  isUploading: boolean
+  uploadSuccess: boolean | null
 }
 
 // Define the Pinia store
@@ -15,36 +16,36 @@ export const useExpenseStore = defineStore('Expense', {
   state: (): NewExpense => ({
     title: '',
     description: '',
-    amount: ''
+    amount: '',
+    isUploading: false,
+    uploadSuccess: null
   }),
 
   actions: {
     async createExpense(data: ExpenseDataDto) {
+      // Ensure data is in the expected format before encryption
+      if (!data.title || !data.description || !data.files) {
+        throw new Error('All fields are required to create an expense.')
+      }
+
       try {
-        // Ensure data is in the expected format before encryption
-        if (!data.title || !data.description || !data.files) {
-          throw new Error('All fields are required to create an expense.')
-        }
-
-        // Encrypt the expense data
-        // const encryptedData = EncryptionService.encrypt(data)
-        //const descrypt = EncryptionService.decrypt(encryptedData)
+        this.isUploading = true
         // Call ExpenseService to create the new expense
-        const success = await ExpenseService.CreateExpense(data)
+        const resp = await ExpenseService.CreateExpense(data)
 
-        // Optionally handle success or response
-        if (success) {
-          console.log('Expense created successfully')
-        } else {
-          throw new Error('Failed to create expense')
+        if (resp) {
+          this.uploadSuccess = true
         }
       } catch (error) {
-        // Improve error message for clarity
-        console.error('Error creating expense:', error)
-        throw new Error('Failed to create expense. Please try again.')
+        this.uploadSuccess = false
+      } finally {
+        this.isUploading = false
       }
     }
   },
 
-  getters: {}
+  getters: {
+    isExpenseUploading: (state) => state.isUploading, // Check if expense is being created
+    isExpenseUploaded: (state) => state.uploadSuccess
+  }
 })
