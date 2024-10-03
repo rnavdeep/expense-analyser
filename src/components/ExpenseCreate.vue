@@ -4,7 +4,9 @@
       <v-col cols="12" md="6">
         <div class="expenseCard">
           <v-card>
-            <v-card-title>Create Expense</v-card-title>
+            <div class="cardTitle">
+              <v-card-title>New Expense</v-card-title>
+            </div>
 
             <v-card-text>
               <v-form ref="expenseForm" v-model="isFormValid" :disabled="isLoading">
@@ -27,7 +29,7 @@
 
                 <!-- File Input -->
                 <v-file-input
-                  label="File input"
+                  label="Drag and Drop Or Click Me"
                   ref="fileInput"
                   counter
                   multiple
@@ -39,12 +41,18 @@
 
             <v-card-actions>
               <v-btn color="primary" @click="submitForm" :disabled="!isFormValid || isLoading"
-                >Submit</v-btn
+                >Create Expense</v-btn
               >
-              <v-btn @click="resetForm" :disabled="isLoading">Reset</v-btn>
+              <v-btn @click="resetForm" :disabled="isLoading">Clear Expense</v-btn>
             </v-card-actions>
           </v-card>
+
+          <!-- Alert Messages -->
+          <v-alert v-if="alertMessage" :type="uploadSuccess ? 'success' : 'error'" variant="tonal">
+            {{ alertMessage }}
+          </v-alert>
         </div>
+
         <div class="loading" v-if="isLoading">
           <v-progress-circular
             color="primary"
@@ -66,7 +74,7 @@ import { useExpenseStore } from '@/stores/Expense'
 export default defineComponent({
   name: 'eaExpenseCreate',
   setup() {
-    const expenseStore = useExpenseStore() // Use store to manage expense state
+    const expenseStore = useExpenseStore()
 
     const formInput = ref<ExpenseCreateForm>({
       title: '',
@@ -74,11 +82,12 @@ export default defineComponent({
       files: [] as File[]
     })
 
+    const alertMessage = ref<string>('')
     const isFormValid = ref(false)
-    const fileInput = ref(null) // Declare ref for file input
+    const fileInput = ref(null)
 
-    const isLoading = computed(() => expenseStore.isExpenseUploading)
-    const isUploadedSuccess = computed(() => expenseStore.isExpenseUploaded)
+    const isLoading = computed(() => expenseStore.isUploading)
+    const uploadSuccess = computed(() => expenseStore.uploadSuccess)
 
     const rules = {
       required: (value: any) => !!value || 'This field is required'
@@ -102,10 +111,21 @@ export default defineComponent({
             formInput.value.files
           )
           await expenseStore.createExpense(expenseFormDto)
-          console.log('Expense created successfully')
-          resetForm()
+
+          // Set the alert message based on the upload success
+          if (uploadSuccess.value) {
+            alertMessage.value = 'Expense Created Successfully'
+          } else {
+            alertMessage.value = 'Error Creating Expense'
+          }
+
+          // Reset the form after 5 seconds
+          setTimeout(() => {
+            resetForm()
+          }, 5000)
         } catch (error) {
           console.error('Error creating expense:', error)
+          alertMessage.value = 'Error creating expense. Please try again.'
         }
       }
     }
@@ -120,7 +140,7 @@ export default defineComponent({
       if (fileInput.value) {
         ;(fileInput.value as any).reset()
       }
-
+      alertMessage.value = ''
       isFormValid.value = false
     }
 
@@ -132,7 +152,8 @@ export default defineComponent({
       submitForm,
       resetForm,
       isLoading,
-      isUploadedSuccess,
+      alertMessage,
+      uploadSuccess,
       fileInput
     }
   }
@@ -154,6 +175,10 @@ export default defineComponent({
   height: 80%;
   z-index: 1;
   background-color: inherit;
+  .cardTitle {
+    background: skyblue;
+    margin-bottom: 20px;
+  }
 }
 .loading {
   position: relative;

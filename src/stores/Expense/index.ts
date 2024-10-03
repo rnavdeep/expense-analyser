@@ -35,6 +35,8 @@ export const useExpenseStore = defineStore('Expense', {
 
         if (resp) {
           this.uploadSuccess = true
+        } else {
+          throw new Error('Unsuccessful')
         }
       } catch (error) {
         this.uploadSuccess = false
@@ -44,8 +46,5 @@ export const useExpenseStore = defineStore('Expense', {
     }
   },
 
-  getters: {
-    isExpenseUploading: (state) => state.isUploading, // Check if expense is being created
-    isExpenseUploaded: (state) => state.uploadSuccess
-  }
+  getters: {}
 })

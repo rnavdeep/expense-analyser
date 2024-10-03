@@ -11,7 +11,7 @@ class ExpenseService {
           'Content-Type': 'multipart/form-data'
         }
       })
-      return response.data.success
+      return response.status === 200
     } catch (error) {
       if (axios.isAxiosError(error)) {
         throw new Error(error.response?.data?.message || 'Failed to create expense')
