@@ -186,5 +186,6 @@ export default defineComponent({
   background-color: rgba(255, 255, 255, 0.8);
   padding: 100px;
   margin-left: 300px;
+  margin-top: 50px;
 }
 </style>
