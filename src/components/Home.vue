@@ -2,11 +2,19 @@
   <div class="home-container">
     <!-- Hero Section -->
     <div class="hero-section">
-      <img src="@/assets/eaIcon.png" alt="App Icon" class="app-icon" />
-      <h1>Expense Analyser</h1>
-      <p class="subtitle">Your one-stop solution for managing bills in one place.</p>
-      <p class="next">Register or Login to Continue</p>
-      <div class="button-group">
+      <!-- Uncomment this to display the app icon -->
+      <!-- <img src="@/assets/eaIcon.png" alt="App Icon" class="app-icon" /> -->
+      <!-- <h1>Expense Analyser</h1> -->
+      <p class="subtitle">
+        The Expense Analyzer is an application that uses AWS Textract to automatically extract and
+        analyze data from receipts. Users can upload images or PDFs of their receipts, from which
+        the app identifies key information like total amounts, dates, and merchant details. It
+        categorizes expenses, calculates totals, and provides data visualization tools to help users
+        understand their spending patterns. With a user-friendly interface and export options for
+        reports, the Expense Analyzer simplifies expense tracking and enhances financial insights.
+      </p>
+      <p v-if="!isUserLoggedIn" class="next">Register or Login to Continue</p>
+      <div v-if="!isUserLoggedIn" class="button-group">
         <router-link to="/login">
           <button class="btn login-btn">Login</button>
         </router-link>
@@ -26,14 +34,14 @@
           <p>Easily manage and organize all your bills in one place.</p>
         </div>
         <div class="feature-card">
-          <img src="@//assets/eaProcessIcon.png" alt="Process Receipts" />
+          <img src="@/assets/eaProcessIcon.png" alt="Process Receipts" />
           <h3>Process Receipts</h3>
           <p>Process receipts and bills to extract total and other information.</p>
         </div>
         <div class="feature-card">
-          <img src="@/assets/eaShareExpense.png" alt="Share Expense " />
+          <img src="@/assets/eaShareExpense.png" alt="Share Expense" />
           <h3>Share Expense</h3>
-          <p>Share Expense With other app users.</p>
+          <p>Share expenses with other app users.</p>
         </div>
       </div>
     </div>
@@ -54,10 +62,22 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, computed } from 'vue'
+import { useAuthStore } from '@/stores/Auth'
 
 export default defineComponent({
-  name: 'eaHome'
+  name: 'eaHome',
+  setup() {
+    const authStore = useAuthStore()
+
+    // Create a computed property for isUserLoggedIn
+    const isUserLoggedIn = computed(() => authStore.isAuthenticated)
+
+    return {
+      ...authStore,
+      isUserLoggedIn
+    }
+  }
 })
 </script>
 
@@ -65,20 +85,21 @@ export default defineComponent({
 /* Ensure the container fills the whole viewport */
 .home-container {
   display: flex;
-  flex-direction: row;
-  min-height: fit-content;
-  width: 1300px;
+  flex-direction: column;
+  min-height: calc(100vh - 60px); /* Adjust for navbar height */
+  width: 1300px; /* Keep original width */
+  margin: 0 auto; /* Center the container */
 }
 
-/* Hero Section: Full-screen height for this section */
+/* Hero Section: Centered content */
 .hero-section {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 40px 20px;
-  flex: 1;
   text-align: center;
+  padding: 40px 20px;
+  margin: 0; /* Ensure no additional margin */
 }
 
 .app-icon {
@@ -96,17 +117,20 @@ h1 {
   font-size: 18px;
   margin-bottom: 30px;
 }
+
 .next {
   font-size: larger;
   font-style: italic;
   margin-bottom: 10px;
 }
+
 .button-group {
   display: flex;
   justify-content: center;
   gap: 20px;
 }
 
+/* Button styles */
 .btn {
   padding: 10px 20px;
   font-size: 16px;
@@ -131,7 +155,8 @@ h1 {
 
 /* Features Section */
 .features-section {
-  padding: 60px 20px;
+  padding: 60px 20px; /* Keep original padding */
+  margin: 0; /* Ensure no additional margin */
 }
 
 .features-section h2 {
@@ -150,7 +175,7 @@ h1 {
   padding: 20px;
   background-color: #494a50; /* Light grey background for cards */
   border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(213, 30, 30, 0.1); /* Soft shadow effect */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Soft shadow effect */
   transition: transform 0.3s ease; /* Smooth hover transition */
   text-align: center;
 }
@@ -169,14 +194,14 @@ h1 {
   font-size: 24px;
   margin-bottom: 10px;
   font-style: italic;
-  font-weight: bolder;
+  font-weight: bold;
 }
 
 /* Testimonials Section */
 .testimonials-section {
-  background-color: #494a50;
   padding: 20px 20px;
   text-align: center;
+  margin: 0; /* Ensure no additional margin */
 }
 
 .testimonials-section h2 {
@@ -187,8 +212,8 @@ h1 {
 .testimonial {
   margin-bottom: 20px;
   max-width: 400px; /* Limit width for readability */
-  margin-left: 10px;
-  margin-right: 0px; /* Center testimonials */
+  margin-left: auto; /* Center testimonials */
+  margin-right: auto; /* Center testimonials */
 }
 
 .testimonial p {

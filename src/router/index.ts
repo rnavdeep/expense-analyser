@@ -1,5 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import RegisterView from '../views/RegisterView.vue'
+import LoginView from '../views/LoginView.vue'
+import ExpenseCreateView from '../views/ExpenseCreateView.vue'
+import ExpenseListView from '../views/ExpenseListView.vue'
+import { useAuthStore } from '@/stores/Auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,12 +17,54 @@ const router = createRouter({
     {
       path: '/about',
       name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue')
+      component: () => import('../views/AboutView.vue'),
+      meta: { requiresLogin: true } // Requires login
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: RegisterView,
+      meta: { requiresGuest: true } // Requires guest (i.e., user should not be logged in)
+    },
+    {
+      path: '/login',
+      name: 'Login',
+      component: LoginView
+    },
+    {
+      path: '/newExpense',
+      name: 'ExpenseCreate',
+      component: ExpenseCreateView,
+      meta: { requiresLogin: true } // Requires login
+    },
+    {
+      path: '/myExpenses',
+      name: 'ExpenseList',
+      component: ExpenseListView,
+      meta: { requiresLogin: true } // Requires login
     }
   ]
+})
+
+router.beforeEach(async (to, from, next) => {
+  const authStore = useAuthStore()
+
+  // Ensure the session is validated before each route change
+  await authStore.checkSession()
+
+  if (to.matched.some((record) => record.meta.requiresLogin)) {
+    // Route requires login
+    if (!authStore.isAuthenticated) {
+      next({ name: 'Login' }) // Redirect to login if not logged in
+    } else {
+      next() // Proceed to the route
+    }
+  } else if (to.meta.requiresGuest && authStore.isAuthenticated) {
+    // Route is guest-only, redirect to home if logged in
+    next({ name: 'home' })
+  } else {
+    next() // No restrictions, proceed to the route
+  }
 })
 
 export default router
