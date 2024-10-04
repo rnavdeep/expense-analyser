@@ -14,3 +14,18 @@ export class ExpenseDataDto {
     this.files = files
   }
 }
+export class ExpenseListDataDto {
+  id: string
+  title: string
+  description: string
+  amount: number
+  createdAt: string
+
+  constructor(id: string, title: string, description: string, amount: number, createdAt: string) {
+    this.id = id
+    this.title = title
+    this.description = description
+    this.amount = amount
+    this.createdAt = createdAt
+  }
+}

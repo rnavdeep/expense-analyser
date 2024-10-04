@@ -1,4 +1,4 @@
-import { ExpenseDataDto } from './../../models/ExpenseCreateForm'
+import { ExpenseDataDto, ExpenseListDataDto } from './../../models/ExpenseCreateForm'
 import { defineStore } from 'pinia'
 import ExpenseService from '@/services/ExpenseService'
 
@@ -42,6 +42,23 @@ export const useExpenseStore = defineStore('Expense', {
         this.uploadSuccess = false
       } finally {
         this.isUploading = false
+      }
+    },
+    async GetExpenses(): Promise<ExpenseListDataDto[]> {
+      try {
+        const resp = await ExpenseService.GetExpenses()
+        return resp
+      } catch (error) {
+        console.log('Error loading expenses')
+        throw new Error('Failed')
+      }
+    },
+    async DeleteExpense(expense: ExpenseListDataDto): Promise<any> {
+      try {
+        return await ExpenseService.DeleteExpense(expense)
+      } catch (error) {
+        console.log('Error loading expenses')
+        throw new Error('Failed')
       }
     }
   },
