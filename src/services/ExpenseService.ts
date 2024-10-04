@@ -1,4 +1,3 @@
-import { ExpenseListDataDto } from './../models/ExpenseCreateForm'
 import type { ExpenseListDataDto } from '@/models/ExpenseCreateForm'
 import axios from 'axios'
 
