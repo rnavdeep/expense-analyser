@@ -1,3 +1,4 @@
+import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
 import type { ExpenseListDataDto } from '@/models/ExpenseCreateForm'
 import axios from 'axios'
 
@@ -42,6 +43,24 @@ class ExpenseService {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         throw new Error(error.response?.data?.message || 'Failed to create expense')
+      }
+      throw new Error('An unexpected error occurred')
+    }
+  }
+  async GetDocByExpenseId(id: string): Promise<DocumentDialogDto[]> {
+    try {
+      const resp = await axios.get(`${API_URL}/getDocs/${id}`, {
+        withCredentials: true
+      })
+
+      // Check if there's a 204 No Content response
+      if (resp.status === 204) {
+        return []
+      }
+      return resp.data as DocumentDialogDto[]
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to retrieve documents')
       }
       throw new Error('An unexpected error occurred')
     }

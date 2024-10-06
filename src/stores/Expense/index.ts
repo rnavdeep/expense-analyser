@@ -1,6 +1,7 @@
 import { ExpenseDataDto, ExpenseListDataDto } from './../../models/ExpenseCreateForm'
 import { defineStore } from 'pinia'
 import ExpenseService from '@/services/ExpenseService'
+import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
 
 // Define the interface for NewExpense
 interface NewExpense {
@@ -56,6 +57,15 @@ export const useExpenseStore = defineStore('Expense', {
     async DeleteExpense(expense: ExpenseListDataDto): Promise<any> {
       try {
         return await ExpenseService.DeleteExpense(expense)
+      } catch (error) {
+        console.log('Error loading expenses')
+        throw new Error('Failed')
+      }
+    },
+    async GetDocByExpenseId(expenseId: string): Promise<DocumentDialogDto[]> {
+      try {
+        const resp = await ExpenseService.GetDocByExpenseId(expenseId)
+        return resp as DocumentDialogDto[]
       } catch (error) {
         console.log('Error loading expenses')
         throw new Error('Failed')
