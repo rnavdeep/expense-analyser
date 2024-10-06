@@ -104,9 +104,10 @@ export default defineComponent({
 }
 
 .button-group {
-  display: list-item;
+  display: flex;
   justify-content: space-between;
-  margin-top: 10px;
+  margin: 10px;
+  align-content: center;
 }
 
 .alerts {

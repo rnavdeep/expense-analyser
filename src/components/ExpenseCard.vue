@@ -69,22 +69,35 @@
     </v-dialog>
 
     <!-- Dialog for viewing attached documents -->
-    <v-dialog v-model="dialogDocs" max-width="500">
-      <v-card>
-        <v-card-title>Attached Bills</v-card-title>
-        <v-card-text>
-          <ol>
-            <li v-for="(doc, index) in documents" :key="index">
-              <a :href="doc.url" target="_blank">{{ doc.name }}</a>
-            </li>
-          </ol>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn text="Close" @click="dialogDocs = false">Close</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <vue-resizable>
+      <div class="resizable-box">
+        <v-dialog v-model="dialogDocs" max-width="500">
+          <v-card>
+            <v-card-title class="docTitle">Attached Bills</v-card-title>
+            <v-card-text>
+              <ol class="eachDoc">
+                <li v-for="(doc, index) in documents" :key="index" class="document-item">
+                  <span class="doc-index">{{ index + 1 }}.</span>
+                  <p class="docName">{{ doc.name }}</p>
+                  <v-tooltip :text="`Download ${doc.name}`" location="top">
+                    <template v-slot:activator="{ props }">
+                      <a :href="doc.url" v-bind="props" target="_blank"
+                        ><v-icon>mdi-download</v-icon></a
+                      >
+                    </template>
+                  </v-tooltip>
+                  <v-divider :opacity="100" style="width: 400px; margin-left: 40px"></v-divider>
+                </li>
+              </ol>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn text="Close" @click="dialogDocs = false">Close</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </div>
+    </vue-resizable>
   </v-card>
 </template>
 
@@ -94,6 +107,7 @@ import type { ExpenseListDataDto } from '@/models/ExpenseCreateForm'
 import { defineComponent } from 'vue'
 import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
 import { useExpenseStore } from '@/stores/Expense'
+import VueResizable from 'vue-resizable'
 
 interface ExpenseCardProps {
   expense: ExpenseListDataDto
@@ -102,6 +116,8 @@ interface ExpenseCardProps {
 
 export default defineComponent({
   name: 'eaExpenseCard',
+  components: { VueResizable },
+
   props: {
     expense: {
       type: Object as () => ExpenseListDataDto,
@@ -159,7 +175,8 @@ export default defineComponent({
       saveExpense,
       openDocumentsDialog,
       documents,
-      editExpense
+      editExpense,
+      VueResizable
     }
   }
 })
@@ -172,7 +189,9 @@ export default defineComponent({
   margin: 10px;
   overflow: hidden;
 }
-
+.v-card-title {
+  background: skyblue;
+}
 .cardTitle {
   display: flex;
   background: skyblue;
@@ -190,5 +209,33 @@ export default defineComponent({
 
 .v-icon {
   margin: 5px;
+}
+.resizable-box {
+  height: 100%;
+  width: 100%;
+  background-color: aqua; /* Background color to help visualize the resizable area */
+  position: relative; /* Set to relative for proper positioning of children */
+}
+.eachDoc {
+  list-style: none;
+  padding: 0;
+  counter-reset: item;
+}
+
+.document-item {
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.doc-index {
+  text-align: right;
+  font-weight: bold;
+}
+
+.docName {
+  margin: 0;
 }
 </style>
