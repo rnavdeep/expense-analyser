@@ -33,12 +33,7 @@
                 <eaUploadDocs :expense-id="expenseId.value" />
                 <v-tooltip text="Upload Bills" location="top">
                   <template v-slot:activator="{ props }">
-                    <v-btn
-                      text
-                      @click="openDocumentDialog"
-                      :disabled="!uploadSuccess"
-                      v-bind="props"
-                    >
+                    <v-btn @click="openDocumentDialog" :disabled="!uploadSuccess" v-bind="props">
                       <v-icon left>mdi-upload</v-icon>
                       Upload
                     </v-btn>
