@@ -69,35 +69,33 @@
     </v-dialog>
 
     <!-- Dialog for viewing attached documents -->
-    <vue-resizable>
-      <div class="resizable-box">
-        <v-dialog v-model="dialogDocs" max-width="500">
-          <v-card>
-            <v-card-title class="docTitle">Attached Bills</v-card-title>
-            <v-card-text>
-              <ol class="eachDoc">
-                <li v-for="(doc, index) in documents" :key="index" class="document-item">
-                  <span class="doc-index">{{ index + 1 }}.</span>
-                  <p class="docName">{{ doc.name }}</p>
-                  <v-tooltip :text="`Download ${doc.name}`" location="top">
-                    <template v-slot:activator="{ props }">
-                      <a :href="doc.url" v-bind="props" target="_blank"
-                        ><v-icon>mdi-download</v-icon></a
-                      >
-                    </template>
-                  </v-tooltip>
-                  <v-divider :opacity="100" style="width: 400px; margin-left: 40px"></v-divider>
-                </li>
-              </ol>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn text="Close" @click="dialogDocs = false">Close</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </div>
-    </vue-resizable>
+    <div class="resizable-box">
+      <v-dialog v-model="dialogDocs" max-width="500">
+        <v-card>
+          <v-card-title class="docTitle">Attached Bills</v-card-title>
+          <v-card-text>
+            <ol class="eachDoc">
+              <li v-for="(doc, index) in documents" :key="index" class="document-item">
+                <span class="doc-index">{{ index + 1 }}.</span>
+                <p class="docName">{{ doc.name }}</p>
+                <v-tooltip :text="`Download ${doc.name}`" location="top">
+                  <template v-slot:activator="{ props }">
+                    <a :href="doc.url" v-bind="props" target="_blank"
+                      ><v-icon>mdi-download</v-icon></a
+                    >
+                  </template>
+                </v-tooltip>
+                <v-divider :opacity="100" style="width: 400px; margin-left: 40px"></v-divider>
+              </li>
+            </ol>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn text="Close" @click="dialogDocs = false">Close</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </div>
   </v-card>
 </template>
 
@@ -107,7 +105,6 @@ import type { ExpenseListDataDto } from '@/models/ExpenseCreateForm'
 import { defineComponent } from 'vue'
 import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
 import { useExpenseStore } from '@/stores/Expense'
-import VueResizable from 'vue-resizable'
 
 interface ExpenseCardProps {
   expense: ExpenseListDataDto
@@ -116,7 +113,6 @@ interface ExpenseCardProps {
 
 export default defineComponent({
   name: 'eaExpenseCard',
-  components: { VueResizable },
 
   props: {
     expense: {
@@ -175,8 +171,7 @@ export default defineComponent({
       saveExpense,
       openDocumentsDialog,
       documents,
-      editExpense,
-      VueResizable
+      editExpense
     }
   }
 })
@@ -189,9 +184,11 @@ export default defineComponent({
   margin: 10px;
   overflow: hidden;
 }
+
 .v-card-title {
   background: skyblue;
 }
+
 .cardTitle {
   display: flex;
   background: skyblue;
@@ -206,16 +203,16 @@ export default defineComponent({
   text-overflow: clip;
   white-space: normal;
 }
-
 .v-icon {
   margin: 5px;
 }
 .resizable-box {
   height: 100%;
   width: 100%;
-  background-color: aqua; /* Background color to help visualize the resizable area */
-  position: relative; /* Set to relative for proper positioning of children */
+  background-color: aqua;
+  position: relative;
 }
+
 .eachDoc {
   list-style: none;
   padding: 0;

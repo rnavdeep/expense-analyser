@@ -5,34 +5,57 @@ import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
 
 // Define the interface for NewExpense
 interface NewExpense {
+  expenseId: string | null
   title: string
   description: string
   amount: string
   isUploading: boolean
   uploadSuccess: boolean | null
+  dialogUploadDocs: boolean
 }
 
 // Define the Pinia store
 export const useExpenseStore = defineStore('Expense', {
   state: (): NewExpense => ({
+    expenseId: null,
     title: '',
     description: '',
     amount: '',
     isUploading: false,
-    uploadSuccess: null
+    uploadSuccess: null,
+    dialogUploadDocs: false
   }),
 
   actions: {
-    async createExpense(data: ExpenseDataDto) {
-      // Ensure data is in the expected format before encryption
+    async createExpense(data: ExpenseDataDto): Promise<any> {
+      // Ensure data is in the expected format before proceeding
       if (!data.title || !data.description || !data.files) {
         throw new Error('All fields are required to create an expense.')
       }
 
       try {
         this.isUploading = true
+        // Call ExpenseService to create the new expense -- returns expenseId
+        const response = await ExpenseService.CreateExpense(data)
+        this.expenseId = response
+        return response
+      } catch (error) {
+        this.uploadSuccess = false
+        console.error('Error creating expense:', error)
+      } finally {
+        this.isUploading = false
+      }
+    },
+    async uploadExpenseDoc(data: any) {
+      // Ensure data is in the expected format before encryption
+      if (!data.id || !data.file) {
+        throw new Error('All fields are required to upload an expense document.')
+      }
+
+      try {
+        this.isUploading = true
         // Call ExpenseService to create the new expense
-        const resp = await ExpenseService.CreateExpense(data)
+        const resp = await ExpenseService.UploadExpenseDoc(data)
 
         if (resp) {
           this.uploadSuccess = true

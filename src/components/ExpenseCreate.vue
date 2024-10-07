@@ -36,6 +36,11 @@
                   show-size
                   @change="handleFileInput"
                 ></v-file-input>
+                <eaUploadDocs :expense-id="expenseId.value" />
+                <v-btn text @click="openDocumentDialog">
+                  <v-icon left>mdi-upload</v-icon>
+                  Upload
+                </v-btn>
               </v-form>
             </v-card-text>
 
@@ -70,9 +75,10 @@
 import { computed, defineComponent, ref } from 'vue'
 import { ExpenseDataDto, type ExpenseCreateForm } from '../models/ExpenseCreateForm'
 import { useExpenseStore } from '@/stores/Expense'
-
+import eaUploadDocs from './DocumentUpload.vue'
 export default defineComponent({
   name: 'eaExpenseCreate',
+  components: { eaUploadDocs },
   setup() {
     const expenseStore = useExpenseStore()
 
@@ -85,9 +91,10 @@ export default defineComponent({
     const alertMessage = ref<string>('')
     const isFormValid = ref(false)
     const fileInput = ref(null)
-
+    const expenseId = ref<any>('')
     const isLoading = computed(() => expenseStore.isUploading)
     const uploadSuccess = computed(() => expenseStore.uploadSuccess)
+    expenseId.value = computed(() => expenseStore.expenseId)
 
     const rules = {
       required: (value: any) => !!value || 'This field is required'
@@ -100,7 +107,9 @@ export default defineComponent({
         formInput.value.files = Array.from(input.files)
       }
     }
-
+    const openDocumentDialog = () => {
+      expenseStore.dialogUploadDocs = true
+    }
     // Method to submit the form
     const submitForm = async () => {
       if (isFormValid.value) {
@@ -110,8 +119,7 @@ export default defineComponent({
             formInput.value.description,
             formInput.value.files
           )
-          await expenseStore.createExpense(expenseFormDto)
-
+          const resp = await expenseStore.createExpense(expenseFormDto)
           // Set the alert message based on the upload success
           if (uploadSuccess.value) {
             alertMessage.value = 'Expense Created Successfully'
@@ -121,7 +129,8 @@ export default defineComponent({
 
           // Reset the form after 5 seconds
           setTimeout(() => {
-            resetForm()
+            alertMessage.value = ''
+            // resetForm()
           }, 5000)
         } catch (error) {
           console.error('Error creating expense:', error)
@@ -154,7 +163,9 @@ export default defineComponent({
       isLoading,
       alertMessage,
       uploadSuccess,
-      fileInput
+      fileInput,
+      openDocumentDialog,
+      expenseId
     }
   }
 })

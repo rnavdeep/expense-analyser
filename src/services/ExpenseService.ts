@@ -5,7 +5,7 @@ import axios from 'axios'
 const API_URL = 'http://localhost:5223/api/Expense' // Set your API URL here
 
 class ExpenseService {
-  async CreateExpense(data: any): Promise<boolean> {
+  async CreateExpense(data: any): Promise<string> {
     try {
       const response = await axios.post(`${API_URL}/createForm`, data, {
         withCredentials: true,
@@ -13,10 +13,26 @@ class ExpenseService {
           'Content-Type': 'multipart/form-data'
         }
       })
-      return response.status === 200
+      return response.data.id
     } catch (error) {
       if (axios.isAxiosError(error)) {
         throw new Error(error.response?.data?.message || 'Failed to create expense')
+      }
+      throw new Error('An unexpected error occurred')
+    }
+  }
+  async UploadExpenseDoc(data: any): Promise<DocumentDialogDto> {
+    try {
+      const response = await axios.post(`${API_URL}/uploadDoc`, data, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+      return response.data
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to upload expense document')
       }
       throw new Error('An unexpected error occurred')
     }
