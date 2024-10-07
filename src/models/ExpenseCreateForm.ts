@@ -6,14 +6,13 @@ export interface ExpenseCreateForm {
 export class ExpenseDataDto {
   title: string
   description: string
-  files: Object[] // Array of File objects
 
-  constructor(title: string, description: string, files: Object[]) {
+  constructor(title: string, description: string) {
     this.title = title
     this.description = description
-    this.files = files
   }
 }
+
 export class ExpenseListDataDto {
   id: string
   title: string
