@@ -80,8 +80,15 @@
                 <p class="docName">{{ doc.name }}</p>
                 <v-tooltip :text="`Download ${doc.name}`" location="top">
                   <template v-slot:activator="{ props }">
-                    <a :href="doc.url" v-bind="props" target="_blank"
-                      ><v-icon>mdi-download</v-icon></a
+                    <a :href="doc.url" v-bind="props" target="_blank">
+                      <v-icon class="download">mdi-download</v-icon>
+                    </a>
+                  </template>
+                </v-tooltip>
+                <v-tooltip :text="`Delete ${doc.name}`" location="top">
+                  <template v-slot:activator="{ props }">
+                    <v-icon @click="deleteFile(doc.id)" v-bind="props" class="delete"
+                      >mdi-trash-can</v-icon
                     >
                   </template>
                 </v-tooltip>
@@ -105,6 +112,7 @@ import type { ExpenseListDataDto } from '@/models/ExpenseCreateForm'
 import { defineComponent } from 'vue'
 import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
 import { useExpenseStore } from '@/stores/Expense'
+import { useDocumentStore } from '@/stores/Document'
 
 interface ExpenseCardProps {
   expense: ExpenseListDataDto
@@ -133,16 +141,19 @@ export default defineComponent({
     const editDescription = ref(props.expense.description)
     const documents = ref<DocumentDialogDto[]>([])
     const expenseStore = useExpenseStore()
+    const docStore = useDocumentStore()
 
     const openEditDialog = () => {
       dialogEdit.value = true
     }
+
     const editExpense = () => {
       console.log('Users')
     }
+
     const openDocumentsDialog = async () => {
       dialogDocs.value = true
-      var result = await expenseStore.GetDocByExpenseId(props.expense.id)
+      const result = await expenseStore.GetDocByExpenseId(props.expense.id)
       documents.value = result
     }
 
@@ -160,6 +171,15 @@ export default defineComponent({
       dialogEdit.value = false
     }
 
+    const deleteFile = async (docId: string) => {
+      try {
+        await docStore.deleteDocumentFromExpense(docId)
+        documents.value = documents.value.filter((doc) => doc.id !== docId) // Remove document from state
+      } catch (error) {
+        console.error('Error deleting document:', error)
+      }
+    }
+
     return {
       dialogEdit,
       dialogDocs,
@@ -171,7 +191,8 @@ export default defineComponent({
       saveExpense,
       openDocumentsDialog,
       documents,
-      editExpense
+      editExpense,
+      deleteFile
     }
   }
 })
@@ -203,9 +224,11 @@ export default defineComponent({
   text-overflow: clip;
   white-space: normal;
 }
+
 .v-icon {
   margin: 5px;
 }
+
 .resizable-box {
   height: 100%;
   width: 100%;
@@ -221,7 +244,7 @@ export default defineComponent({
 
 .document-item {
   display: grid;
-  grid-template-columns: 30px 1fr auto;
+  grid-template-columns: 30px 1fr auto auto;
   align-items: center;
   gap: 10px;
   margin-bottom: 10px;
@@ -234,5 +257,19 @@ export default defineComponent({
 
 .docName {
   margin: 0;
+}
+
+.v-icon[style] {
+  cursor: pointer;
+}
+
+.v-icon.download {
+  color: green;
+  margin-left: 20px;
+}
+
+.v-icon.delete {
+  color: darkred;
+  margin-left: 10px;
 }
 </style>

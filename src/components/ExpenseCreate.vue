@@ -16,6 +16,7 @@
                   label="Title"
                   :rules="[rules.required]"
                   required
+                  :disabled="uploadSuccess"
                 ></v-text-field>
 
                 <!-- Description Field -->
@@ -25,30 +26,45 @@
                   :rules="[rules.required]"
                   required
                   textarea
+                  :disabled="uploadSuccess"
                 ></v-text-field>
 
-                <!-- File Input -->
-                <v-file-input
-                  label="Drag and Drop Or Click Me"
-                  ref="fileInput"
-                  counter
-                  multiple
-                  show-size
-                  @change="handleFileInput"
-                ></v-file-input>
+                <!-- Document Uploaed -->
                 <eaUploadDocs :expense-id="expenseId.value" />
-                <v-btn text @click="openDocumentDialog">
-                  <v-icon left>mdi-upload</v-icon>
-                  Upload
-                </v-btn>
+                <v-tooltip text="Upload Bills" location="top">
+                  <template v-slot:activator="{ props }">
+                    <v-btn
+                      text
+                      @click="openDocumentDialog"
+                      :disabled="!uploadSuccess"
+                      v-bind="props"
+                    >
+                      <v-icon left>mdi-upload</v-icon>
+                      Upload
+                    </v-btn>
+                  </template>
+                </v-tooltip>
               </v-form>
             </v-card-text>
 
             <v-card-actions>
-              <v-btn color="primary" @click="submitForm" :disabled="!isFormValid || isLoading"
+              <v-btn
+                color="primary"
+                @click="submitForm"
+                :disabled="!isFormValid || isLoading || uploadSuccess"
                 >Create Expense</v-btn
               >
-              <v-btn @click="resetForm" :disabled="isLoading">Clear Expense</v-btn>
+              <v-tooltip text="Clear form and create new expense" location="top">
+                <template v-slot:activator="{ props }">
+                  <v-btn
+                    style="color: cornflowerblue"
+                    @click="resetForm"
+                    :disabled="isLoading"
+                    v-bind="props"
+                    >Upload New Expense</v-btn
+                  >
+                </template>
+              </v-tooltip>
             </v-card-actions>
           </v-card>
 
@@ -75,19 +91,22 @@
 import { computed, defineComponent, ref } from 'vue'
 import { ExpenseDataDto, type ExpenseCreateForm } from '../models/ExpenseCreateForm'
 import { useExpenseStore } from '@/stores/Expense'
+import { useDocumentStore } from '@/stores/Document'
 import eaUploadDocs from './DocumentUpload.vue'
 export default defineComponent({
   name: 'eaExpenseCreate',
   components: { eaUploadDocs },
   setup() {
     const expenseStore = useExpenseStore()
-
+    const docStore = useDocumentStore()
     const formInput = ref<ExpenseCreateForm>({
       title: '',
       description: '',
       files: [] as File[]
     })
-
+    expenseStore.expenseId = null
+    docStore.documents = []
+    expenseStore.uploadSuccess = false
     const alertMessage = ref<string>('')
     const isFormValid = ref(false)
     const fileInput = ref(null)
@@ -100,13 +119,6 @@ export default defineComponent({
       required: (value: any) => !!value || 'This field is required'
     }
 
-    // Method to handle file input
-    const handleFileInput = (event: Event) => {
-      const input = event.target as HTMLInputElement
-      if (input.files) {
-        formInput.value.files = Array.from(input.files)
-      }
-    }
     const openDocumentDialog = () => {
       expenseStore.dialogUploadDocs = true
     }
@@ -116,8 +128,7 @@ export default defineComponent({
         try {
           const expenseFormDto = new ExpenseDataDto(
             formInput.value.title,
-            formInput.value.description,
-            formInput.value.files
+            formInput.value.description
           )
           const resp = await expenseStore.createExpense(expenseFormDto)
           // Set the alert message based on the upload success
@@ -151,13 +162,14 @@ export default defineComponent({
       }
       alertMessage.value = ''
       isFormValid.value = false
+      expenseStore.uploadSuccess = false
+      docStore.documents = []
     }
 
     return {
       formInput,
       isFormValid,
       rules,
-      handleFileInput,
       submitForm,
       resetForm,
       isLoading,

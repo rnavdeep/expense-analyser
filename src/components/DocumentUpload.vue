@@ -15,6 +15,7 @@
             show-size
             :multiple="false"
             @change="uploadFile"
+            :disabled="isDocumentUploading"
           ></v-file-input>
         </v-card-text>
 
@@ -30,7 +31,10 @@
               <p class="docName">{{ doc.name }}</p>
               <v-tooltip :text="`Delete ${doc.name}`" location="top">
                 <template v-slot:activator="{ props }">
-                  <v-icon v-bind="props" style="color: dark-red; margin-left: 40px"
+                  <v-icon
+                    @click="deleteFile(doc.id)"
+                    v-bind="props"
+                    style="color: dark-red; margin-left: 40px"
                     >mdi-trash-can</v-icon
                   >
                 </template>
@@ -39,6 +43,24 @@
             </li>
           </ol>
         </v-card-text>
+
+        <div class="loading" v-if="isDocumentUploading">
+          <v-progress-circular
+            color="primary"
+            indeterminate
+            :size="67"
+            :width="5"
+          ></v-progress-circular>
+        </div>
+
+        <!-- Alert Messages -->
+        <v-alert
+          v-if="alertMessage.trim().length > 0"
+          :type="alertMessage === 'Success' ? 'success' : 'error'"
+          variant="tonal"
+        >
+          {{ alertMessage }}
+        </v-alert>
 
         <!-- Dialog actions -->
         <v-card-actions>
@@ -53,7 +75,7 @@
 <script lang="ts">
 import { computed, ref } from 'vue'
 import { defineComponent } from 'vue'
-import { CreateDocumentDto, type DocumentDialogDto } from '@/models/DocumentDialogDto'
+import { CreateDocumentDto } from '@/models/DocumentDialogDto'
 import { useExpenseStore } from '@/stores/Expense'
 import { useDocumentStore } from '@/stores/Document'
 export default defineComponent({
@@ -64,13 +86,15 @@ export default defineComponent({
       required: false
     }
   },
-  setup(props) {
+  setup() {
     const expenseStore = useExpenseStore()
     const dialogUploadDocs = computed(() => expenseStore.dialogUploadDocs)
     const expenseId = computed(() => expenseStore.expenseId)
     const fileInput = ref(null)
     const docStore = useDocumentStore()
     const documents = computed(() => docStore.documents)
+    const isDocumentUploading = computed(() => docStore.loading)
+    const alertMessage = computed(() => docStore.alertMessage)
 
     const formInput = ref({
       file: null as File | null
@@ -87,15 +111,21 @@ export default defineComponent({
         // Call the store function to upload the document
         const result = await docStore.uploadExpenseDoc(uploadData)
         console.log(result)
+        // Reset the form after 1 second
+        setTimeout(() => {
+          docStore.alertMessage = ''
+          formInput.value.file = null
+          fileInput.value = null
+        }, 1000)
       }
     }
 
     const closeDocumentDialog = () => {
       expenseStore.dialogUploadDocs = false
     }
+
     const deleteFile = async (docId: string) => {
       console.log(`Delete document: ${docId}`)
-      //call store to invoke delete
       await docStore.deleteDocument(docId)
     }
 
@@ -105,7 +135,9 @@ export default defineComponent({
       documents,
       closeDocumentDialog,
       fileInput,
-      deleteFile
+      deleteFile,
+      isDocumentUploading,
+      alertMessage
     }
   }
 })
@@ -146,5 +178,13 @@ export default defineComponent({
 
 .docName {
   margin: 0;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  margin-top: 20px;
 }
 </style>

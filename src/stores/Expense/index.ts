@@ -10,7 +10,7 @@ interface NewExpense {
   description: string
   amount: string
   isUploading: boolean
-  uploadSuccess: boolean | null
+  uploadSuccess: boolean
   dialogUploadDocs: boolean
 }
 
@@ -22,14 +22,14 @@ export const useExpenseStore = defineStore('Expense', {
     description: '',
     amount: '',
     isUploading: false,
-    uploadSuccess: null,
+    uploadSuccess: false,
     dialogUploadDocs: false
   }),
 
   actions: {
     async createExpense(data: ExpenseDataDto): Promise<any> {
       // Ensure data is in the expected format before proceeding
-      if (!data.title || !data.description || !data.files) {
+      if (!data.title || !data.description) {
         throw new Error('All fields are required to create an expense.')
       }
 
@@ -38,12 +38,12 @@ export const useExpenseStore = defineStore('Expense', {
         // Call ExpenseService to create the new expense -- returns expenseId
         const response = await ExpenseService.CreateExpense(data)
         this.expenseId = response
+        this.uploadSuccess = true
+        this.isUploading = false
         return response
       } catch (error) {
         this.uploadSuccess = false
         console.error('Error creating expense:', error)
-      } finally {
-        this.isUploading = false
       }
     },
     async uploadExpenseDoc(data: any) {

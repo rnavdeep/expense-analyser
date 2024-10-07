@@ -7,7 +7,8 @@ import ExpenseService from '@/services/ExpenseService'
 export const useDocumentStore = defineStore('document', {
   state: () => ({
     documents: [] as DocumentDialogDto[],
-    loading: false
+    loading: false,
+    alertMessage: ''
   }),
 
   actions: {
@@ -25,20 +26,27 @@ export const useDocumentStore = defineStore('document', {
         // this.loading = false
       }
     },
-
+    async deleteDocumentFromExpense(docId: string): Promise<void> {
+      try {
+        await DocumentService.DeleteDocument(docId)
+      } catch (error) {
+        throw new Error('Failed to delete document')
+      }
+    },
     async uploadExpenseDoc(data: any) {
       if (!data.id || !data.file) {
         throw new Error('All fields are required to upload an expense document.')
       }
 
       try {
-        //   this.isUploading = true
+        this.loading = true
         // Call ExpenseService to create the new expense
         const resp = await ExpenseService.UploadExpenseDoc(data)
 
         if (resp) {
-          // this.uploadSuccess = true
           this.documents.push(resp)
+          this.loading = false
+          this.alertMessage = 'Success'
         } else {
           throw new Error('Unsuccessful')
         }
