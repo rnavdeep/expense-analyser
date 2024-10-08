@@ -21,7 +21,7 @@
           :expense="expense"
           :index="index"
           @edit="editExpense"
-          @delete="deleteExpense"
+          @delete="deleteExpense(expense)"
         />
       </v-col>
     </v-row>
@@ -36,30 +36,25 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref, computed } from 'vue'
+import { defineComponent, onMounted, computed, ref } from 'vue'
 import eaExpenseCard from './ExpenseCard.vue'
 import { useExpenseStore } from '@/stores/Expense'
-import { ExpenseListDataDto } from '@/models/ExpenseCreateForm'
 
 export default defineComponent({
   name: 'eaExpenseList',
   components: { eaExpenseCard },
   setup() {
     const expenseStore = useExpenseStore()
-    const expenses = ref<ExpenseListDataDto[]>([])
+
+    // Use expenses from the store
+    const isLoading = computed(() => expenseStore.isPageLoading)
+    const expenses = computed(() => expenseStore.expenses)
     const currentPage = ref(1)
     const itemsPerPage = ref(9)
-    const isLoading = ref(true)
 
     // Fetch expenses on mount
     onMounted(async () => {
-      try {
-        const fetchedExpenses = await expenseStore.GetExpenses()
-        expenses.value = fetchedExpenses
-        isLoading.value = false
-      } catch (error) {
-        isLoading.value = false
-      }
+      await expenseStore.GetExpenses()
     })
 
     // Pagination logic
@@ -70,7 +65,6 @@ export default defineComponent({
       return expenses.value.slice(start, end)
     })
 
-    // Event handler for page change -- this will call backend once pagination is done in backend.
     const onPageChange = (page: number) => {
       currentPage.value = page
     }
@@ -80,12 +74,13 @@ export default defineComponent({
       const expense = paginatedExpenses.value[index]
     }
 
-    const deleteExpense = async (index: number, expense: ExpenseListDataDto) => {
-      console.log(`Delete expense at index: ${expense}`)
-      if ((await expenseStore.DeleteExpense(expense)) == true) {
-        expenses.value = expenses.value.filter((exp) => exp.id !== expense.id)
-      } else {
-        console.log('Error deleting expense')
+    const deleteExpense = async (expense: any) => {
+      console.log(`Delete expense: ${expense.title}`)
+      try {
+        await expenseStore.DeleteExpense(expense)
+        await expenseStore.GetExpenses()
+      } catch (error) {
+        console.error('Error deleting expense:', error)
       }
     }
 
