@@ -173,7 +173,7 @@ export default defineComponent({
       const success = await expenseStore.updateExpense(id, updatedExpense)
 
       if (success) {
-        props.expense = editTitle.value
+        props.expense.title = editTitle.value
         props.expense.description = editDescription.value
       }
 
