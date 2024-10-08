@@ -37,7 +37,7 @@
 
         <v-tooltip text="Users Expense Shared With" location="top">
           <template v-slot:activator="{ props }">
-            <v-icon v-bind="props" @click="editExpense">mdi-account-group</v-icon>
+            <v-icon v-bind="props" @click="editExpense(expense.id)">mdi-account-group</v-icon>
           </template>
         </v-tooltip>
       </v-col>
@@ -145,7 +145,9 @@ export default defineComponent({
       const result = await expenseStore.GetDocByExpenseId(props.expense.id)
       documents.value = result
     }
-
+    const editExpense = (expenseId: string) => {
+      console.log('Users')
+    }
     const deleteExpense = () => {
       emit('delete', props.index, props.expense)
     }
@@ -186,7 +188,8 @@ export default defineComponent({
       deleteFile,
       isUpdating,
       isUpdateSuccessful,
-      processExpense
+      processExpense,
+      editExpense
     }
   }
 })
