@@ -122,8 +122,7 @@ export const useExpenseStore = defineStore('Expense', {
     async DeleteExpense(expense: ExpenseListDataDto): Promise<any> {
       try {
         const response = await ExpenseService.DeleteExpense(expense)
-        // After deleting, fetch the updated list of expenses
-        await this.GetExpenses()
+        this.expenses = this.expenses.filter((exp) => exp.id !== expense.id)
         return response
       } catch (error) {
         console.log('Error deleting expense')
