@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-mutating-props -->
 <template>
   <v-card variant="elevated" class="fixed-card-size">
     <div class="cardTitle">
@@ -172,7 +173,7 @@ export default defineComponent({
       const success = await expenseStore.updateExpense(id, updatedExpense)
 
       if (success) {
-        props.expense.title = editTitle.value
+        props.expense = editTitle.value
         props.expense.description = editDescription.value
       }
 
