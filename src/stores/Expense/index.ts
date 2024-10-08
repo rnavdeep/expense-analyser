@@ -1,8 +1,11 @@
-import { ExpenseDataDto, ExpenseListDataDto } from './../../models/ExpenseCreateForm'
+import {
+  ExpenseDataDto,
+  ExpenseListDataDto,
+  type UpdateExpenseDto
+} from './../../models/ExpenseCreateForm'
 import { defineStore } from 'pinia'
 import ExpenseService from '@/services/ExpenseService'
 import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
-
 // Define the interface for NewExpense
 interface NewExpense {
   expenseId: string | null
@@ -12,6 +15,8 @@ interface NewExpense {
   isUploading: boolean
   uploadSuccess: boolean
   dialogUploadDocs: boolean
+  isUpdating: boolean
+  isUpdateSuccessful: boolean
 }
 
 // Define the Pinia store
@@ -23,7 +28,9 @@ export const useExpenseStore = defineStore('Expense', {
     amount: '',
     isUploading: false,
     uploadSuccess: false,
-    dialogUploadDocs: false
+    dialogUploadDocs: false,
+    isUpdating: false,
+    isUpdateSuccessful: false
   }),
 
   actions: {
@@ -43,6 +50,23 @@ export const useExpenseStore = defineStore('Expense', {
         return response
       } catch (error) {
         this.uploadSuccess = false
+        console.error('Error creating expense:', error)
+      }
+    },
+    async updateExpense(id: string, data: UpdateExpenseDto): Promise<any> {
+      // Ensure data is in the expected format before proceeding
+      if (!data.title || !data.description || !id) {
+        throw new Error('All fields are required to create an expense.')
+      }
+      try {
+        this.isUpdating = true
+        // Call ExpenseService to create the new expense -- returns expenseId
+        const response = await ExpenseService.updateExpense(id, data)
+        this.isUpdating = false
+        this.isUpdateSuccessful = true
+        return response
+      } catch (error) {
+        this.isUpdateSuccessful = false
         console.error('Error creating expense:', error)
       }
     },

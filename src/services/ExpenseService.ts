@@ -1,5 +1,5 @@
 import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
-import type { ExpenseListDataDto } from '@/models/ExpenseCreateForm'
+import type { ExpenseListDataDto, UpdateExpenseDto } from '@/models/ExpenseCreateForm'
 import axios from 'axios'
 
 const API_URL = 'http://localhost:5223/api/Expense' // Set your API URL here
@@ -21,6 +21,18 @@ class ExpenseService {
       throw new Error('An unexpected error occurred')
     }
   }
+  async updateExpense(id: string, updateExpenseDto: UpdateExpenseDto) {
+    try {
+      const response = await axios.put(`${API_URL}/updateExpense/${id}`, updateExpenseDto, {
+        withCredentials: true
+      })
+
+      return response.data
+    } catch (error) {
+      return error
+    }
+  }
+
   async UploadExpenseDoc(data: any): Promise<DocumentDialogDto> {
     try {
       const response = await axios.post(`${API_URL}/uploadDoc`, data, {

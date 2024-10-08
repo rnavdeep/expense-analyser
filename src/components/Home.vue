@@ -82,13 +82,14 @@ export default defineComponent({
 </script>
 
 <style scoped>
-/* Ensure the container fills the whole viewport */
 .home-container {
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 60px); /* Adjust for navbar height */
-  width: 1300px; /* Keep original width */
-  margin: 0 auto; /* Center the container */
+  min-height: calc(100vh - 60px);
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
 /* Hero Section: Centered content */
@@ -99,7 +100,6 @@ export default defineComponent({
   align-items: center;
   text-align: center;
   padding: 40px 20px;
-  margin: 0; /* Ensure no additional margin */
 }
 
 .app-icon {
@@ -128,6 +128,7 @@ h1 {
   display: flex;
   justify-content: center;
   gap: 20px;
+  flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
 }
 
 /* Button styles */
@@ -155,8 +156,7 @@ h1 {
 
 /* Features Section */
 .features-section {
-  padding: 60px 20px; /* Keep original padding */
-  margin: 0; /* Ensure no additional margin */
+  padding: 60px 20px;
 }
 
 .features-section h2 {
@@ -201,7 +201,6 @@ h1 {
 .testimonials-section {
   padding: 20px 20px;
   text-align: center;
-  margin: 0; /* Ensure no additional margin */
 }
 
 .testimonials-section h2 {
@@ -225,5 +224,39 @@ h1 {
 .testimonial span {
   font-size: 14px;
   color: #777;
+}
+
+/* Media Queries for responsiveness  ---- ToDO*/
+@media (max-width: 768px) {
+  .hero-section h1 {
+    font-size: 28px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+  }
+
+  .features-section h2 {
+    font-size: 36px;
+  }
+
+  .feature-card h3 {
+    font-size: 20px;
+  }
+
+  .btn {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section {
+    padding: 20px 10px;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

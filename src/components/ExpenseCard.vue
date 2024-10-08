@@ -57,13 +57,12 @@
         <v-card-title>Edit Expense</v-card-title>
         <v-card-text>
           <v-text-field label="Title" v-model="editTitle"></v-text-field>
-          <v-text-field label="Amount" v-model="editAmount" type="number"></v-text-field>
           <v-textarea label="Description" v-model="editDescription"></v-textarea>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn text="Cancel" @click="dialogEdit = false">Cancel</v-btn>
-          <v-btn text="Save" @click="saveExpense">Save</v-btn>
+          <v-btn text="Save" @click="saveExpense(expense.id)">Save</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -107,12 +106,13 @@
 </template>
 
 <script lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { ExpenseListDataDto } from '@/models/ExpenseCreateForm'
 import { defineComponent } from 'vue'
 import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
 import { useExpenseStore } from '@/stores/Expense'
 import { useDocumentStore } from '@/stores/Document'
+import { UpdateExpenseDto } from '../models/ExpenseCreateForm'
 
 interface ExpenseCardProps {
   expense: ExpenseListDataDto
@@ -142,12 +142,16 @@ export default defineComponent({
     const documents = ref<DocumentDialogDto[]>([])
     const expenseStore = useExpenseStore()
     const docStore = useDocumentStore()
+    const isUpdating = computed(() => expenseStore.isUpdating)
+    const isUpdateSuccessful = computed(() => expenseStore.isUpdateSuccessful)
 
     const openEditDialog = () => {
       dialogEdit.value = true
+      editTitle.value = props.expense.title
+      editDescription.value = props.expense.description
     }
 
-    const editExpense = () => {
+    const editExpense = (expenseId: string) => {
       console.log('Users')
     }
 
@@ -161,13 +165,17 @@ export default defineComponent({
       emit('delete', props.index, props.expense)
     }
 
-    const saveExpense = () => {
-      const updatedExpense = {
-        title: editTitle.value,
-        amount: editAmount.value,
-        description: editDescription.value
-      }
+    const saveExpense = async (id: string) => {
+      const updatedExpense = new UpdateExpenseDto(id, editTitle.value, editDescription.value)
+      console.log(id)
       emit('edit', props.index, updatedExpense)
+      const success = await expenseStore.updateExpense(id, updatedExpense)
+
+      if (success) {
+        props.expense.title = editTitle.value
+        props.expense.description = editDescription.value
+      }
+
       dialogEdit.value = false
     }
 
@@ -192,7 +200,9 @@ export default defineComponent({
       openDocumentsDialog,
       documents,
       editExpense,
-      deleteFile
+      deleteFile,
+      isUpdating,
+      isUpdateSuccessful
     }
   }
 })
@@ -201,7 +211,7 @@ export default defineComponent({
 <style scoped>
 .fixed-card-size {
   width: 350px;
-  height: 200px;
+  height: 210px;
   margin: 10px;
   overflow: hidden;
 }
