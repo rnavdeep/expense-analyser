@@ -5,6 +5,11 @@ import axios from 'axios'
 const API_URL = 'http://localhost:5223/api/Expense' // Set your API URL here
 
 class ExpenseService {
+  /**
+   *
+   * @param data : of type ExpenseDataDto
+   * @returns : Guid Id of new Expense
+   */
   async CreateExpense(data: any): Promise<string> {
     try {
       const response = await axios.post(`${API_URL}/createForm`, data, {
@@ -21,6 +26,12 @@ class ExpenseService {
       throw new Error('An unexpected error occurred')
     }
   }
+  /**
+   *
+   * @param id : Guid id of Expense to update
+   * @param updateExpenseDto : UpdateExpenseDto form data.
+   * @returns : Updated Expense
+   */
   async updateExpense(id: string, updateExpenseDto: UpdateExpenseDto) {
     try {
       const response = await axios.put(`${API_URL}/updateExpense/${id}`, updateExpenseDto, {
@@ -32,7 +43,11 @@ class ExpenseService {
       return error
     }
   }
-
+  /**
+   *
+   * @param data : File to upload of type CreateDocumentDto
+   * @returns : Uploaded document of type DocumentDialogDto
+   */
   async UploadExpenseDoc(data: any): Promise<DocumentDialogDto> {
     try {
       const response = await axios.post(`${API_URL}/uploadDoc`, data, {
@@ -49,6 +64,10 @@ class ExpenseService {
       throw new Error('An unexpected error occurred')
     }
   }
+  /**
+   *
+   * @returns : List of ExpenseListDataDto for logged in user.
+   */
   async GetExpenses(): Promise<ExpenseListDataDto[]> {
     try {
       const response = await axios.get(`${API_URL}/myExpenses`, {
@@ -62,6 +81,11 @@ class ExpenseService {
       throw new Error('An unexpected error occurred')
     }
   }
+  /**
+   *
+   * @param expense : ExpenseListDataDto object to delete
+   * @returns: Boolean return of whether expense is deleted or not
+   */
   async DeleteExpense(expense: ExpenseListDataDto): Promise<any> {
     try {
       const resp = await axios.delete(`${API_URL}/${expense.id}`, {
@@ -75,6 +99,11 @@ class ExpenseService {
       throw new Error('An unexpected error occurred')
     }
   }
+  /**
+   *
+   * @param id : Expense id as input to fetch documents.
+   * @returns : List of all documents attached to expenseId passed.
+   */
   async GetDocByExpenseId(id: string): Promise<DocumentDialogDto[]> {
     try {
       const resp = await axios.get(`${API_URL}/getDocs/${id}`, {

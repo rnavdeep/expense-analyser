@@ -2,10 +2,12 @@ export class DocumentDialogDto {
   id: string
   name: string
   url: string
-  constructor(id: string, name: string, url: string) {
+  jobStatus: any
+  constructor(id: string, name: string, url: string, jobStatus: any) {
     this.id = id
     this.name = name
     this.url = url
+    this.jobStatus = jobStatus
   }
 }
 export class CreateDocumentDto {

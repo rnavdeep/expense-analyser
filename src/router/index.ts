@@ -74,18 +74,18 @@ router.beforeEach(async (to, from, next) => {
     next() // No restrictions, proceed to the route
   }
 
-  // Set the page title and meta description
-  const defaultTitle = 'Default Title'
-  const defaultDescription = 'Default Description'
+  // // Set the page title and meta description
+  // const defaultTitle = 'Default Title'
+  // const defaultDescription = 'Default Description'
 
-  const title = to.meta?.title || defaultTitle
-  document.title = title
+  // const title = to.meta?.title || defaultTitle
+  // document.title = title
 
-  const description = to.meta?.description || defaultDescription
-  const descriptionElement = document.querySelector('head meta[name="description"]')
-  if (descriptionElement) {
-    descriptionElement.setAttribute('content', description)
-  }
+  // const description = to.meta?.description || defaultDescription
+  // const descriptionElement = document.querySelector('head meta[name="description"]')
+  // if (descriptionElement) {
+  //   descriptionElement.setAttribute('content', description)
+  // }
 })
 
 export default router

@@ -19,13 +19,13 @@
 
         <v-tooltip text="Delete Expense" location="top">
           <template v-slot:activator="{ props }">
-            <v-icon v-bind="props" @click="deleteExpense">mdi-trash-can</v-icon>
+            <v-icon v-bind="props" @click="confirmDeletion">mdi-trash-can</v-icon>
           </template>
         </v-tooltip>
 
         <v-tooltip text="Process Expense" location="top">
           <template v-slot:activator="{ props }">
-            <v-icon v-bind="props" @click="processExpense(expense.id)">mdi-home-analytics</v-icon>
+            <v-icon v-bind="props">mdi-home-analytics</v-icon>
           </template>
         </v-tooltip>
 
@@ -82,13 +82,53 @@
                   >
                 </template>
               </v-tooltip>
-              <v-divider :opacity="100" style="width: 400px; margin-left: 40px"></v-divider>
+              <v-tooltip :text="`Process ${doc.name}`" location="top">
+                <template v-slot:activator="{ props }">
+                  <v-icon
+                    :disabled="isProcessButtonDisabled(doc)"
+                    @click="openConfirmProcessDialog(doc)"
+                    v-bind="props"
+                    class="process"
+                    >mdi-head-snowflake</v-icon
+                  >
+                </template>
+              </v-tooltip>
             </li>
           </ol>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn text="Close" @click="dialogDocs = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Nested Confirmation Dialog for Processing -->
+    <v-dialog v-model="dialogConfirmProcess" max-width="400">
+      <v-card>
+        <v-card-title>Confirm Processing</v-card-title>
+        <v-card-text>
+          Are you sure you want to process the document <strong>{{ selectedDocument?.name }}</strong
+          >?
+        </v-card-text>
+        <v-card-actions>
+          <v-btn text="Cancel" @click="dialogConfirmProcess = false">Cancel</v-btn>
+          <v-btn text="Ok" @click="confirmProcessExpenseDoc">Ok</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="deleteConfirmed" max-width="400">
+      <v-card>
+        <v-card-title>Confirm Delete</v-card-title>
+        <v-card-text>
+          Expense deletion will remove attached bills and processed bills results. <br />
+          Are you sure you want to delete the expense <strong>{{ expense.title }}</strong
+          >?
+        </v-card-text>
+        <v-card-actions>
+          <v-btn text="Cancel" @click="deleteConfirmed = false">Cancel</v-btn>
+          <v-btn text="Ok" @click="deleteExpense()">Ok</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -103,6 +143,7 @@ import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
 import { useExpenseStore } from '@/stores/Expense'
 import { useDocumentStore } from '@/stores/Document'
 import { UpdateExpenseDto } from '../models/ExpenseCreateForm'
+import { useExtractStore } from '@/stores/Extract'
 
 interface ExpenseCardProps {
   expense: ExpenseListDataDto
@@ -126,13 +167,17 @@ export default defineComponent({
   setup(props: ExpenseCardProps, { emit }) {
     const dialogEdit = ref(false)
     const dialogDocs = ref(false)
+    const dialogConfirmProcess = ref(false)
     const editTitle = ref(props.expense.title)
     const editDescription = ref(props.expense.description)
     const documents = ref<DocumentDialogDto[]>([])
+    const selectedDocument = ref<DocumentDialogDto | null>(null)
     const expenseStore = useExpenseStore()
     const docStore = useDocumentStore()
+    const extractStore = useExtractStore()
     const isUpdating = computed(() => expenseStore.isUpdating)
     const isUpdateSuccessful = computed(() => expenseStore.isUpdateSuccessful)
+    const deleteConfirmed = ref(false)
 
     const openEditDialog = () => {
       dialogEdit.value = true
@@ -145,11 +190,31 @@ export default defineComponent({
       const result = await expenseStore.GetDocByExpenseId(props.expense.id)
       documents.value = result
     }
+    const confirmDeletion = () => {
+      return (deleteConfirmed.value = true)
+    }
+    const openConfirmProcessDialog = (doc: DocumentDialogDto) => {
+      selectedDocument.value = doc
+      dialogConfirmProcess.value = true
+    }
+
+    const confirmProcessExpenseDoc = () => {
+      if (selectedDocument.value) {
+        processExpenseDoc(props.expense.id, selectedDocument.value.id)
+        dialogConfirmProcess.value = false
+        selectedDocument.value.jobStatus = 0
+      }
+    }
+
     const editExpense = (expenseId: string) => {
       console.log('Users')
     }
+
     const deleteExpense = () => {
-      emit('delete', props.index, props.expense)
+      if (deleteConfirmed.value == true) {
+        emit('delete', props.index, props.expense)
+        deleteConfirmed.value = false
+      }
     }
 
     const saveExpense = async (id: string) => {
@@ -167,17 +232,27 @@ export default defineComponent({
     const deleteFile = async (docId: string) => {
       try {
         await docStore.deleteDocumentFromExpense(docId)
-        documents.value = documents.value.filter((doc) => doc.id !== docId) // Remove document from state
+        documents.value = documents.value.filter((doc) => doc.id !== docId)
       } catch (error) {
         console.error('Error deleting document:', error)
       }
     }
+    const isProcessButtonDisabled = (doc: DocumentDialogDto): boolean => {
+      return doc.jobStatus != null
+    }
 
-    const processExpense = async (expenseId: string) => {}
+    const processExpenseDoc = async (expenseId: string, docId: string) => {
+      try {
+        await extractStore.startExpenseAnalysis({ expenseId, docId })
+      } catch (error) {
+        console.error(error)
+      }
+    }
 
     return {
       dialogEdit,
       dialogDocs,
+      dialogConfirmProcess,
       editTitle,
       editDescription,
       openEditDialog,
@@ -188,8 +263,14 @@ export default defineComponent({
       deleteFile,
       isUpdating,
       isUpdateSuccessful,
-      processExpense,
-      editExpense
+      processExpenseDoc,
+      openConfirmProcessDialog,
+      confirmProcessExpenseDoc,
+      selectedDocument,
+      editExpense,
+      isProcessButtonDisabled,
+      confirmDeletion,
+      deleteConfirmed
     }
   }
 })
@@ -244,29 +325,28 @@ export default defineComponent({
 }
 
 .document-item {
-  display: grid;
-  grid-template-columns: 30px 1fr auto auto;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 10px;
   margin-bottom: 10px;
 }
 
-.doc-index {
-  text-align: right;
-  font-weight: bold;
-}
-
 .docName {
+  flex-grow: 1;
   margin: 0;
 }
 
 .v-icon.download {
   color: green;
-  margin-left: 20px;
+  margin-left: 10px;
 }
 
 .v-icon.delete {
   color: darkred;
+  margin-left: 10px;
+}
+.v-icon.process {
+  color: darkblue;
   margin-left: 10px;
 }
 </style>
