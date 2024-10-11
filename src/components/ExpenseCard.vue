@@ -23,12 +23,6 @@
           </template>
         </v-tooltip>
 
-        <v-tooltip text="Process Expense" location="top">
-          <template v-slot:activator="{ props }">
-            <v-icon v-bind="props">mdi-home-analytics</v-icon>
-          </template>
-        </v-tooltip>
-
         <v-tooltip text="Attached Bills" location="top">
           <template v-slot:activator="{ props }">
             <v-icon v-bind="props" @click="openDocumentsDialog">mdi-file-document-multiple</v-icon>
@@ -298,6 +292,8 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   margin-right: 10px;
+  margin-top: 10px;
+  height: 250px;
 }
 
 .v-icon {
