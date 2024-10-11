@@ -12,36 +12,44 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView
+      component: HomeView,
+      meta: {
+        title: 'Home',
+        description: 'Landing Page'
+      }
     },
     {
       path: '/about',
       name: 'about',
       component: () => import('../views/AboutView.vue'),
-      meta: { requiresLogin: true } // Requires login
+      meta: { requiresLogin: true, title: 'About', description: 'About Page' }
     },
     {
       path: '/register',
       name: 'register',
       component: RegisterView,
-      meta: { requiresGuest: true } // Requires guest (i.e., user should not be logged in)
+      meta: { requiresGuest: true, title: 'Register', description: 'Registration Page' }
     },
     {
       path: '/login',
       name: 'Login',
-      component: LoginView
+      component: LoginView,
+      meta: {
+        title: 'Login',
+        description: 'Login Page'
+      }
     },
     {
       path: '/newExpense',
       name: 'ExpenseCreate',
       component: ExpenseCreateView,
-      meta: { requiresLogin: true } // Requires login
+      meta: { requiresLogin: true, title: 'New Expense', description: 'Create a new expense' }
     },
     {
       path: '/myExpenses',
       name: 'ExpenseList',
       component: ExpenseListView,
-      meta: { requiresLogin: true } // Requires login
+      meta: { requiresLogin: true, title: 'Expenses', description: 'Expenses Listing' }
     }
   ]
 })
@@ -64,6 +72,19 @@ router.beforeEach(async (to, from, next) => {
     next({ name: 'home' })
   } else {
     next() // No restrictions, proceed to the route
+  }
+
+  // Set the page title and meta description
+  const defaultTitle = 'Default Title'
+  const defaultDescription = 'Default Description'
+
+  const title = to.meta?.title || defaultTitle
+  document.title = title
+
+  const description = to.meta?.description || defaultDescription
+  const descriptionElement = document.querySelector('head meta[name="description"]')
+  if (descriptionElement) {
+    descriptionElement.setAttribute('content', description)
   }
 })
 
