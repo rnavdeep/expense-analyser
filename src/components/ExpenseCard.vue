@@ -1,7 +1,7 @@
 <template>
   <v-card variant="elevated" class="fixed-card-size">
     <v-row class="align-items-center">
-      <v-col class="title-col">
+      <v-col class="title-col" style="overflow: hidden">
         <v-card-title>{{ expense.title }}</v-card-title>
         <v-card-subtitle>Amount: ${{ expense.amount }}</v-card-subtitle>
         <v-card-subtitle>Created At: {{ expense.createdAt }}</v-card-subtitle>
@@ -232,7 +232,7 @@ export default defineComponent({
       }
     }
     const isProcessButtonDisabled = (doc: DocumentDialogDto): boolean => {
-      return doc.jobStatus != null
+      return doc.jobStatus != null && doc.jobStatus != 2
     }
 
     const processExpenseDoc = async (expenseId: string, docId: string) => {

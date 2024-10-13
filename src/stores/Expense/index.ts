@@ -138,6 +138,15 @@ export const useExpenseStore = defineStore('Expense', {
         console.log('Error loading expense documents')
         throw new Error('Failed to load documents')
       }
+    },
+    async GetDocResults(expenseId: string, docId: string): Promise<any> {
+      try {
+        const resp = await ExpenseService.GetDocResults(expenseId, docId)
+        return resp
+      } catch (error) {
+        console.log('Error loading expense documents')
+        throw new Error('Failed to load documents')
+      }
     }
   },
 
