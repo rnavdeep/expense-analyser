@@ -47,11 +47,11 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-import { type RegisterData } from '@/models/RegisterData'
+import { type RegisterData } from '../models/RegisterData'
 import { useRouter } from 'vue-router'
-import AuthService from '@/services/AuthService'
-import { RegisterRequestDto } from '@/models/RegisterData'
-import EncryptionService from '@/services/EncryptionService'
+import AuthService from '../services/AuthService'
+import { RegisterRequestDto } from '../models/RegisterData'
+import EncryptionService from '../services/EncryptionService'
 
 export default defineComponent({
   name: 'eaRegister',

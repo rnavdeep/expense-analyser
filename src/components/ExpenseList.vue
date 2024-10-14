@@ -38,7 +38,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, computed, ref } from 'vue'
 import eaExpenseCard from './ExpenseCard.vue'
-import { useExpenseStore } from '@/stores/Expense'
+import { useExpenseStore } from '../stores/Expense'
 
 export default defineComponent({
   name: 'eaExpenseList',

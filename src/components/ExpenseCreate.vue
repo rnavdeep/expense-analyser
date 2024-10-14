@@ -85,9 +85,10 @@
 <script lang="ts">
 import { computed, defineComponent, ref } from 'vue'
 import { ExpenseDataDto, type ExpenseCreateForm } from '../models/ExpenseCreateForm'
-import { useExpenseStore } from '@/stores/Expense'
-import { useDocumentStore } from '@/stores/Document'
+import { useExpenseStore } from '../stores/Expense'
+import { useDocumentStore } from '../stores/Document'
 import eaUploadDocs from './DocumentUpload.vue'
+
 export default defineComponent({
   name: 'eaExpenseCreate',
   components: { eaUploadDocs },

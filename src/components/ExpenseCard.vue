@@ -131,13 +131,13 @@
 
 <script lang="ts">
 import { computed, ref } from 'vue'
-import type { ExpenseListDataDto } from '@/models/ExpenseCreateForm'
+import type { ExpenseListDataDto } from '../models/ExpenseCreateForm'
 import { defineComponent } from 'vue'
-import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
-import { useExpenseStore } from '@/stores/Expense'
-import { useDocumentStore } from '@/stores/Document'
+import type { DocumentDialogDto } from '../models/DocumentDialogDto'
+import { useExpenseStore } from '../stores/Expense'
+import { useDocumentStore } from '../stores/Document'
 import { UpdateExpenseDto } from '../models/ExpenseCreateForm'
-import { useExtractStore } from '@/stores/Extract'
+import { useExtractStore } from '../stores/Extract'
 
 interface ExpenseCardProps {
   expense: ExpenseListDataDto
@@ -158,6 +158,7 @@ export default defineComponent({
     }
   },
   emits: ['edit', 'delete'],
+
   setup(props: ExpenseCardProps, { emit }) {
     const dialogEdit = ref(false)
     const dialogDocs = ref(false)
@@ -309,11 +310,10 @@ export default defineComponent({
 .v-card-title {
   background: skyblue;
   margin-bottom: 10px;
-  .v-card-subtitle {
-    margin-bottom: 10px;
-  }
 }
-
+.v-card-title.v-card-subtitle {
+  margin-bottom: 10px;
+}
 .eachDoc {
   list-style: none;
   padding: 0;

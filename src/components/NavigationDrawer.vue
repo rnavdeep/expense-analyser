@@ -57,14 +57,12 @@
 
 <script lang="ts">
 import { computed, defineComponent, onMounted } from 'vue'
-import { useAuthStore } from '@/stores/Auth'
-import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/Auth'
 import eaIcon from '../assets/eaIcon.png'
 export default defineComponent({
   name: 'eaNavigationDrawer',
   setup() {
     const authStore = useAuthStore()
-    const route = useRouter()
     const userImage = eaIcon
     const isUserLoggedIn = computed(() => authStore.isAuthenticated)
     const userName = computed(() => authStore.userName)
@@ -75,15 +73,9 @@ export default defineComponent({
 
     const isLoggedIn = computed(() => authStore.isSessionActive)
 
-    const logout = () => {
-      authStore.logout()
-      route.push('/')
-    }
-
     return {
       isUserLoggedIn,
       userName,
-      logout,
       isLoggedIn,
       userImage,
       userEmail
