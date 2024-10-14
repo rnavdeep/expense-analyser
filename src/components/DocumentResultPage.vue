@@ -40,8 +40,21 @@
 
       <!-- Separate row for the submit button -->
       <v-row>
-        <v-col cols="12" class="d-flex justify-end">
+        <v-col cols="12" class="d-flex justify-center">
           <v-btn color="primary" @click="getResults" class="submit-btn">Submit</v-btn>
+        </v-col>
+      </v-row>
+
+      <v-row v-if="isSummaryAvailable">
+        <v-col cols="12">
+          <v-card flat class="summary-card">
+            <v-card-title>{{ expenseResults?.extractSummary().NAME }}</v-card-title>
+            <v-card-subtitle>{{ expenseResults?.extractSummary().ADDRESS }}</v-card-subtitle>
+            <v-card-text>Total: {{ expenseResults?.extractSummary().TOTAL }}</v-card-text>
+            <v-card-actions>
+              <v-btn color="warning" @click="removeSummary()">Remove Summary</v-btn>
+            </v-card-actions>
+          </v-card>
         </v-col>
       </v-row>
 
@@ -69,6 +82,14 @@
               ></v-data-table>
             </v-card-text>
           </v-card>
+          <div class="loading" v-if="loading">
+            <v-progress-circular
+              color="primary"
+              indeterminate
+              :size="100"
+              :width="2.5"
+            ></v-progress-circular>
+          </div>
         </v-col>
       </v-row>
     </v-container>
@@ -80,6 +101,7 @@ import { computed, defineComponent, onMounted, ref, watch } from 'vue'
 import { useExpenseStore } from '@/stores/Expense'
 import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
 import { ExpenseListDataDto } from '../models/ExpenseCreateForm'
+import ExpenseResults from '../models/ExpenseResults'
 
 export default defineComponent({
   name: 'eaDocResultPage',
@@ -87,13 +109,14 @@ export default defineComponent({
     const expenseStore = useExpenseStore()
     const search = ''
     const columnData = ref<Array<any>>([])
-
+    const expenseResults = ref<ExpenseResults | null>(null)
     const expenseTitles = computed(() => expenseStore.expenses)
     const documents = ref<DocumentDialogDto[]>([])
     const selectedExpense = ref<ExpenseListDataDto | null>(null)
     const selectedDocument = ref<DocumentDialogDto | null>(null)
     const columns = ref<Array<any>>([])
-
+    const loading = ref<boolean>(false)
+    const isSummaryAvailable = ref<boolean>(false)
     const loadDocuments = async () => {
       documents.value = []
       if (selectedExpense.value && selectedExpense.value.id) {
@@ -105,15 +128,26 @@ export default defineComponent({
 
     const getResults = async () => {
       if (selectedExpense.value && selectedDocument.value) {
-        const result = await expenseStore.GetDocResults(
-          selectedExpense.value.id,
-          selectedDocument.value.id
-        )
-        columns.value = JSON.parse(result.columnNames)
-        columnData.value = JSON.parse(result.resultLineItems)
+        loading.value = true
+        try {
+          const result = await expenseStore.GetDocResults(
+            selectedExpense.value.id,
+            selectedDocument.value.id
+          )
+          columns.value = JSON.parse(result.columnNames)
+          columnData.value = JSON.parse(result.resultLineItems)
+          expenseResults.value = new ExpenseResults(JSON.parse(result.summaryFields))
+          isSummaryAvailable.value = true
+          loading.value = false
+        } catch (error) {
+          console.log(error)
+          loading.value = false
+        }
       }
     }
-
+    const removeSummary = () => {
+      isSummaryAvailable.value = false
+    }
     watch(selectedExpense, (newExpense) => {
       if (newExpense) {
         loadDocuments()
@@ -143,9 +177,13 @@ export default defineComponent({
       documents,
       selectedDocument,
       getResults,
+      loading,
       columns,
       search,
-      columnData
+      columnData,
+      expenseResults,
+      isSummaryAvailable,
+      removeSummary
     }
   }
 })
@@ -174,5 +212,9 @@ export default defineComponent({
 
 .results-table {
   margin-top: 16px;
+}
+
+.loading {
+  margin-left: calc(50vw - 30%);
 }
 </style>

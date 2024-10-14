@@ -26,6 +26,13 @@
       ></v-list-item>
 
       <v-list-item
+        prepend-icon="mdi-cog"
+        title="Expense Results"
+        value="expenseResults"
+        to="/docResults"
+      ></v-list-item>
+
+      <v-list-item
         prepend-icon="mdi-account-group"
         title="My Friends"
         value="friends"
