@@ -49,7 +49,7 @@
         prepend-icon="mdi-bell"
         title="Notifications"
         value="notifications"
-        to="/myNotification"
+        to="/notifications"
       ></v-list-item>
     </v-list>
   </v-navigation-drawer>

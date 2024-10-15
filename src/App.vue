@@ -36,7 +36,7 @@ export default defineComponent({
   },
 
   beforeUnmount() {
-    TextractNotificationService.stop() // Clean up connection when the component is destroyed
+    TextractNotificationService.stop()
   }
 })
 </script>

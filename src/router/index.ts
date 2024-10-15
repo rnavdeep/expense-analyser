@@ -5,6 +5,8 @@ import LoginView from '../views/LoginView.vue'
 import ExpenseCreateView from '../views/ExpenseCreateView.vue'
 import ExpenseListView from '../views/ExpenseListView.vue'
 import DocumentResultPageView from '../views/DocumentResultPageView.vue'
+import NotificationView from '../views/NotificationsView.vue'
+
 import { useAuthStore } from '@/stores/Auth'
 
 const router = createRouter({
@@ -57,6 +59,12 @@ const router = createRouter({
       name: 'Results',
       component: DocumentResultPageView,
       meta: { requiresLogin: true, title: 'Result', description: 'Results' }
+    },
+    {
+      path: '/notifications',
+      name: 'Notifications',
+      component: NotificationView,
+      meta: { requiresLogin: true, title: 'Notifications', description: 'Notifications' }
     }
   ]
 })

@@ -69,19 +69,19 @@ export default defineComponent({
     const isUserLoggedIn = computed(() => authStore.isAuthenticated)
     const userName = computed(() => authStore.userName)
     const notificationCount = computed(() => notificationStore.count)
+
+    const isLoggedIn = computed(() => authStore.isSessionActive)
     onMounted(() => {
       authStore.checkSession()
     })
-
-    const isLoggedIn = computed(() => authStore.isSessionActive)
-
     const logout = () => {
       authStore.logout()
       route.push('/')
     }
     const onClickBell = () => {
       notificationStore.count = 0
-      route.push('/docResults') //fornow
+      route.push('/notifications')
+      notificationStore.ReadAllUnreadNotifications()
     }
     return {
       isUserLoggedIn,
