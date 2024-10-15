@@ -63,7 +63,7 @@
 
 <script lang="ts">
 import { defineComponent, computed } from 'vue'
-import { useAuthStore } from '@/stores/Auth'
+import { useAuthStore } from '../stores/Auth'
 
 export default defineComponent({
   name: 'eaHome',

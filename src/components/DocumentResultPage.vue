@@ -98,8 +98,8 @@
 
 <script lang="ts">
 import { computed, defineComponent, onMounted, ref, watch } from 'vue'
-import { useExpenseStore } from '@/stores/Expense'
-import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
+import { useExpenseStore } from '../stores/Expense'
+import type { DocumentDialogDto } from '../models/DocumentDialogDto'
 import { ExpenseListDataDto } from '../models/ExpenseCreateForm'
 import ExpenseResults from '../models/ExpenseResults'
 
