@@ -1,7 +1,7 @@
 <template>
   <v-card variant="elevated" class="fixed-card-size">
     <v-row class="align-items-center">
-      <v-col class="title-col">
+      <v-col class="title-col" style="overflow: hidden">
         <v-card-title>{{ expense.title }}</v-card-title>
         <v-card-subtitle>Amount: ${{ expense.amount }}</v-card-subtitle>
         <v-card-subtitle>Created At: {{ expense.createdAt }}</v-card-subtitle>
@@ -20,12 +20,6 @@
         <v-tooltip text="Delete Expense" location="top">
           <template v-slot:activator="{ props }">
             <v-icon v-bind="props" @click="confirmDeletion">mdi-trash-can</v-icon>
-          </template>
-        </v-tooltip>
-
-        <v-tooltip text="Process Expense" location="top">
-          <template v-slot:activator="{ props }">
-            <v-icon v-bind="props">mdi-home-analytics</v-icon>
           </template>
         </v-tooltip>
 
@@ -137,13 +131,13 @@
 
 <script lang="ts">
 import { computed, ref } from 'vue'
-import type { ExpenseListDataDto } from '@/models/ExpenseCreateForm'
+import type { ExpenseListDataDto } from '../models/ExpenseCreateForm'
 import { defineComponent } from 'vue'
-import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
-import { useExpenseStore } from '@/stores/Expense'
-import { useDocumentStore } from '@/stores/Document'
+import type { DocumentDialogDto } from '../models/DocumentDialogDto'
+import { useExpenseStore } from '../stores/Expense'
+import { useDocumentStore } from '../stores/Document'
 import { UpdateExpenseDto } from '../models/ExpenseCreateForm'
-import { useExtractStore } from '@/stores/Extract'
+import { useExtractStore } from '../stores/Extract'
 
 interface ExpenseCardProps {
   expense: ExpenseListDataDto
@@ -164,6 +158,7 @@ export default defineComponent({
     }
   },
   emits: ['edit', 'delete'],
+
   setup(props: ExpenseCardProps, { emit }) {
     const dialogEdit = ref(false)
     const dialogDocs = ref(false)
@@ -238,7 +233,7 @@ export default defineComponent({
       }
     }
     const isProcessButtonDisabled = (doc: DocumentDialogDto): boolean => {
-      return doc.jobStatus != null
+      return doc.jobStatus != null && doc.jobStatus != 2
     }
 
     const processExpenseDoc = async (expenseId: string, docId: string) => {
@@ -298,6 +293,8 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   margin-right: 10px;
+  margin-top: 10px;
+  height: 250px;
 }
 
 .v-icon {
@@ -313,11 +310,10 @@ export default defineComponent({
 .v-card-title {
   background: skyblue;
   margin-bottom: 10px;
-  .v-card-subtitle {
-    margin-bottom: 10px;
-  }
 }
-
+.v-card-title.v-card-subtitle {
+  margin-bottom: 10px;
+}
 .eachDoc {
   list-style: none;
   padding: 0;

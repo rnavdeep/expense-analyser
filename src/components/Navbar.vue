@@ -19,6 +19,36 @@
           <v-btn @click.prevent="logout">Logout</v-btn>
           <v-btn to="/about">About</v-btn>
         </div>
+        <div v-if="isUserLoggedIn && isLoggedIn">
+          <button
+            type="button"
+            class="ml-2 v-btn v-btn--flat v-btn--text theme--light v-size--large"
+            style="min-width: 0px; padding: 5px 5px"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="true"
+            v-on:click="onClickBell"
+          >
+            <span class="v-btn__content" style="font-size: 32px">
+              <span class="v-badge v-badge--bordered v-badge--overlap theme--light">
+                <i aria-hidden="true" class="v-icon notranslate mdi mdi-bell theme--light"></i>
+                <span class="v-badge__wrapper" v-if="notificationCount > 0">
+                  <span
+                    aria-atomic="true"
+                    aria-label="Badge"
+                    aria-live="polite"
+                    role="status"
+                    class="v-badge__badge red"
+                    style="inset: auto auto calc(100% - 12px) calc(100% - 12px)"
+                  >
+                    <span>{{ notificationCount }}</span>
+                    <!-- Bind notification count -->
+                  </span>
+                </span>
+              </span>
+            </span>
+          </button>
+        </div>
       </div>
     </v-container>
   </v-app-bar>
@@ -26,34 +56,40 @@
 
 <script lang="ts">
 import { computed, defineComponent, onMounted } from 'vue'
-import { useAuthStore } from '@/stores/Auth'
+import { useAuthStore } from '../stores/Auth'
 import { useRouter } from 'vue-router'
-
+import { useNotificationStore } from '../stores/Notifications'
 export default defineComponent({
   name: 'eaNavbar',
   setup() {
     const authStore = useAuthStore()
+    const notificationStore = useNotificationStore()
     const route = useRouter()
 
     const isUserLoggedIn = computed(() => authStore.isAuthenticated)
     const userName = computed(() => authStore.userName)
+    const notificationCount = computed(() => notificationStore.count)
 
+    const isLoggedIn = computed(() => authStore.isSessionActive)
     onMounted(() => {
       authStore.checkSession()
     })
-
-    const isLoggedIn = computed(() => authStore.isSessionActive)
-
     const logout = () => {
       authStore.logout()
       route.push('/')
     }
-
+    const onClickBell = () => {
+      notificationStore.count = 0
+      route.push('/notifications')
+      notificationStore.ReadAllUnreadNotifications()
+    }
     return {
       isUserLoggedIn,
       userName,
       logout,
-      isLoggedIn
+      isLoggedIn,
+      onClickBell,
+      notificationCount
     }
   }
 })

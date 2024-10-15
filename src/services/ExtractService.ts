@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_URL = 'http://localhost:5223/api/Extract' // Set your API URL here
+const API_URL = 'http://localhost:5223/api/Textract' // Set your API URL here
 
 class ExtractService {
   /**
@@ -10,12 +10,16 @@ class ExtractService {
    */
   async StartExpenseAnalysis(data: any): Promise<string> {
     try {
-      const response = await axios.post(`${API_URL}/startTextractExpDocJobId`, data, {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'multipart/form-data'
+      const response = await axios.post(
+        `${API_URL}/expense/${data.expenseId}/doc/${data.docId}`,
+        data,
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
         }
-      })
+      )
       return response.data.jobId
     } catch (error) {
       if (axios.isAxiosError(error)) {

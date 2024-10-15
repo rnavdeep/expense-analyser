@@ -2,8 +2,8 @@ import { defineStore } from 'pinia'
 import AuthService from '@/services/AuthService'
 import EncryptionService from '@/services/EncryptionService'
 import { LoginDataDto } from '@/models/LoginData'
-import axios from 'axios'
 import { LoginResponse } from '@/models/LoginResponse'
+import { useNotificationStore } from '../Notifications'
 
 interface AuthState {
   userName: string
@@ -29,6 +29,12 @@ export const useAuthStore = defineStore('auth', {
         // Optionally set username in the state directly
         this.userName = username
         this.isSessionActive = resp.isLoggedIn
+        if (resp.isLoggedIn) {
+          const notificationStore = useNotificationStore()
+          notificationStore.GetAllNotifications()
+          notificationStore.GetUnreadNotifications()
+          notificationStore.GetReadNotifications()
+        }
       } catch (error) {
         throw new Error('Login failed. Please check your credentials.')
       }

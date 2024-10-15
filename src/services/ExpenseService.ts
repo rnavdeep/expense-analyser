@@ -7,12 +7,12 @@ const API_URL = 'http://localhost:5223/api/Expense' // Set your API URL here
 class ExpenseService {
   /**
    *
-   * @param data : of type ExpenseDataDto
-   * @returns : Guid Id of new Expense
+   * @param data of type ExpenseDataDto
+   * @returns Guid Id of new Expense
    */
   async CreateExpense(data: any): Promise<string> {
     try {
-      const response = await axios.post(`${API_URL}/createForm`, data, {
+      const response = await axios.post(`${API_URL}`, data, {
         withCredentials: true,
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -28,13 +28,13 @@ class ExpenseService {
   }
   /**
    *
-   * @param id : Guid id of Expense to update
-   * @param updateExpenseDto : UpdateExpenseDto form data.
-   * @returns : Updated Expense
+   * @param id  Guid id of Expense to update
+   * @param updateExpenseDto UpdateExpenseDto form data.
+   * @returns Updated Expense
    */
   async updateExpense(id: string, updateExpenseDto: UpdateExpenseDto) {
     try {
-      const response = await axios.put(`${API_URL}/updateExpense/${id}`, updateExpenseDto, {
+      const response = await axios.put(`${API_URL}/${id}`, updateExpenseDto, {
         withCredentials: true
       })
 
@@ -45,12 +45,12 @@ class ExpenseService {
   }
   /**
    *
-   * @param data : File to upload of type CreateDocumentDto
-   * @returns : Uploaded document of type DocumentDialogDto
+   * @param data  File to upload of type CreateDocumentDto
+   * @returns  Uploaded document of type DocumentDialogDto
    */
   async UploadExpenseDoc(data: any): Promise<DocumentDialogDto> {
     try {
-      const response = await axios.post(`${API_URL}/uploadDoc`, data, {
+      const response = await axios.post(`${API_URL}/${data.id}/uploadDoc`, data, {
         withCredentials: true,
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -66,11 +66,11 @@ class ExpenseService {
   }
   /**
    *
-   * @returns : List of ExpenseListDataDto for logged in user.
+   * @returns  List of ExpenseListDataDto for logged in user.
    */
   async GetExpenses(): Promise<ExpenseListDataDto[]> {
     try {
-      const response = await axios.get(`${API_URL}/myExpenses`, {
+      const response = await axios.get(`${API_URL}`, {
         withCredentials: true
       })
       return response.data
@@ -83,8 +83,8 @@ class ExpenseService {
   }
   /**
    *
-   * @param expense : ExpenseListDataDto object to delete
-   * @returns: Boolean return of whether expense is deleted or not
+   * @param expense ExpenseListDataDto object to delete
+   * @returns Boolean return of whether expense is deleted or not
    */
   async DeleteExpense(expense: ExpenseListDataDto): Promise<any> {
     try {
@@ -101,12 +101,12 @@ class ExpenseService {
   }
   /**
    *
-   * @param id : Expense id as input to fetch documents.
-   * @returns : List of all documents attached to expenseId passed.
+   * @param id  Expense id as input to fetch documents.
+   * @returns  List of all documents attached to expenseId passed.
    */
   async GetDocByExpenseId(id: string): Promise<DocumentDialogDto[]> {
     try {
-      const resp = await axios.get(`${API_URL}/getDocs/${id}`, {
+      const resp = await axios.get(`${API_URL}/docs/${id}`, {
         withCredentials: true
       })
 
@@ -115,6 +115,31 @@ class ExpenseService {
         return []
       }
       return resp.data as DocumentDialogDto[]
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to retrieve documents')
+      }
+      throw new Error('An unexpected error occurred')
+    }
+  }
+
+  /**
+   *
+   * @param expenseId  Expense Id
+   * @param docId  Document Id
+   * @returns  List of Document Line Items Results
+   */
+  async GetDocResults(expenseId: string, docId: string): Promise<any> {
+    try {
+      const resp = await axios.get(`${API_URL}/${expenseId}/doc/${docId}`, {
+        withCredentials: true
+      })
+
+      // Check if there's a 204 No Content response
+      if (resp.status === 204) {
+        return []
+      }
+      return resp.data
     } catch (error) {
       if (axios.isAxiosError(error)) {
         throw new Error(error.response?.data?.message || 'Failed to retrieve documents')

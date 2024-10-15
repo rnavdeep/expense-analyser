@@ -19,11 +19,24 @@
 import { defineComponent } from 'vue'
 import eaNavbar from './components/Navbar.vue'
 import eaNavigationDrawer from './components/NavigationDrawer.vue'
+import TextractNotificationService from './services/TextractNotificationService'
+import { createPinia } from 'pinia'
+
 export default defineComponent({
   name: 'App',
   components: {
     eaNavbar,
     eaNavigationDrawer
+  },
+  setup() {
+    createPinia()
+  },
+  mounted() {
+    TextractNotificationService.start()
+  },
+
+  beforeUnmount() {
+    TextractNotificationService.stop()
   }
 })
 </script>
