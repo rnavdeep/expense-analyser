@@ -15,9 +15,7 @@ interface NotificationDto {
 export const useNotificationStore = defineStore('Notifications', {
   state: () => ({
     count: 0,
-    notifications: [] as NotificationDto[],
-    unreadNotifications: [] as NotificationDto[],
-    readNotifications: [] as NotificationDto[]
+    notifications: [] as NotificationDto[]
   }),
 
   actions: {
@@ -28,20 +26,10 @@ export const useNotificationStore = defineStore('Notifications', {
     async ResetNotifications(): Promise<void> {
       this.count = 0
     },
-
-    async GetUnreadNotifications(): Promise<void> {
-      const notifications =
-        (await NotificationService.GetUnreadNotifications()) as NotificationDto[]
-      this.unreadNotifications = notifications
-      this.count = notifications.length
-    },
-    async GetReadNotifications(): Promise<void> {
-      const notifications = (await NotificationService.GetReadNotifications()) as NotificationDto[]
-      this.readNotifications = notifications
-    },
     async GetAllNotifications(): Promise<void> {
       const notifications = (await NotificationService.GetAllNotifications()) as NotificationDto[]
       this.notifications = notifications
+      this.count = notifications.filter((notification) => notification.isRead === 0).length
     },
     async ReadAllUnreadNotifications(): Promise<void> {
       try {

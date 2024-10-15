@@ -32,8 +32,6 @@ export const useAuthStore = defineStore('auth', {
         if (resp.isLoggedIn) {
           const notificationStore = useNotificationStore()
           notificationStore.GetAllNotifications()
-          notificationStore.GetUnreadNotifications()
-          notificationStore.GetReadNotifications()
         }
       } catch (error) {
         throw new Error('Login failed. Please check your credentials.')

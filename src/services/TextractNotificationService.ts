@@ -29,8 +29,6 @@ const monitorHub = async () => {
     connection.on('ReceiveMessage', (message) => {
       const notificationStore = useNotificationStore()
       notificationStore.GetAllNotifications()
-      notificationStore.GetUnreadNotifications()
-      notificationStore.GetReadNotifications()
       console.log('User-specific notification: ', message)
     })
   }
