@@ -9,6 +9,7 @@ interface NotificationDto {
   isRead: number
   userId: string
   message: string
+  title?: string | null
 }
 
 // Define the Pinia store
