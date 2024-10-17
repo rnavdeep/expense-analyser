@@ -93,6 +93,27 @@ class ExpenseService {
   }
   /**
    *
+   * @returns  Total Number of Expenses use for pageCount
+   */
+  async GetExpensesCount(): Promise<any> {
+    try {
+      const response = axios.get(`${API_URL}/count`, {
+        withCredentials: true
+      })
+
+      return (await response).data?.totalRows
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status == 404) {
+          throw new Error(error.response?.status.toString())
+        }
+        throw new Error(error.response?.data?.message || 'Failed to fetch expenses')
+      }
+      throw new Error('An unexpected error occurred')
+    }
+  }
+  /**
+   *
    * @returns  List of ExpenseListDataDto for logged in user for dropdown
    */
   async GetExpensesDropdown(): Promise<any> {

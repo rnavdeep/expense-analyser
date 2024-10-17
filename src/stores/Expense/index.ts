@@ -111,7 +111,7 @@ export const useExpenseStore = defineStore('Expense', {
       }
     },
 
-    async GetExpenses(pagination: Pagination): Promise<void> {
+    async GetExpenses(pagination: Pagination): Promise<any> {
       this.isPageLoading = true
       this.expenses = []
       try {
@@ -119,13 +119,27 @@ export const useExpenseStore = defineStore('Expense', {
         this.expenses = resp.expenses
         this.totalExpenses = resp.totalRows
         this.isPageLoading = false
+        return resp
       } catch (error) {
-        if (error == 'Error: 404' && pagination.pageNumber > 1) {
-          throw new Error('404')
-        }
         this.expenses = []
         this.totalExpenses = 0
         this.isPageLoading = false
+        if (error == 'Error: 404' && pagination.pageNumber > 1) {
+          throw new Error('404')
+        }
+
+        throw new Error('Failed to load expenses')
+      }
+    },
+
+    async GetExpensesCount(): Promise<number> {
+      try {
+        const resp = await ExpenseService.GetExpensesCount()
+        return resp
+      } catch (error) {
+        if (error == 'Error: 404') {
+          throw new Error('404')
+        }
         throw new Error('Failed to load expenses')
       }
     },
