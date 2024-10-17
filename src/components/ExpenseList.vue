@@ -16,7 +16,7 @@
 
     <!--Expenses Found -->
     <v-row v-else>
-      <v-col v-for="(expense, index) in paginatedExpenses" :key="expense.id" cols="12" md="4">
+      <v-col v-for="(expense, index) in expenses" :key="expense.id" cols="12" md="4">
         <eaExpenseCard
           :expense="expense"
           :index="index"
@@ -27,9 +27,15 @@
     </v-row>
 
     <!-- Pagination-->
-    <v-row v-if="!isLoading && expenses.length > 9" class="justify-center">
+    <v-row v-if="pageCount > 0" class="justify-center">
       <v-col cols="auto">
-        <v-pagination v-model="currentPage" :length="pageCount" @input="onPageChange" />
+        <v-pagination
+          v-model="currentPage"
+          @update:model-value="onPageChange"
+          :length="pageCount"
+          :show-first-last-page="true"
+        />
+        {{ console.log(pageCount) }}
       </v-col>
     </v-row>
   </v-container>
@@ -39,6 +45,7 @@
 import { defineComponent, onMounted, computed, ref } from 'vue'
 import eaExpenseCard from './ExpenseCard.vue'
 import { useExpenseStore } from '../stores/Expense'
+import { Pagination } from '../models/Pagination'
 
 export default defineComponent({
   name: 'eaExpenseList',
@@ -51,48 +58,54 @@ export default defineComponent({
     const expenses = computed(() => expenseStore.expenses)
     const currentPage = ref(1)
     const itemsPerPage = ref(9)
+    const totalRows = computed(() => expenseStore.totalExpenses)
 
-    // Fetch expenses on mount
+    // Computed property for pageCount
+    const pageCount = computed(() => Math.ceil(totalRows.value / itemsPerPage.value))
+
+    // Fetch expenses and count on mount
     onMounted(async () => {
-      await expenseStore.GetExpenses()
+      try {
+        await expenseStore.GetExpenses(new Pagination(currentPage.value, itemsPerPage.value))
+      } catch (error) {
+        console.error('Error fetching expenses or count:', error)
+      }
     })
 
     // Pagination logic
-    const pageCount = computed(() => Math.ceil(expenses.value.length / itemsPerPage.value))
-    const paginatedExpenses = computed(() => {
-      const start = (currentPage.value - 1) * itemsPerPage.value
-      const end = start + itemsPerPage.value
-      return expenses.value.slice(start, end)
-    })
-
-    const onPageChange = (page: number) => {
+    const onPageChange = async (page: number) => {
       currentPage.value = page
+      await expenseStore.GetExpenses(new Pagination(currentPage.value, itemsPerPage.value))
     }
 
     const editExpense = (index: number) => {
       console.log(`Edit expense at index: ${index}`)
-      const expense = paginatedExpenses.value[index]
+      const expense = expenses.value[index]
     }
 
     const deleteExpense = async (expense: any) => {
       console.log(`Delete expense: ${expense.title}`)
       try {
         await expenseStore.DeleteExpense(expense)
-        await expenseStore.GetExpenses()
+        await expenseStore.GetExpenses(new Pagination(currentPage.value, itemsPerPage.value))
       } catch (error) {
+        if (error == 'Error: 404' && currentPage.value > 1) {
+          currentPage.value -= 1
+          await expenseStore.GetExpenses(new Pagination(currentPage.value, itemsPerPage.value))
+        }
         console.error('Error deleting expense:', error)
       }
     }
 
     return {
       expenses,
-      paginatedExpenses,
       currentPage,
       pageCount,
       onPageChange,
       editExpense,
       deleteExpense,
-      isLoading
+      isLoading,
+      itemsPerPage
     }
   }
 })

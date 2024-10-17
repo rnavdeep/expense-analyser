@@ -1,5 +1,6 @@
 import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
 import type { ExpenseListDataDto, UpdateExpenseDto } from '@/models/ExpenseCreateForm'
+import type { Pagination } from '@/models/Pagination'
 import axios from 'axios'
 
 const API_URL = 'http://localhost:5223/api/Expense' // Set your API URL here
@@ -66,17 +67,25 @@ class ExpenseService {
   }
   /**
    *
-   * @returns  List of ExpenseListDataDto for logged in user.
+   * @returns  List of ExpenseListDataDto for logged in user based on pageNumber and size
    */
-  async GetExpenses(): Promise<ExpenseListDataDto[]> {
+  async GetExpenses(pagination: Pagination): Promise<any> {
     try {
       const response = await axios.get(`${API_URL}`, {
+        params: {
+          pageNumber: pagination.pageNumber,
+          pageSize: pagination.pageSize
+        },
         withCredentials: true
       })
+
       return response.data
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        throw new Error(error.response?.data?.message || 'Failed to create expense')
+        if (error.response?.status == 404) {
+          throw new Error(error.response?.status.toString())
+        }
+        throw new Error(error.response?.data?.message || 'Failed to fetch expenses')
       }
       throw new Error('An unexpected error occurred')
     }

@@ -6,6 +6,7 @@ import {
   type UpdateExpenseDto
 } from '@/models/ExpenseCreateForm'
 import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
+import type { Pagination } from '@/models/Pagination'
 
 // Define the interface for NewExpense
 interface NewExpense {
@@ -20,6 +21,7 @@ interface NewExpense {
   isUpdateSuccessful: boolean
   expenses: ExpenseListDataDto[]
   isPageLoading: boolean
+  totalExpenses: number
 }
 
 // Define the Pinia store
@@ -35,7 +37,8 @@ export const useExpenseStore = defineStore('Expense', {
     isUpdating: false,
     isUpdateSuccessful: false,
     expenses: [],
-    isPageLoading: true
+    isPageLoading: true,
+    totalExpenses: 0
   }),
 
   actions: {
@@ -51,8 +54,6 @@ export const useExpenseStore = defineStore('Expense', {
         const response = await ExpenseService.CreateExpense(data)
         this.expenseId = response
         this.uploadSuccess = true
-
-        await this.GetExpenses()
 
         this.isUploading = false
         return response
@@ -108,12 +109,18 @@ export const useExpenseStore = defineStore('Expense', {
       }
     },
 
-    async GetExpenses(): Promise<void> {
+    async GetExpenses(pagination: Pagination): Promise<void> {
       try {
-        const resp = await ExpenseService.GetExpenses()
-        this.expenses = resp
+        const resp = await ExpenseService.GetExpenses(pagination)
+        this.expenses = resp.expenses
+        this.totalExpenses = resp.totalRows
         this.isPageLoading = false
       } catch (error) {
+        if (error == 'Error: 404' && pagination.pageNumber > 1) {
+          throw new Error('404')
+        }
+        this.expenses = []
+        this.totalExpenses = 0
         this.isPageLoading = false
         throw new Error('Failed to load expenses')
       }
@@ -122,10 +129,8 @@ export const useExpenseStore = defineStore('Expense', {
     async DeleteExpense(expense: ExpenseListDataDto): Promise<any> {
       try {
         const response = await ExpenseService.DeleteExpense(expense)
-        this.expenses = this.expenses.filter((exp) => exp.id !== expense.id)
         return response
       } catch (error) {
-        console.log('Error deleting expense')
         throw new Error('Failed to delete expense')
       }
     },
