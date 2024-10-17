@@ -7,14 +7,14 @@
       </v-col>
     </v-row>
 
-    <!-- Not Found  -->
+    <!-- Not Found -->
     <v-row v-else-if="!isLoading && expenses.length === 0" class="justify-center">
       <v-col cols="12" class="text-center">
         <p>No expenses found.</p>
       </v-col>
     </v-row>
 
-    <!--Expenses Found -->
+    <!-- Expenses Found -->
     <v-row v-else>
       <v-col v-for="(expense, index) in expenses" :key="expense.id" cols="12" md="4">
         <eaExpenseCard
@@ -26,17 +26,17 @@
       </v-col>
     </v-row>
 
-    <!-- Pagination-->
-    <v-row v-if="pageCount > 0" class="justify-center">
-      <v-col cols="auto">
+    <!-- Pagination -->
+    <v-row class="justify-center">
+      <v-col v-if="!(!isLoading && expenses.length === 0)" cols="auto">
         <v-pagination
           v-model="currentPage"
           @update:model-value="onPageChange"
-          :length="pageCount"
+          :length="100"
           :show-first-last-page="true"
         />
-        {{ console.log(pageCount) }}
       </v-col>
+      <v-btn v-if="!isLoading && expenses.length === 0" @click="resetPagination()">Reset</v-btn>
     </v-row>
   </v-container>
 </template>
@@ -53,45 +53,50 @@ export default defineComponent({
   setup() {
     const expenseStore = useExpenseStore()
 
-    // Use expenses from the store
     const isLoading = computed(() => expenseStore.isPageLoading)
     const expenses = computed(() => expenseStore.expenses)
     const currentPage = ref(1)
     const itemsPerPage = ref(9)
-    const totalRows = computed(() => expenseStore.totalExpenses)
-
-    // Computed property for pageCount
-    const pageCount = computed(() => Math.ceil(totalRows.value / itemsPerPage.value))
 
     // Fetch expenses and count on mount
     onMounted(async () => {
       try {
-        await expenseStore.GetExpenses(new Pagination(currentPage.value, itemsPerPage.value))
+        await fetchExpenses()
       } catch (error) {
         console.error('Error fetching expenses or count:', error)
       }
     })
 
-    // Pagination logic
-    const onPageChange = async (page: number) => {
-      currentPage.value = page
+    // Function to fetch expenses
+    const fetchExpenses = async () => {
       await expenseStore.GetExpenses(new Pagination(currentPage.value, itemsPerPage.value))
     }
 
+    // Pagination logic
+    const onPageChange = async (page: number) => {
+      currentPage.value = page
+      await fetchExpenses()
+    }
+    const resetPagination = async () => {
+      currentPage.value = 1
+      await fetchExpenses()
+    }
+    // Edit expense handler
     const editExpense = (index: number) => {
       console.log(`Edit expense at index: ${index}`)
       const expense = expenses.value[index]
     }
 
+    // Delete expense handler
     const deleteExpense = async (expense: any) => {
       console.log(`Delete expense: ${expense.title}`)
       try {
         await expenseStore.DeleteExpense(expense)
-        await expenseStore.GetExpenses(new Pagination(currentPage.value, itemsPerPage.value))
+        await fetchExpenses()
       } catch (error) {
         if (error == 'Error: 404' && currentPage.value > 1) {
           currentPage.value -= 1
-          await expenseStore.GetExpenses(new Pagination(currentPage.value, itemsPerPage.value))
+          await fetchExpenses()
         }
         console.error('Error deleting expense:', error)
       }
@@ -100,12 +105,12 @@ export default defineComponent({
     return {
       expenses,
       currentPage,
-      pageCount,
       onPageChange,
       editExpense,
       deleteExpense,
       isLoading,
-      itemsPerPage
+      itemsPerPage,
+      resetPagination
     }
   }
 })
@@ -113,17 +118,17 @@ export default defineComponent({
 
 <style scoped>
 .v-container {
-  padding: 20px;
+  padding: 10px;
 }
 
 .v-col {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .v-pagination {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .v-pagination__item {
