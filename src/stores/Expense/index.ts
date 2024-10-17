@@ -118,7 +118,6 @@ export const useExpenseStore = defineStore('Expense', {
         const resp = await ExpenseService.GetExpenses(pagination)
         this.expenses = resp.expenses
         this.totalExpenses = resp.totalRows
-        this.pageCount = Math.ceil(resp.totalRows / pagination.pageSize)
         this.isPageLoading = false
       } catch (error) {
         if (error == 'Error: 404' && pagination.pageNumber > 1) {
