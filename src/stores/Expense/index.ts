@@ -22,6 +22,7 @@ interface NewExpense {
   expenses: ExpenseListDataDto[]
   isPageLoading: boolean
   totalExpenses: number
+  dropdownExpenses: ExpenseListDataDto[]
 }
 
 // Define the Pinia store
@@ -38,7 +39,8 @@ export const useExpenseStore = defineStore('Expense', {
     isUpdateSuccessful: false,
     expenses: [],
     isPageLoading: true,
-    totalExpenses: 0
+    totalExpenses: 0,
+    dropdownExpenses: []
   }),
 
   actions: {
@@ -110,10 +112,13 @@ export const useExpenseStore = defineStore('Expense', {
     },
 
     async GetExpenses(pagination: Pagination): Promise<void> {
+      this.isPageLoading = true
+      this.expenses = []
       try {
         const resp = await ExpenseService.GetExpenses(pagination)
         this.expenses = resp.expenses
         this.totalExpenses = resp.totalRows
+        this.pageCount = Math.ceil(resp.totalRows / pagination.pageSize)
         this.isPageLoading = false
       } catch (error) {
         if (error == 'Error: 404' && pagination.pageNumber > 1) {
@@ -122,6 +127,14 @@ export const useExpenseStore = defineStore('Expense', {
         this.expenses = []
         this.totalExpenses = 0
         this.isPageLoading = false
+        throw new Error('Failed to load expenses')
+      }
+    },
+    async GetExpensesDropdown(): Promise<void> {
+      try {
+        const resp = await ExpenseService.GetExpensesDropdown()
+        this.dropdownExpenses = resp
+      } catch (error) {
         throw new Error('Failed to load expenses')
       }
     },

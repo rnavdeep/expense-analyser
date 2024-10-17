@@ -2,8 +2,9 @@ import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
 import type { ExpenseListDataDto, UpdateExpenseDto } from '@/models/ExpenseCreateForm'
 import type { Pagination } from '@/models/Pagination'
 import axios from 'axios'
+const BASE_URL = import.meta.env.VITE_APP_API_URL
 
-const API_URL = 'http://localhost:5223/api/Expense' // Set your API URL here
+const API_URL = BASE_URL + '/Expense' // Set your API URL here
 
 class ExpenseService {
   /**
@@ -76,6 +77,27 @@ class ExpenseService {
           pageNumber: pagination.pageNumber,
           pageSize: pagination.pageSize
         },
+        withCredentials: true
+      })
+
+      return response.data
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status == 404) {
+          throw new Error(error.response?.status.toString())
+        }
+        throw new Error(error.response?.data?.message || 'Failed to fetch expenses')
+      }
+      throw new Error('An unexpected error occurred')
+    }
+  }
+  /**
+   *
+   * @returns  List of ExpenseListDataDto for logged in user for dropdown
+   */
+  async GetExpensesDropdown(): Promise<any> {
+    try {
+      const response = await axios.get(`${API_URL}/dropdown`, {
         withCredentials: true
       })
 

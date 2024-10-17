@@ -2,6 +2,8 @@
 import * as signalR from '@microsoft/signalr'
 import { useNotificationStore } from '../stores/Notifications'
 let connection: signalR.HubConnection | null = null
+const BASE_URL = import.meta.env.VITE_APP_API_URL
+const API_URL = BASE_URL + '/textractNotification'
 const startConnection = async () => {
   if (connection) {
     try {
@@ -12,9 +14,7 @@ const startConnection = async () => {
     }
   }
 
-  connection = new signalR.HubConnectionBuilder()
-    .withUrl('http://localhost:5223/textractNotification')
-    .build()
+  connection = new signalR.HubConnectionBuilder().withUrl(API_URL).build()
   monitorHub()
   try {
     await connection.start()
