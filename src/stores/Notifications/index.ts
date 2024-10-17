@@ -34,10 +34,12 @@ export const useNotificationStore = defineStore('Notifications', {
     },
     async ReadAllUnreadNotifications(): Promise<void> {
       try {
+        //as soon as button is clicked, remove count.
+        this.count = 0
         await NotificationService.ReadAllUnreadNotifications()
         setTimeout(() => {
           this.GetAllNotifications()
-        }, 10000)
+        }, 5000)
       } catch (error) {
         console.log(error)
       }

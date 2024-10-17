@@ -29,6 +29,7 @@ export const useAuthStore = defineStore('auth', {
         // Optionally set username in the state directly
         this.userName = username
         this.isSessionActive = resp.isLoggedIn
+        //as soon as user is logged is fetch notifications
         if (resp.isLoggedIn) {
           const notificationStore = useNotificationStore()
           notificationStore.GetAllNotifications()

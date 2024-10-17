@@ -18,6 +18,9 @@ const startConnection = async () => {
   monitorHub()
   try {
     await connection.start()
+    const notificationStore = useNotificationStore()
+    notificationStore.GetAllNotifications()
+
     console.log('SignalR connection started.')
   } catch (err) {
     console.error('SignalR connection error: ', err)
