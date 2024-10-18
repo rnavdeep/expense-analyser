@@ -7,6 +7,8 @@ import {
 } from '@/models/ExpenseCreateForm'
 import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
 import type { Pagination } from '@/models/Pagination'
+import type { SortFilter } from '@/models/SortFilter'
+import type { FilterBy } from '@/models/FilterBy'
 
 // Define the interface for NewExpense
 interface NewExpense {
@@ -111,11 +113,15 @@ export const useExpenseStore = defineStore('Expense', {
       }
     },
 
-    async GetExpenses(pagination: Pagination): Promise<any> {
+    async GetExpenses(
+      pagination: Pagination,
+      sortFilter: SortFilter | null,
+      searchFilter: FilterBy | null
+    ): Promise<any> {
       this.isPageLoading = true
       this.expenses = []
       try {
-        const resp = await ExpenseService.GetExpenses(pagination)
+        const resp = await ExpenseService.GetExpenses(pagination, sortFilter, searchFilter)
         this.expenses = resp.expenses
         this.totalExpenses = resp.totalRows
         this.isPageLoading = false

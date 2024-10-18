@@ -1,6 +1,8 @@
 import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
 import type { ExpenseListDataDto, UpdateExpenseDto } from '@/models/ExpenseCreateForm'
+import type { FilterBy } from '@/models/FilterBy'
 import type { Pagination } from '@/models/Pagination'
+import type { SortFilter } from '@/models/SortFilter'
 import axios from 'axios'
 const BASE_URL = import.meta.env.VITE_APP_API_URL
 
@@ -70,13 +72,30 @@ class ExpenseService {
    *
    * @returns  List of ExpenseListDataDto for logged in user based on pageNumber and size
    */
-  async GetExpenses(pagination: Pagination): Promise<any> {
+  async GetExpenses(
+    pagination: Pagination,
+    sortFilter: SortFilter | null,
+    searchFilter: FilterBy | null
+  ): Promise<any> {
     try {
+      const params: any = {
+        pageNumber: pagination.pageNumber,
+        pageSize: pagination.pageSize
+      }
+
+      if (sortFilter) {
+        params.PropertyNameSort = sortFilter.propertyName
+        params.Ascending = sortFilter.ascending
+      }
+
+      if (searchFilter) {
+        params.PropertyName = searchFilter.propertyName
+        params.Type = searchFilter.type
+        params.Value = searchFilter.value
+      }
+
       const response = await axios.get(`${API_URL}`, {
-        params: {
-          pageNumber: pagination.pageNumber,
-          pageSize: pagination.pageSize
-        },
+        params,
         withCredentials: true
       })
 
