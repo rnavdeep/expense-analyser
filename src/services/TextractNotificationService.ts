@@ -29,7 +29,7 @@ const startConnection = async () => {
 
 const monitorHub = async () => {
   if (connection) {
-    connection.on('ReceiveMessage', (message) => {
+    connection.on('TextractNotification', (message) => {
       const notificationStore = useNotificationStore()
       notificationStore.GetAllNotifications()
       console.log('User-specific notification: ', message)
