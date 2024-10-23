@@ -37,3 +37,12 @@ jobs:
 
       - name: Build the project
         run: npm run build
+
+      - name: Deploy to AWS Amplify
+        uses: aws-actions/aws-cli-action@v1
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          region: us-east-2
+          command: amplify publish
+          args: --app-id ${{ secrets.AMPLIFY_APP_ID }} --branch ${{ secrets.AMPLIFY_BRANCH }}
