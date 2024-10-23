@@ -1,3 +1,5 @@
+# This workflow will lint and build a Vue.js application across different Node.js versions
+
 name: Vue.js CI
 
 on:
@@ -35,18 +37,3 @@ jobs:
 
       - name: Build the project
         run: npm run build
-
-      - name: Install AWS CLI
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y awscli
-
-      - name: Configure AWS credentials
-        run: |
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} 
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
-          aws configure set default.region us-east-2  # Change this if needed
-
-      - name: Deploy to AWS Amplify
-        run: |
-          aws amplify start-deployment --app-id ${{ secrets.AMPLIFY_APP_ID }} --branch-name ${{ secrets.AMPLIFY_BRANCH }} --source-url https://github.com/${{ github.repository }}/archive/refs/heads/${{ github.ref }}.zip
