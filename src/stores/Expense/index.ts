@@ -6,6 +6,9 @@ import {
   type UpdateExpenseDto
 } from '@/models/ExpenseCreateForm'
 import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
+import type { Pagination } from '@/models/Pagination'
+import type { SortFilter } from '@/models/SortFilter'
+import type { FilterBy } from '@/models/FilterBy'
 
 // Define the interface for NewExpense
 interface NewExpense {
@@ -20,6 +23,8 @@ interface NewExpense {
   isUpdateSuccessful: boolean
   expenses: ExpenseListDataDto[]
   isPageLoading: boolean
+  totalExpenses: number
+  dropdownExpenses: ExpenseListDataDto[]
 }
 
 // Define the Pinia store
@@ -35,7 +40,9 @@ export const useExpenseStore = defineStore('Expense', {
     isUpdating: false,
     isUpdateSuccessful: false,
     expenses: [],
-    isPageLoading: true
+    isPageLoading: true,
+    totalExpenses: 0,
+    dropdownExpenses: []
   }),
 
   actions: {
@@ -51,8 +58,6 @@ export const useExpenseStore = defineStore('Expense', {
         const response = await ExpenseService.CreateExpense(data)
         this.expenseId = response
         this.uploadSuccess = true
-
-        await this.GetExpenses()
 
         this.isUploading = false
         return response
@@ -108,13 +113,47 @@ export const useExpenseStore = defineStore('Expense', {
       }
     },
 
-    async GetExpenses(): Promise<void> {
+    async GetExpenses(
+      pagination: Pagination,
+      sortFilter: SortFilter | null,
+      searchFilter: FilterBy | null
+    ): Promise<any> {
+      this.isPageLoading = true
+      this.expenses = []
       try {
-        const resp = await ExpenseService.GetExpenses()
-        this.expenses = resp
+        const resp = await ExpenseService.GetExpenses(pagination, sortFilter, searchFilter)
+        this.expenses = resp.expenses
+        this.totalExpenses = resp.totalRows
         this.isPageLoading = false
+        return resp
       } catch (error) {
+        this.expenses = []
+        this.totalExpenses = 0
         this.isPageLoading = false
+        if (error == 'Error: 404' && pagination.pageNumber > 1) {
+          throw new Error('404')
+        }
+
+        throw new Error('Failed to load expenses')
+      }
+    },
+
+    async GetExpensesCount(): Promise<number> {
+      try {
+        const resp = await ExpenseService.GetExpensesCount()
+        return resp
+      } catch (error) {
+        if (error == 'Error: 404') {
+          throw new Error('404')
+        }
+        throw new Error('Failed to load expenses')
+      }
+    },
+    async GetExpensesDropdown(): Promise<void> {
+      try {
+        const resp = await ExpenseService.GetExpensesDropdown()
+        this.dropdownExpenses = resp
+      } catch (error) {
         throw new Error('Failed to load expenses')
       }
     },
@@ -122,10 +161,8 @@ export const useExpenseStore = defineStore('Expense', {
     async DeleteExpense(expense: ExpenseListDataDto): Promise<any> {
       try {
         const response = await ExpenseService.DeleteExpense(expense)
-        this.expenses = this.expenses.filter((exp) => exp.id !== expense.id)
         return response
       } catch (error) {
-        console.log('Error deleting expense')
         throw new Error('Failed to delete expense')
       }
     },

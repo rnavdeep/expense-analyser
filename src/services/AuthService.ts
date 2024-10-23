@@ -2,8 +2,8 @@
 import { LoginResponse } from '@/models/LoginResponse'
 import { SessionData } from '@/models/SessionData'
 import axios from 'axios'
-
-const API_URL = 'http://localhost:5223/api/Auth' // Set your API URL here
+const BASE_URL = import.meta.env.VITE_APP_API_URL
+const API_URL = BASE_URL + '/auth'
 class AuthService {
   async Register(data: any): Promise<void> {
     try {
@@ -17,6 +17,7 @@ class AuthService {
     }
   }
   async Login(data: any): Promise<LoginResponse> {
+    console.log(import.meta.env.VITE_APP_API_URL)
     const result = new LoginResponse(false, '')
     await axios
       .post(

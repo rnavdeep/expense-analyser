@@ -98,8 +98,8 @@
 
 <script lang="ts">
 import { computed, defineComponent, onMounted, ref, watch } from 'vue'
-import { useExpenseStore } from '@/stores/Expense'
-import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
+import { useExpenseStore } from '../stores/Expense'
+import type { DocumentDialogDto } from '../models/DocumentDialogDto'
 import { ExpenseListDataDto } from '../models/ExpenseCreateForm'
 import ExpenseResults from '../models/ExpenseResults'
 
@@ -110,7 +110,7 @@ export default defineComponent({
     const search = ''
     const columnData = ref<Array<any>>([])
     const expenseResults = ref<ExpenseResults | null>(null)
-    const expenseTitles = computed(() => expenseStore.expenses)
+    const expenseTitles = computed(() => expenseStore.dropdownExpenses)
     const documents = ref<DocumentDialogDto[]>([])
     const selectedExpense = ref<ExpenseListDataDto | null>(null)
     const selectedDocument = ref<DocumentDialogDto | null>(null)
@@ -168,7 +168,7 @@ export default defineComponent({
     })
 
     onMounted(async () => {
-      await expenseStore.GetExpenses()
+      await expenseStore.GetExpensesDropdown()
     })
 
     return {

@@ -1,6 +1,7 @@
 import axios from 'axios'
+const BASE_URL = import.meta.env.VITE_APP_API_URL
 
-const API_URL = 'http://localhost:5223/api/Textract' // Set your API URL here
+const API_URL = BASE_URL + '/Textract' // Set your API URL here
 
 class ExtractService {
   /**

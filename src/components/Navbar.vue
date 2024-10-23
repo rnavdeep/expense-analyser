@@ -30,7 +30,7 @@
             v-on:click="onClickBell"
           >
             <span class="v-btn__content" style="font-size: 32px">
-              <span class="v-badge v-badge--bordered v-badge--overlap theme--light">
+              <span class="v-badge v-badge v-badge--overlap theme--light">
                 <i aria-hidden="true" class="v-icon notranslate mdi mdi-bell theme--light"></i>
                 <span class="v-badge__wrapper" v-if="notificationCount > 0">
                   <span
@@ -39,7 +39,10 @@
                     aria-live="polite"
                     role="status"
                     class="v-badge__badge red"
-                    style="inset: auto auto calc(100% - 12px) calc(100% - 12px)"
+                    style="
+                      inset: auto auto calc(100% - 12px) calc(100% - 12px);
+                      background-color: red;
+                    "
                   >
                     <span>{{ notificationCount }}</span>
                     <!-- Bind notification count -->

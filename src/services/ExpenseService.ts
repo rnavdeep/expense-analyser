@@ -1,8 +1,12 @@
 import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
 import type { ExpenseListDataDto, UpdateExpenseDto } from '@/models/ExpenseCreateForm'
+import type { FilterBy } from '@/models/FilterBy'
+import type { Pagination } from '@/models/Pagination'
+import type { SortFilter } from '@/models/SortFilter'
 import axios from 'axios'
+const BASE_URL = import.meta.env.VITE_APP_API_URL
 
-const API_URL = 'http://localhost:5223/api/Expense' // Set your API URL here
+const API_URL = BASE_URL + '/Expense' // Set your API URL here
 
 class ExpenseService {
   /**
@@ -66,17 +70,84 @@ class ExpenseService {
   }
   /**
    *
-   * @returns  List of ExpenseListDataDto for logged in user.
+   * @returns  List of ExpenseListDataDto for logged in user based on pageNumber and size
    */
-  async GetExpenses(): Promise<ExpenseListDataDto[]> {
+  async GetExpenses(
+    pagination: Pagination,
+    sortFilter: SortFilter | null,
+    searchFilter: FilterBy | null
+  ): Promise<any> {
     try {
+      const params: any = {
+        pageNumber: pagination.pageNumber,
+        pageSize: pagination.pageSize
+      }
+
+      if (sortFilter) {
+        params.PropertyNameSort = sortFilter.propertyName
+        params.Ascending = sortFilter.ascending
+      }
+
+      if (searchFilter) {
+        params.PropertyName = searchFilter.propertyName
+        params.Type = searchFilter.type
+        params.Value = searchFilter.value
+      }
+
       const response = await axios.get(`${API_URL}`, {
+        params,
         withCredentials: true
       })
+
       return response.data
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        throw new Error(error.response?.data?.message || 'Failed to create expense')
+        if (error.response?.status == 404) {
+          throw new Error(error.response?.status.toString())
+        }
+        throw new Error(error.response?.data?.message || 'Failed to fetch expenses')
+      }
+      throw new Error('An unexpected error occurred')
+    }
+  }
+  /**
+   *
+   * @returns  Total Number of Expenses use for pageCount
+   */
+  async GetExpensesCount(): Promise<any> {
+    try {
+      const response = axios.get(`${API_URL}/count`, {
+        withCredentials: true
+      })
+
+      return (await response).data?.totalRows
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status == 404) {
+          throw new Error(error.response?.status.toString())
+        }
+        throw new Error(error.response?.data?.message || 'Failed to fetch expenses')
+      }
+      throw new Error('An unexpected error occurred')
+    }
+  }
+  /**
+   *
+   * @returns  List of ExpenseListDataDto for logged in user for dropdown
+   */
+  async GetExpensesDropdown(): Promise<any> {
+    try {
+      const response = await axios.get(`${API_URL}/dropdown`, {
+        withCredentials: true
+      })
+
+      return response.data
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status == 404) {
+          throw new Error(error.response?.status.toString())
+        }
+        throw new Error(error.response?.data?.message || 'Failed to fetch expenses')
       }
       throw new Error('An unexpected error occurred')
     }

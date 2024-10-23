@@ -1,6 +1,7 @@
 import axios from 'axios'
+const BASE_URL = import.meta.env.VITE_APP_API_URL
 
-const API_URL = 'http://localhost:5223/api/Notification'
+const API_URL = BASE_URL + '/Notification'
 
 class NotificationService {
   /**

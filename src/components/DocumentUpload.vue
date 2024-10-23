@@ -75,9 +75,9 @@
 <script lang="ts">
 import { computed, ref } from 'vue'
 import { defineComponent } from 'vue'
-import { CreateDocumentDto } from '@/models/DocumentDialogDto'
-import { useExpenseStore } from '@/stores/Expense'
-import { useDocumentStore } from '@/stores/Document'
+import { CreateDocumentDto } from '../models/DocumentDialogDto'
+import { useExpenseStore } from '../stores/Expense'
+import { useDocumentStore } from '../stores/Document'
 export default defineComponent({
   name: 'eaUploadDocs',
   props: {

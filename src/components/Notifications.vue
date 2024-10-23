@@ -10,7 +10,7 @@
           :class="['notification-item', n.isRead ? 'read' : 'unread']"
         >
           <v-list-item-content>
-            <v-list-item-title>Notification {{ index + 1 }}</v-list-item-title>
+            <v-list-item-title>{{ n.title }}</v-list-item-title>
             <v-list-item-subtitle>{{ n.message }}</v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-action>
@@ -37,7 +37,7 @@ export default defineComponent({
     const notificationStore = useNotificationStore()
 
     // Fetch notifications when the component is set up
-    notificationStore.GetAllNotifications() 
+    notificationStore.GetAllNotifications()
 
     // Compute all notifications
     const notifications = computed(() => notificationStore.notifications)
