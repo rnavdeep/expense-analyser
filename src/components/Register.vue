@@ -94,8 +94,8 @@ export default defineComponent({
       )
 
       try {
-        const encryptedData = EncryptionService.encrypt(registerRequest)
-        await AuthService.Register(encryptedData)
+        //const encryptedData = EncryptionService.encrypt(registerRequest)
+        await AuthService.Register(registerRequest)
 
         // Clear fields after successful registration
         formData.value.username = ''

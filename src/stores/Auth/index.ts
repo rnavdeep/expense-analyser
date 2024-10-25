@@ -19,15 +19,13 @@ export const useAuthStore = defineStore('auth', {
   }),
 
   actions: {
-    async login(username: string, password: string) {
+    async login(data: LoginDataDto) {
       try {
-        const encryptedData = EncryptionService.encrypt(new LoginDataDto(username, password))
-        // const decryptedData = EncryptionService.decrypt(encryptedData)
         // Call AuthService to log in and get JWT token
-        const resp = await AuthService.Login(encryptedData)
+        const resp = await AuthService.Login(data)
         this.loginResponse = new LoginResponse(resp.isLoggedIn, resp.errors)
         // Optionally set username in the state directly
-        this.userName = username
+        this.userName = data.username
         this.isSessionActive = resp.isLoggedIn
         //as soon as user is logged is fetch notifications
         if (resp.isLoggedIn) {
