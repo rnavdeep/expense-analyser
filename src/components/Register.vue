@@ -51,7 +51,6 @@ import { type RegisterData } from '../models/RegisterData'
 import { useRouter } from 'vue-router'
 import AuthService from '../services/AuthService'
 import { RegisterRequestDto } from '../models/RegisterData'
-import EncryptionService from '../services/EncryptionService'
 
 export default defineComponent({
   name: 'eaRegister',
@@ -94,7 +93,6 @@ export default defineComponent({
       )
 
       try {
-        //const encryptedData = EncryptionService.encrypt(registerRequest)
         await AuthService.Register(registerRequest)
 
         // Clear fields after successful registration

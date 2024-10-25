@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import AuthService from '@/services/AuthService'
-import EncryptionService from '@/services/EncryptionService'
 import { LoginDataDto } from '@/models/LoginData'
 import { LoginResponse } from '@/models/LoginResponse'
 import { useNotificationStore } from '../Notifications'
