@@ -1,4 +1,4 @@
-interface ExpenseData {
+export interface ExpenseData {
   NAME: string
   ADDRESS: string
   TOTAL: string
