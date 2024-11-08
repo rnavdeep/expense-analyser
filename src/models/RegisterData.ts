@@ -6,15 +6,15 @@ export interface RegisterData {
   roles: string[]
 }
 export class RegisterRequestDto {
-  username: string
-  email: string
-  password: string
-  roles: string[]
+  Username: string
+  Email: string
+  Password: string
+  Roles: string[]
 
   constructor(username: string, password: string, email: string, roles: string[]) {
-    this.username = username
-    this.password = password
-    this.roles = roles
-    this.email = email
+    this.Username = username
+    this.Password = password
+    this.Roles = roles
+    this.Email = email
   }
 }

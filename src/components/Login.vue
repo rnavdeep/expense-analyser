@@ -47,8 +47,8 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { type LoginData } from '@/models/LoginData'
-import { useAuthStore } from '@/stores/Auth'
+import { type LoginData, LoginDataDto } from '../models/LoginData'
+import { useAuthStore } from '../stores/Auth'
 
 export default defineComponent({
   name: 'eaLogin',
@@ -67,7 +67,7 @@ export default defineComponent({
       try {
         errorMessage.value = ''
 
-        await authStore.login(formData.value.username, formData.value.password)
+        await authStore.login(new LoginDataDto(formData.value.username, formData.value.password))
         if (authStore.loginResponse?.isLoggedIn) {
           formData.value.username = ''
           formData.value.password = ''
