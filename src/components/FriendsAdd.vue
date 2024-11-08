@@ -28,22 +28,21 @@
       </v-col>
     </v-row>
 
-    <!-- No Friends Found -->
-    <v-row v-else-if="!isLoading && friends.length === 0" class="justify-center">
+    <!-- No user Found -->
+    <v-row v-else-if="!isLoading && !friend" class="justify-center">
       <v-col cols="12" class="text-center">
-        <p>No friends found.</p>
+        <p>No user found.</p>
       </v-col>
     </v-row>
 
-    <!-- Friends List -->
+    <!-- Friend Display -->
     <v-container v-else>
-      <v-col cols="12" md="2">
-        <v-btn color="primary" @click="searchFriend">Send Request</v-btn>
-      </v-col>
-      <h2 class="section-title">Friends</h2>
-      <v-row>
-        <v-col v-for="(friend, index) in friends" :key="friend.id" cols="12" md="4">
-          <eaFriendCard :friend="friend" :index="index" @remove="removeFriend(friend.id)" />
+      <v-row justify="center">
+        <v-col cols="12" md="6" lg="4" class="d-flex justify-center">
+          <div class="friend-card">
+            <span class="friend-username">{{ friend?.username }}</span>
+            <v-btn color="primary" @click="sendRequest(friend)">Send Request</v-btn>
+          </div>
         </v-col>
       </v-row>
     </v-container>
@@ -51,51 +50,43 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue'
+import { defineComponent, ref } from 'vue'
+import { useFriendsStore } from '../stores/Friends'
+import type { UserDto } from '@/models/UserDto'
 
 export default defineComponent({
   name: 'eaFriendsAdd',
   setup() {
     const isLoading = ref(false)
     const friendSearchQuery = ref('')
-    const friends = ref([])
+    const friend = ref<UserDto | null>(null) // Single friend object, initially null
+    const friendsStore = useFriendsStore()
 
     const searchFriend = async () => {
       isLoading.value = true
+      friend.value = null
       try {
-        // Fetch friends based on search query
-        // Assume fetchFriends is a function that retrieves friend data from an API
-        // friends.value = await fetchFriends(friendSearchQuery.value)
-        // Placeholder for demo purposes
-        friends.value = [
-          { id: '1', name: 'John Doe' },
-          { id: '2', name: 'Jane Smith' }
-        ]
+        const result = await friendsStore.getUser(friendSearchQuery.value)
+        friend.value = result // Update the friend with the found result
       } finally {
         isLoading.value = false
       }
     }
 
-    const removeFriend = async (friendId: string) => {
-      // Remove friend logic (optional for now)
-    }
-
-    onMounted(async () => {
-      isLoading.value = true
-      try {
-        // Initial load of friends (optional for now)
-        // friends.value = await fetchFriends()
-      } finally {
-        isLoading.value = false
+    const sendRequest = async (friend: UserDto | null) => {
+      // Logic to send a friend request to the friend
+      if (friend !== null) {
+        console.log('Request sent to', friend.username)
+        await friendsStore.sendRequest(friend)
       }
-    })
+    }
 
     return {
       isLoading,
       friendSearchQuery,
-      friends,
+      friend,
       searchFriend,
-      removeFriend
+      sendRequest
     }
   }
 })
@@ -119,5 +110,27 @@ export default defineComponent({
 
 .v-progress-circular {
   margin: 40px 0;
+}
+
+.friend-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background-color: #f9f9f9;
+  width: 100%;
+}
+
+.friend-username {
+  font-weight: 500;
+  font-size: 1.2rem;
+  margin-right: 10px;
+}
+
+.send-request-btn {
+  margin-left: auto;
 }
 </style>
