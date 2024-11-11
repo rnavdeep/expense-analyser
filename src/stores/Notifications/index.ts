@@ -10,6 +10,7 @@ interface NotificationDto {
   userId: string
   message: string
   title?: string | null
+  isFriendRequest?: number | null
 }
 
 // Define the Pinia store

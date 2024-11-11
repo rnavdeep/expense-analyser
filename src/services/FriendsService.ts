@@ -31,12 +31,24 @@ class FriendsService {
         { withCredentials: true }
       )
 
-      if (resp.status === 200) {
-        return resp.data
+      if (resp.status == 400) {
+        return resp.statusText
       }
-
-      if (resp.status === 404) {
-        return 'Not Found'
+    } catch (error) {
+      console.error('Error sending request:', error)
+      return 'Error occurred'
+    }
+  }
+  async AcceptRequest(id: String): Promise<any> {
+    try {
+      const resp = await axios.post(`${API_URL}/acceptRequest`, id, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        withCredentials: true
+      })
+      if (resp.status == 400) {
+        return resp.statusText
       }
     } catch (error) {
       // Handle any potential errors

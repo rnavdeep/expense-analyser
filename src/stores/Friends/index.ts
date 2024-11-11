@@ -25,6 +25,15 @@ export const useFriendsStore = defineStore('Friends', {
         console.error('Not found', error)
         throw new Error('Error')
       }
+    },
+    async acceptRequest(requestId: string): Promise<any> {
+      try {
+        const response = await FriendsService.AcceptRequest(requestId)
+        return response
+      } catch (error) {
+        console.error('Not found', error)
+        throw new Error('Error')
+      }
     }
   },
 
