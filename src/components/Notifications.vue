@@ -9,18 +9,33 @@
           :key="index"
           :class="['notification-item', n.isRead ? 'read' : 'unread']"
         >
-          <v-list-item-content>
-            <v-list-item-title>{{ n.title }}</v-list-item-title>
-            <v-list-item-subtitle>{{ n.message }}</v-list-item-subtitle>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-btn icon color="grey" v-if="n.isRead">
-              <v-icon>mdi-check-circle</v-icon>
-            </v-btn>
-            <v-btn icon color="primary" v-else>
-              <v-icon>mdi-eye</v-icon>
-            </v-btn>
-          </v-list-item-action>
+          <div class="notification-content">
+            <v-list-item-content class="notification-text">
+              <v-list-item-title>{{ n.title }}</v-list-item-title>
+              <v-list-item-subtitle>{{ n.message }}</v-list-item-subtitle>
+            </v-list-item-content>
+
+            <v-list-item-action class="notification-actions">
+              <!-- Display accept button for friend requests -->
+              <v-btn
+                v-if="n.isFriendRequest !== null && n.isFriendRequest == 1"
+                color="primary"
+                @click="acceptRequest(n.id)"
+              >
+                Accept Request
+              </v-btn>
+
+              <!-- Icon buttons for regular notifications -->
+              <div v-if="n.isFriendRequest == null || n.isFriendRequest == 0">
+                <v-btn icon color="grey" v-if="n.isRead">
+                  <v-icon>mdi-check-circle</v-icon>
+                </v-btn>
+                <v-btn icon color="primary" v-else>
+                  <v-icon>mdi-eye</v-icon>
+                </v-btn>
+              </div>
+            </v-list-item-action>
+          </div>
         </v-list-item>
       </v-list>
     </div>
@@ -30,20 +45,27 @@
 <script lang="ts">
 import { defineComponent, computed } from 'vue'
 import { useNotificationStore } from '../stores/Notifications'
+import { useFriendsStore } from '../stores/Friends'
 
 export default defineComponent({
   name: 'eaNotifications',
   setup() {
     const notificationStore = useNotificationStore()
+    const friendStore = useFriendsStore()
 
-    // Fetch notifications when the component is set up
     notificationStore.GetAllNotifications()
 
-    // Compute all notifications
     const notifications = computed(() => notificationStore.notifications)
 
+    const acceptRequest = async (id: string) => {
+      console.log('Accepted friend request with ID:', id)
+      await friendStore.acceptRequest(id)
+      await notificationStore.GetAllNotifications()
+    }
+
     return {
-      notifications
+      notifications,
+      acceptRequest
     }
   }
 })
@@ -53,36 +75,74 @@ export default defineComponent({
 .notifications {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 20px;
+  padding: 16px;
+  background-color: #f1f1f1;
+  border-radius: 8px;
 }
 
 .notification-section {
-  background-color: #f9f9f9;
+  background-color: #ffffff;
   border-radius: 8px;
   padding: 20px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .section-title {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: bold;
-  margin-bottom: 10px;
+  color: #333;
+  margin-bottom: 16px;
 }
 
 .notification-item {
   border-radius: 8px;
   margin-bottom: 10px;
-  transition: background-color 0.3s;
+  padding: 12px;
+  transition:
+    background-color 0.3s,
+    transform 0.2s;
 }
 
 .notification-item.unread {
-  background-color: #b3dfff; /* Light blue for unread notifications */
+  background-color: #e3f2fd;
+  font-weight: bold;
 }
 
 .notification-item.read {
-  background-color: #ffffff; /* White for read notifications */
+  background-color: #ffffff;
 }
 
 .notification-item:hover {
-  background-color: #fbe6e6; /* Light red on hover */
+  background-color: #fbe6e6;
+  transform: scale(1.02);
+}
+
+.notification-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.notification-text {
+  flex-grow: 1;
+}
+
+/* Right-align buttons */
+.notification-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notification-request {
+  background-color: #ffecb3;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.v-btn {
+  font-size: 0.875rem;
 }
 </style>
