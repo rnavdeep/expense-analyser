@@ -3,6 +3,7 @@ import AuthService from '@/services/AuthService'
 import { LoginDataDto } from '@/models/LoginData'
 import { LoginResponse } from '@/models/LoginResponse'
 import { useNotificationStore } from '../Notifications'
+import TextractNotificationService from '@/services/TextractNotificationService'
 
 interface AuthState {
   userName: string
@@ -28,6 +29,8 @@ export const useAuthStore = defineStore('auth', {
         this.isSessionActive = resp.isLoggedIn
         //as soon as user is logged is fetch notifications
         if (resp.isLoggedIn) {
+          TextractNotificationService.start()
+
           const notificationStore = useNotificationStore()
           notificationStore.GetAllNotifications()
         }
