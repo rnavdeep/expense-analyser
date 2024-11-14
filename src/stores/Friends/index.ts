@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import FriendsService from '@/services/FriendsService'
 import type { UserDto } from '@/models/UserDto'
+import type { FriendDto } from '@/models/FriendsDto'
 // Define the Pinia store
 export const useFriendsStore = defineStore('Friends', {
   state: () => ({}),
@@ -30,6 +31,15 @@ export const useFriendsStore = defineStore('Friends', {
       try {
         const response = await FriendsService.AcceptRequest(requestId)
         return response
+      } catch (error) {
+        console.error('Not found', error)
+        throw new Error('Error')
+      }
+    },
+    async getFriends(): Promise<FriendDto[]> {
+      try {
+        const response = await FriendsService.GetFriends()
+        return response as FriendDto[]
       } catch (error) {
         console.error('Not found', error)
         throw new Error('Error')

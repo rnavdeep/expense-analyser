@@ -56,6 +56,19 @@ class FriendsService {
       return 'Error occurred'
     }
   }
+  async GetFriends(): Promise<any> {
+    try {
+      const resp = await axios.get(`${API_URL}/getFriends`, { withCredentials: true })
+
+      if (resp.status == 404) {
+        return resp.statusText
+      }
+      return resp.data
+    } catch (error) {
+      console.error('Error sending request:', error)
+      return 'Error occurred'
+    }
+  }
 }
 
 export default new FriendsService()

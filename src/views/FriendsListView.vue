@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import eaFriendsAdd from '../components/FriendsAdd.vue'
+import eaFriendsList from '../components/FriendsList.vue'
 </script>
 
 <template>
   <main>
-    <eaFriendsAdd />
+    <eaFriendsList />
   </main>
 </template>
