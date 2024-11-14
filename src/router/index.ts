@@ -6,7 +6,8 @@ import ExpenseCreateView from '../views/ExpenseCreateView.vue'
 import ExpenseListView from '../views/ExpenseListView.vue'
 import DocumentResultPageView from '../views/DocumentResultPageView.vue'
 import NotificationView from '../views/NotificationsView.vue'
-import FriendsView from '../views/FriendsListView.vue'
+import FriendsView from '../views/FriendsAddView.vue'
+import FriendsListView from '../views/FriendsListView.vue'
 import { useAuthStore } from '@/stores/Auth'
 
 const router = createRouter({
@@ -68,8 +69,14 @@ const router = createRouter({
     },
     {
       path: '/addFriend',
-      name: 'Friends',
+      name: 'Add Friend',
       component: FriendsView,
+      meta: { requiresLogin: true, title: 'Add Friend', description: 'Add Friend' }
+    },
+    {
+      path: '/friends',
+      name: 'Friends',
+      component: FriendsListView,
       meta: { requiresLogin: true, title: 'Friends', description: 'Friends' }
     }
   ]
