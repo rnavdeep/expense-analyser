@@ -5,7 +5,7 @@ import { LoginResponse } from '@/models/LoginResponse'
 import { useNotificationStore } from '../Notifications'
 import TextractNotificationService from '@/services/TextractNotificationService'
 
- AuthState {
+interface AuthState {
   userName: string
   isSessionActive: boolean
   loginResponse: LoginResponse
