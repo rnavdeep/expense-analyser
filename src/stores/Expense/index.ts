@@ -9,6 +9,7 @@ import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
 import type { Pagination } from '@/models/Pagination'
 import type { SortFilter } from '@/models/SortFilter'
 import type { FilterBy } from '@/models/FilterBy'
+import type { UserAssignedDto } from '@/models/UserAssignedDto'
 
 // Define the interface for NewExpense
 interface NewExpense {
@@ -25,6 +26,9 @@ interface NewExpense {
   isPageLoading: boolean
   totalExpenses: number
   dropdownExpenses: ExpenseListDataDto[]
+  dialogAssignUsers: boolean
+  assignedUsers: UserAssignedDto[]
+  isUserAssigning: boolean
 }
 
 // Define the Pinia store
@@ -42,7 +46,10 @@ export const useExpenseStore = defineStore('Expense', {
     expenses: [],
     isPageLoading: true,
     totalExpenses: 0,
-    dropdownExpenses: []
+    dropdownExpenses: [],
+    dialogAssignUsers: false,
+    assignedUsers: [],
+    isUserAssigning: false
   }),
 
   actions: {
@@ -157,7 +164,18 @@ export const useExpenseStore = defineStore('Expense', {
         throw new Error('Failed to load expenses')
       }
     },
-
+    async GetAssignedUsers(): Promise<any> {
+      try {
+        if (this.expenseId != null) {
+          const resp = await ExpenseService.GetExpenseUsers(this.expenseId)
+          console.log(resp)
+          console.log(resp as UserAssignedDto)
+          this.assignedUsers = resp as UserAssignedDto[]
+        }
+      } catch (error) {
+        throw new Error('Failed to load expenses')
+      }
+    },
     async DeleteExpense(expense: ExpenseListDataDto): Promise<any> {
       try {
         const response = await ExpenseService.DeleteExpense(expense)
@@ -180,6 +198,16 @@ export const useExpenseStore = defineStore('Expense', {
       try {
         const resp = await ExpenseService.GetDocResults(expenseId, docId)
         return resp
+      } catch (error) {
+        console.log('Error loading expense documents')
+        throw new Error('Failed to load documents')
+      }
+    },
+    async AddUserToExpense(expenseId: string | undefined, userId: string): Promise<any> {
+      try {
+        if (expenseId !== undefined) {
+          await ExpenseService.AddUserToExpense(userId, expenseId)
+        }
       } catch (error) {
         console.log('Error loading expense documents')
         throw new Error('Failed to load documents')
