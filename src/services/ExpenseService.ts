@@ -218,6 +218,27 @@ class ExpenseService {
       throw new Error('An unexpected error occurred')
     }
   }
+
+  /**
+   * Adds a user to an expense.
+   * @param userId The ID of the user to add (string).
+   * @param expenseId The ID of the expense (string).
+   * @returns The GUID ID of the new ExpenseUser entry.
+   */
+  async AddUserToExpense(userId: string, expenseId: string): Promise<string> {
+    try {
+      const response = await axios.post(`${API_URL}/${expenseId}/addUser`, null, {
+        params: { userId },
+        withCredentials: true
+      })
+      return response.data.id
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to add user to expense')
+      }
+      throw new Error('An unexpected error occurred')
+    }
+  }
 }
 
 export default new ExpenseService()

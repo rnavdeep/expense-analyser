@@ -192,7 +192,9 @@ export const useExpenseStore = defineStore('Expense', {
     },
     async AddUserToExpense(expenseId: string | undefined, userId: string): Promise<any> {
       try {
-        console.log(expenseId, userId)
+        if (expenseId !== undefined) {
+          await ExpenseService.AddUserToExpense(userId, expenseId)
+        }
       } catch (error) {
         console.log('Error loading expense documents')
         throw new Error('Failed to load documents')
