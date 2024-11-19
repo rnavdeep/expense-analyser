@@ -44,6 +44,15 @@ export const useFriendsStore = defineStore('Friends', {
         console.error('Not found', error)
         throw new Error('Error')
       }
+    },
+    async getDropdownUsers(): Promise<UserDto[]> {
+      try {
+        const response = await FriendsService.GetDropdownUsers()
+        return response as UserDto[]
+      } catch (error) {
+        console.error('Not found', error)
+        throw new Error('Error')
+      }
     }
   },
 

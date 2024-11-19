@@ -9,6 +9,7 @@ import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
 import type { Pagination } from '@/models/Pagination'
 import type { SortFilter } from '@/models/SortFilter'
 import type { FilterBy } from '@/models/FilterBy'
+import type { UserAssignedDto } from '@/models/UserAssignedDto'
 
 // Define the interface for NewExpense
 interface NewExpense {
@@ -25,6 +26,8 @@ interface NewExpense {
   isPageLoading: boolean
   totalExpenses: number
   dropdownExpenses: ExpenseListDataDto[]
+  dialogAssignUsers: boolean
+  assignedUsers: UserAssignedDto[]
 }
 
 // Define the Pinia store
@@ -42,7 +45,9 @@ export const useExpenseStore = defineStore('Expense', {
     expenses: [],
     isPageLoading: true,
     totalExpenses: 0,
-    dropdownExpenses: []
+    dropdownExpenses: [],
+    dialogAssignUsers: false,
+    assignedUsers: []
   }),
 
   actions: {
@@ -180,6 +185,14 @@ export const useExpenseStore = defineStore('Expense', {
       try {
         const resp = await ExpenseService.GetDocResults(expenseId, docId)
         return resp
+      } catch (error) {
+        console.log('Error loading expense documents')
+        throw new Error('Failed to load documents')
+      }
+    },
+    async AddUserToExpense(expenseId: string | undefined, userId: string): Promise<any> {
+      try {
+        console.log(expenseId, userId)
       } catch (error) {
         console.log('Error loading expense documents')
         throw new Error('Failed to load documents')

@@ -39,6 +39,17 @@
                     </v-btn>
                   </template>
                 </v-tooltip>
+
+                <!-- Assign User -->
+                <eaAssignUsers :expense-id="expenseId.value" />
+                <v-tooltip text="Assgin Users" location="top">
+                  <template v-slot:activator="{ props }">
+                    <v-btn @click="openAssignUsersDialog" :disabled="!uploadSuccess" v-bind="props">
+                      <v-icon left>mdi-upload</v-icon>
+                      Assign Users
+                    </v-btn>
+                  </template>
+                </v-tooltip>
               </v-form>
             </v-card-text>
 
@@ -88,10 +99,10 @@ import { ExpenseDataDto, type ExpenseCreateForm } from '../models/ExpenseCreateF
 import { useExpenseStore } from '../stores/Expense'
 import { useDocumentStore } from '../stores/Document'
 import eaUploadDocs from './DocumentUpload.vue'
-
+import eaAssignUsers from './AssignUsers.vue'
 export default defineComponent({
   name: 'eaExpenseCreate',
-  components: { eaUploadDocs },
+  components: { eaUploadDocs, eaAssignUsers },
   setup() {
     const expenseStore = useExpenseStore()
     const docStore = useDocumentStore()
@@ -117,6 +128,9 @@ export default defineComponent({
 
     const openDocumentDialog = () => {
       expenseStore.dialogUploadDocs = true
+    }
+    const openAssignUsersDialog = () => {
+      expenseStore.dialogAssignUsers = true
     }
     // Method to submit the form
     const submitForm = async () => {
@@ -173,6 +187,7 @@ export default defineComponent({
       uploadSuccess,
       fileInput,
       openDocumentDialog,
+      openAssignUsersDialog,
       expenseId
     }
   }
