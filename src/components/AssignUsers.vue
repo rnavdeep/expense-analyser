@@ -33,11 +33,11 @@
           <ol class="eachUser">
             <li v-for="(user, index) in assignedUsers" :key="index" class="user-item">
               <span class="user-index">{{ index + 1 }}.</span>
-              <p class="userName">{{ user.username }}</p>
-              <v-tooltip :text="`Remove ${user.username}`" location="top">
+              <p class="userName">{{ user.userName }}</p>
+              <v-tooltip :text="`Remove ${user.userName}`" location="top">
                 <template v-slot:activator="{ props }">
                   <v-icon
-                    @click="removeUserFromExpense(user.id)"
+                    @click="removeUserFromExpense(user.userId)"
                     v-bind="props"
                     style="color: dark-red; margin-left: 40px"
                     >mdi-account-remove</v-icon
@@ -54,8 +54,8 @@
           <v-progress-circular
             color="primary"
             indeterminate
-            :size="67"
-            :width="5"
+            :size="37"
+            :width="4"
           ></v-progress-circular>
         </div>
 
@@ -74,7 +74,6 @@ import { computed, onMounted, ref } from 'vue'
 import { defineComponent } from 'vue'
 import { useExpenseStore } from '../stores/Expense'
 import { useFriendsStore } from '../stores/Friends'
-import { UserAssignedDto } from '@/models/UserAssignedDto'
 import type { UserDto } from '@/models/UserDto'
 
 export default defineComponent({
@@ -93,8 +92,7 @@ export default defineComponent({
     const selectedUserId = ref<string | null>(null)
     const availableUsers = ref<UserDto[]>([])
     const assignedUsers = computed(() => expenseStore.assignedUsers)
-    const isUserAssigning = computed(() => expenseStore.isUploading)
-
+    const isUserAssigning = computed(() => expenseStore.isUserAssigning)
     // Fetch available users on component mount
     onMounted(async () => {
       try {
@@ -116,14 +114,16 @@ export default defineComponent({
     }
 
     const addUserToExpense = async () => {
-      console.log(selectedUserId.value)
-      console.log(props.expenseId)
+      expenseStore.isUserAssigning = true
       try {
         if ((props.expenseId != null, selectedUserId.value != null)) {
           await expenseStore.AddUserToExpense(props.expenseId, selectedUserId.value)
         }
+        await expenseStore.GetAssignedUsers()
+        expenseStore.isUserAssigning = false
       } catch (error) {
         console.error('Error removing user from expense:', error)
+        expenseStore.isUserAssigning = false
       }
     }
 

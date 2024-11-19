@@ -1,6 +1,7 @@
 export interface UserAssignedDto {
-  id: string
-  username: string
-  email: string
-  amount: number
+  expenseId: string
+  userId: string
+  userName: string
+  userShare: number
+  userAmount: number | null
 }

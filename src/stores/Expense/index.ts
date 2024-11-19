@@ -28,6 +28,7 @@ interface NewExpense {
   dropdownExpenses: ExpenseListDataDto[]
   dialogAssignUsers: boolean
   assignedUsers: UserAssignedDto[]
+  isUserAssigning: boolean
 }
 
 // Define the Pinia store
@@ -47,7 +48,8 @@ export const useExpenseStore = defineStore('Expense', {
     totalExpenses: 0,
     dropdownExpenses: [],
     dialogAssignUsers: false,
-    assignedUsers: []
+    assignedUsers: [],
+    isUserAssigning: false
   }),
 
   actions: {
@@ -162,7 +164,18 @@ export const useExpenseStore = defineStore('Expense', {
         throw new Error('Failed to load expenses')
       }
     },
-
+    async GetAssignedUsers(): Promise<any> {
+      try {
+        if (this.expenseId != null) {
+          const resp = await ExpenseService.GetExpenseUsers(this.expenseId)
+          console.log(resp)
+          console.log(resp as UserAssignedDto)
+          this.assignedUsers = resp as UserAssignedDto[]
+        }
+      } catch (error) {
+        throw new Error('Failed to load expenses')
+      }
+    },
     async DeleteExpense(expense: ExpenseListDataDto): Promise<any> {
       try {
         const response = await ExpenseService.DeleteExpense(expense)

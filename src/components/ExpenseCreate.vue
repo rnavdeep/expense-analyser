@@ -129,7 +129,9 @@ export default defineComponent({
     const openDocumentDialog = () => {
       expenseStore.dialogUploadDocs = true
     }
-    const openAssignUsersDialog = () => {
+    const openAssignUsersDialog = async () => {
+      console.log(expenseStore.expenseId)
+      await expenseStore.GetAssignedUsers()
       expenseStore.dialogAssignUsers = true
     }
     // Method to submit the form
