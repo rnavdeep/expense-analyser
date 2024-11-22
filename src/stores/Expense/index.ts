@@ -176,6 +176,16 @@ export const useExpenseStore = defineStore('Expense', {
         throw new Error('Failed to load expenses')
       }
     },
+    async GetAssignedUsersDto(expenseId: string): Promise<any> {
+      try {
+        if (expenseId != null) {
+          const resp = await ExpenseService.GetExpenseUsers(expenseId)
+          return resp as UserAssignedDto[]
+        }
+      } catch (error) {
+        throw new Error('Failed to load expenses')
+      }
+    },
     async DeleteExpense(expense: ExpenseListDataDto): Promise<any> {
       try {
         const response = await ExpenseService.DeleteExpense(expense)

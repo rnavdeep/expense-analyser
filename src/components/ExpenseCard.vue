@@ -31,7 +31,7 @@
 
         <v-tooltip text="Users Expense Shared With" location="top">
           <template v-slot:activator="{ props }">
-            <v-icon v-bind="props" @click="editExpense(expense.id)">mdi-account-group</v-icon>
+            <v-icon v-bind="props" @click="openUsersDialog">mdi-account-group</v-icon>
           </template>
         </v-tooltip>
       </v-col>
@@ -97,6 +97,38 @@
       </v-card>
     </v-dialog>
 
+    <v-dialog v-model="dialogUsers" max-width="400">
+      <v-card>
+        <v-card-title class="userTitle">Attached Users</v-card-title>
+        <v-card-text>
+          <!-- Header Row -->
+          <div class="user-list">
+            <span class="user-list-header">Index</span>
+            <span class="user-list-header">Name</span>
+            <span class="user-list-header">Share</span>
+            <span class="user-list-header">Amount</span>
+          </div>
+
+          <!-- User Data -->
+          <div v-for="(user, index) in usersExpense" :key="index" class="user-list">
+            <span>{{ index + 1 }}</span>
+            <p class="userName">{{ user.userName }}</p>
+            <p class="userShare">{{ user.userShare * 100 + '%' }}</p>
+            <p class="userAmount">{{ user.userAmount + ' AUD' }}</p>
+            <v-tooltip :text="`Delete ${user.userName}`" location="top">
+              <template v-slot:activator="{ props }">
+                <v-icon @click="deleteUser(user.userId)" v-bind="props">mdi-trash-can</v-icon>
+              </template>
+            </v-tooltip>
+          </div>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text="Close" @click="dialogUsers = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- Nested Confirmation Dialog for Processing -->
     <v-dialog v-model="dialogConfirmProcess" max-width="400">
       <v-card>
@@ -138,6 +170,7 @@ import { useExpenseStore } from '../stores/Expense'
 import { useDocumentStore } from '../stores/Document'
 import { UpdateExpenseDto } from '../models/ExpenseCreateForm'
 import { useExtractStore } from '../stores/Extract'
+import type { UserAssignedDto } from '../models/UserAssignedDto'
 
 interface ExpenseCardProps {
   expense: ExpenseListDataDto
@@ -162,10 +195,13 @@ export default defineComponent({
   setup(props: ExpenseCardProps, { emit }) {
     const dialogEdit = ref(false)
     const dialogDocs = ref(false)
+    const dialogUsers = ref(false)
+
     const dialogConfirmProcess = ref(false)
     const editTitle = ref(props.expense.title)
     const editDescription = ref(props.expense.description)
     const documents = ref<DocumentDialogDto[]>([])
+    const usersExpense = ref<UserAssignedDto[]>([])
     const selectedDocument = ref<DocumentDialogDto | null>(null)
     const expenseStore = useExpenseStore()
     const docStore = useDocumentStore()
@@ -185,6 +221,16 @@ export default defineComponent({
       const result = await expenseStore.GetDocByExpenseId(props.expense.id)
       documents.value = result
     }
+
+    const openUsersDialog = async () => {
+      dialogUsers.value = true
+      console.log('Calling now')
+      const result = await expenseStore.GetAssignedUsersDto(props.expense.id)
+      console.log(props.expense.id)
+      console.log(result)
+      usersExpense.value = result
+    }
+
     const confirmDeletion = () => {
       return (deleteConfirmed.value = true)
     }
@@ -232,6 +278,15 @@ export default defineComponent({
         console.error('Error deleting document:', error)
       }
     }
+
+    const deleteUser = async (userId: string) => {
+      try {
+        await docStore.deleteDocumentFromExpense(userId)
+        documents.value = documents.value.filter((doc) => doc.id !== userId)
+      } catch (error) {
+        console.error('Error deleting document:', error)
+      }
+    }
     const isProcessButtonDisabled = (doc: DocumentDialogDto): boolean => {
       return doc.jobStatus != null && doc.jobStatus != 2
     }
@@ -247,6 +302,7 @@ export default defineComponent({
     return {
       dialogEdit,
       dialogDocs,
+      dialogUsers,
       dialogConfirmProcess,
       editTitle,
       editDescription,
@@ -265,7 +321,10 @@ export default defineComponent({
       editExpense,
       isProcessButtonDisabled,
       confirmDeletion,
-      deleteConfirmed
+      deleteConfirmed,
+      openUsersDialog,
+      usersExpense,
+      deleteUser
     }
   }
 })
@@ -330,6 +389,31 @@ export default defineComponent({
 .docName {
   flex-grow: 1;
   margin: 0;
+}
+.user-list {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.user-list-header {
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.user-item {
+  display: contents;
+}
+
+.userName,
+.userShare,
+.userAmount {
+  text-align: center;
+}
+.delete {
+  margin: 10px;
 }
 
 .v-icon.download {
