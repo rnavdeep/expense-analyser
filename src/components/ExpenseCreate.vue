@@ -44,8 +44,13 @@
                 <eaAssignUsers :expense-id="expenseId.value" />
                 <v-tooltip text="Assgin Users" location="top">
                   <template v-slot:activator="{ props }">
-                    <v-btn @click="openAssignUsersDialog" :disabled="!uploadSuccess" v-bind="props">
-                      <v-icon left>mdi-upload</v-icon>
+                    <v-btn
+                      style="margin-top: 10px; color: blue"
+                      @click="openAssignUsersDialog"
+                      :disabled="!uploadSuccess"
+                      v-bind="props"
+                    >
+                      <v-icon left>mdi-account-multiple-plus</v-icon>
                       Assign Users
                     </v-btn>
                   </template>
