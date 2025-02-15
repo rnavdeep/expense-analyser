@@ -101,6 +101,7 @@
         <eaExpenseCard
           :expense="expense"
           :index="index"
+          :isReadOnly="true"
           @edit="editExpense"
           @delete="deleteExpense(expense)"
         />
@@ -159,7 +160,7 @@ export default defineComponent({
 
     // Function to fetch expenses
     const fetchExpenses = async (searchFilter: FilterBy | null, sortFilter: SortFilter | null) => {
-      await expenseStore.GetExpenses(
+      await expenseStore.GetSharedExpenses(
         new Pagination(currentPage.value, itemsPerPage.value),
         sortFilter,
         searchFilter

@@ -101,6 +101,7 @@
         <eaExpenseCard
           :expense="expense"
           :index="index"
+          :isReadOnly="false"
           @edit="editExpense"
           @delete="deleteExpense(expense)"
         />

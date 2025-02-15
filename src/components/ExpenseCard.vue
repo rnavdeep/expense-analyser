@@ -13,13 +13,17 @@
       <v-col class="icon-col" cols="auto">
         <v-tooltip text="Edit Expense" location="top">
           <template v-slot:activator="{ props }">
-            <v-icon v-bind="props" @click="openEditDialog">mdi-pencil</v-icon>
+            <v-icon :disabled="isReadOnly" v-bind="props" @click="openEditDialog"
+              >mdi-pencil</v-icon
+            >
           </template>
         </v-tooltip>
 
         <v-tooltip text="Delete Expense" location="top">
           <template v-slot:activator="{ props }">
-            <v-icon v-bind="props" @click="confirmDeletion">mdi-trash-can</v-icon>
+            <v-icon :disabled="isReadOnly" v-bind="props" @click="confirmDeletion"
+              >mdi-trash-can</v-icon
+            >
           </template>
         </v-tooltip>
 
@@ -71,7 +75,11 @@
               </v-tooltip>
               <v-tooltip :text="`Delete ${doc.name}`" location="top">
                 <template v-slot:activator="{ props }">
-                  <v-icon @click="deleteFile(doc.id)" v-bind="props" class="delete"
+                  <v-icon
+                    :disabled="isReadOnly"
+                    @click="deleteFile(doc.id)"
+                    v-bind="props"
+                    class="delete"
                     >mdi-trash-can</v-icon
                   >
                 </template>
@@ -79,7 +87,7 @@
               <v-tooltip :text="`Process ${doc.name}`" location="top">
                 <template v-slot:activator="{ props }">
                   <v-icon
-                    :disabled="isProcessButtonDisabled(doc)"
+                    :disabled="isProcessButtonDisabled(doc) || isReadOnly"
                     @click="openConfirmProcessDialog(doc)"
                     v-bind="props"
                     class="process"
@@ -117,7 +125,9 @@
             <p class="userAmount">{{ user.userAmount + ' AUD' }}</p>
             <v-tooltip :text="`Delete ${user.userName}`" location="top">
               <template v-slot:activator="{ props }">
-                <v-icon @click="deleteUser(user.userId)" v-bind="props">mdi-trash-can</v-icon>
+                <v-icon :disabled="isReadOnly" @click="deleteUser(user.userId)" v-bind="props"
+                  >mdi-trash-can</v-icon
+                >
               </template>
             </v-tooltip>
           </div>
@@ -175,6 +185,7 @@ import type { UserAssignedDto } from '../models/UserAssignedDto'
 interface ExpenseCardProps {
   expense: ExpenseListDataDto
   index: number
+  isReadOnly: boolean
 }
 
 export default defineComponent({
@@ -188,6 +199,10 @@ export default defineComponent({
     index: {
       type: Number,
       required: true
+    },
+    isReadOnly: {
+      type: Boolean,
+      required: true
     }
   },
   emits: ['edit', 'delete'],
@@ -196,6 +211,7 @@ export default defineComponent({
     const dialogEdit = ref(false)
     const dialogDocs = ref(false)
     const dialogUsers = ref(false)
+    console.log(props.isReadOnly)
 
     const dialogConfirmProcess = ref(false)
     const editTitle = ref(props.expense.title)
