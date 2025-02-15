@@ -19,6 +19,12 @@
         to="/myExpenses"
       ></v-list-item>
       <v-list-item
+        prepend-icon="mdi-piggy-bank"
+        title="Shared Expenses"
+        value="sharedExpenses"
+        to="/sharedExpenses"
+      ></v-list-item>
+      <v-list-item
         prepend-icon="mdi-receipt-text-plus"
         title="Create Expense"
         value="createExpense"
