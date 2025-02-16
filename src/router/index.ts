@@ -8,6 +8,7 @@ import DocumentResultPageView from '../views/DocumentResultPageView.vue'
 import NotificationView from '../views/NotificationsView.vue'
 import FriendsView from '../views/FriendsAddView.vue'
 import FriendsListView from '../views/FriendsListView.vue'
+import SharedExpensesView from '../views/SharedExpensesView.vue'
 import { useAuthStore } from '@/stores/Auth'
 
 const router = createRouter({
@@ -54,6 +55,16 @@ const router = createRouter({
       name: 'ExpenseList',
       component: ExpenseListView,
       meta: { requiresLogin: true, title: 'Expenses', description: 'Expenses Listing' }
+    },
+    {
+      path: '/sharedExpenses',
+      name: 'SharedExpenses',
+      component: SharedExpensesView,
+      meta: {
+        requiresLogin: true,
+        title: 'Shared Expenses',
+        description: 'Shared Expenses Listing'
+      }
     },
     {
       path: '/docResults',

@@ -261,6 +261,49 @@ class ExpenseService {
       throw new Error('An unexpected error occurred')
     }
   }
+
+  /**
+   *
+   * @returns  List of ExpenseListDataDto shared with logged in user based on pageNumber and size
+   */
+  async GetSharedExpenses(
+    pagination: Pagination,
+    sortFilter: SortFilter | null,
+    searchFilter: FilterBy | null
+  ): Promise<any> {
+    try {
+      const params: any = {
+        pageNumber: pagination.pageNumber,
+        pageSize: pagination.pageSize
+      }
+
+      if (sortFilter) {
+        params.PropertyNameSort = sortFilter.propertyName
+        params.Ascending = sortFilter.ascending
+      }
+
+      if (searchFilter) {
+        params.PropertyName = searchFilter.propertyName
+        params.Type = searchFilter.type
+        params.Value = searchFilter.value
+      }
+
+      const response = await axios.get(`${API_URL}/sharedExpenses`, {
+        params,
+        withCredentials: true
+      })
+
+      return response.data
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status == 404) {
+          throw new Error(error.response?.status.toString())
+        }
+        throw new Error(error.response?.data?.message || 'Failed to fetch expenses')
+      }
+      throw new Error('An unexpected error occurred')
+    }
+  }
 }
 
 export default new ExpenseService()

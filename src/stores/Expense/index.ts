@@ -144,7 +144,30 @@ export const useExpenseStore = defineStore('Expense', {
         throw new Error('Failed to load expenses')
       }
     },
+    async GetSharedExpenses(
+      pagination: Pagination,
+      sortFilter: SortFilter | null,
+      searchFilter: FilterBy | null
+    ): Promise<any> {
+      this.isPageLoading = true
+      this.expenses = []
+      try {
+        const resp = await ExpenseService.GetSharedExpenses(pagination, sortFilter, searchFilter)
+        this.expenses = resp.expenses
+        this.totalExpenses = resp.totalRows
+        this.isPageLoading = false
+        return resp
+      } catch (error) {
+        this.expenses = []
+        this.totalExpenses = 0
+        this.isPageLoading = false
+        if (error == 'Error: 404' && pagination.pageNumber > 1) {
+          throw new Error('404')
+        }
 
+        throw new Error('Failed to load expenses')
+      }
+    },
     async GetExpensesCount(): Promise<number> {
       try {
         const resp = await ExpenseService.GetExpensesCount()
@@ -171,6 +194,16 @@ export const useExpenseStore = defineStore('Expense', {
           console.log(resp)
           console.log(resp as UserAssignedDto)
           this.assignedUsers = resp as UserAssignedDto[]
+        }
+      } catch (error) {
+        throw new Error('Failed to load expenses')
+      }
+    },
+    async GetAssignedUsersDto(expenseId: string): Promise<any> {
+      try {
+        if (expenseId != null) {
+          const resp = await ExpenseService.GetExpenseUsers(expenseId)
+          return resp as UserAssignedDto[]
         }
       } catch (error) {
         throw new Error('Failed to load expenses')

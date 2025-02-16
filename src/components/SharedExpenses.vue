@@ -101,7 +101,7 @@
         <eaExpenseCard
           :expense="expense"
           :index="index"
-          :isReadOnly="false"
+          :isReadOnly="true"
           @edit="editExpense"
           @delete="deleteExpense(expense)"
         />
@@ -132,7 +132,7 @@ import { SortFilter } from '../models/SortFilter'
 import { FilterBy } from '../models/FilterBy'
 
 export default defineComponent({
-  name: 'eaExpenseList',
+  name: 'eaSharedExpenses',
   components: { eaExpenseCard },
   setup() {
     const expenseStore = useExpenseStore()
@@ -160,7 +160,7 @@ export default defineComponent({
 
     // Function to fetch expenses
     const fetchExpenses = async (searchFilter: FilterBy | null, sortFilter: SortFilter | null) => {
-      await expenseStore.GetExpenses(
+      await expenseStore.GetSharedExpenses(
         new Pagination(currentPage.value, itemsPerPage.value),
         sortFilter,
         searchFilter
