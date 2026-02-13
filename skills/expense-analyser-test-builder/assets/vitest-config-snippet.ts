@@ -1,5 +1,5 @@
-// Add this `test` block to `vite.config.ts`, or adapt it into `vitest.config.ts`.
-test: {
+// Example: copy this object into the `test` field of your Vitest config.
+export const vitestTestConfigSnippet = {
   globals: true,
   environment: 'jsdom',
   setupFiles: ['src/tests/setup.ts'],
