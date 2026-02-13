@@ -1,0 +1,4 @@
+interface:
+  display_name: "Expense Test Builder"
+  short_description: "Set up and write unit/integration tests for this Vue project"
+  default_prompt: "Set up the testing framework for this project and add unit/integration tests for components, stores, and services using the project architecture."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Expense API Builder"
+  short_description: "Add project-aligned API integrations in services and stores"
+  default_prompt: "Add a new API capability in this expense-analyser frontend by updating models, services, stores, and wiring into the UI with existing conventions."
