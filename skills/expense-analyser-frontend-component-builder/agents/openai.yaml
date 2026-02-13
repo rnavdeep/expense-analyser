@@ -1,0 +1,4 @@
+interface:
+  display_name: "Expense Component Builder"
+  short_description: "Create Vue components and views aligned to project architecture"
+  default_prompt: "Create a new frontend component or view in this expense-analyser project using existing Vue, Pinia, Vuetify, and routing conventions."

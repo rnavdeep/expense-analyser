@@ -1,5 +1,3 @@
-# This workflow will lint and build a Vue.js application across different Node.js versions
-
 name: Vue.js CI
 
 on:
@@ -11,22 +9,17 @@ on:
       - "*"
 
 jobs:
-  build:
-
+  ci:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x]  # Test against multiple Node.js versions
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js ${{ matrix.node-version }}
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 20.x
           cache: 'npm'
 
       - name: Install dependencies
@@ -35,5 +28,30 @@ jobs:
       - name: Run linting
         run: npm run lint
 
+      - name: Run tests
+        run: npx vitest run
+
       - name: Build the project
         run: npm run build
+
+      - name: Email CI summary
+        if: always()
+        continue-on-error: true
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          secure: true
+          subject: "Expense Analyser CI - ${{ job.status }} (${{ github.ref_name }})"
+          to: navdeeprandhawa0001@gmail.com
+          from: ${{ secrets.MAIL_FROM }}
+          body: |
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref_name }}
+            Trigger: ${{ github.event_name }}
+            Commit: ${{ github.sha }}
+            Workflow: ${{ github.workflow }}
+            Job status: ${{ job.status }}
+            Run URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
