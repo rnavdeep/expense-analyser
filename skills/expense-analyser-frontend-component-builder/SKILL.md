@@ -22,28 +22,40 @@ Use templates from `assets/component-options-template.vue` and `assets/view-wrap
 - Add only a component when UI is embedded in an existing page.
 - Add both component + view when creating a new route/page.
 
-2. Place files in the correct layer.
+2. Write tests first for each impacted layer.
+- Create or update component tests in `src/components/__tests__/`.
+- Create or update store tests in `src/stores/<Domain>/__tests__/index.spec.ts`.
+- Create or update service tests in `src/services/__tests__/<Domain>Service.spec.ts`.
+- Start with failing tests that describe expected behavior for new UI flow.
+
+3. Place files in the correct layer.
 - `src/components/<Feature>.vue` for feature UI.
 - `src/views/<Feature>View.vue` as route wrapper.
 - `src/stores/<Domain>/index.ts` for actions/state needed by UI.
 - `src/models` for form/request/response types.
 
-3. Follow existing component style.
+4. Implement layers to satisfy tests.
+- Implement service methods first.
+- Implement store state/actions next.
+- Implement component/view behavior last.
+
+5. Follow existing component style.
 - Prefer Vuetify primitives (`v-container`, `v-row`, `v-col`, `v-card`, `v-form`, `v-btn`, `v-alert`).
 - Use `defineComponent` with TypeScript in components.
 - Keep component names in `ea*` style to match current usage.
 - Keep local styles `scoped` unless intentionally global.
 
-4. Keep data flow architecture-safe.
+6. Keep data flow architecture-safe.
 - Use stores for stateful logic and async actions.
 - Keep API calls in `src/services`, not inside components.
 - Use `computed` for store-derived state and `ref` for local form/UI state.
 
-5. Add route only when needed.
+7. Add route only when needed.
 - Register new page routes in `src/router/index.ts`.
 - Add route meta fields following current pattern (`title`, `description`, guards).
 
-6. Validate.
+8. Validate.
+- Run `npx vitest run` or targeted test files first.
 - Run `npm run type-check`.
 - Run `npm run lint`.
 - Confirm component imports resolve and route navigation works.

@@ -8,6 +8,21 @@
 - `src/services`: axios API calls.
 - `src/router/index.ts`: page route registration and auth guards.
 
+## Required Test-First Flow
+
+Before implementing a new feature, write tests for every changed layer:
+
+1. Component test:
+- `src/components/__tests__/<Feature>.spec.ts`
+
+2. Store test:
+- `src/stores/<Domain>/__tests__/index.spec.ts`
+
+3. Service test:
+- `src/services/__tests__/<Domain>Service.spec.ts`
+
+Then implement service -> store -> component until tests pass.
+
 ## Existing Style Baseline
 
 - UI library: Vuetify with MDI icons.
@@ -46,8 +61,10 @@ When adding pages:
 
 ## Quality Checklist
 
-1. Component compiles with TypeScript.
-2. No axios call is added directly in component when store/service already exists.
-3. New imports resolve under Vite alias setup.
-4. `npm run type-check` passes.
-5. `npm run lint` passes for touched files.
+1. Tests exist for each touched layer (component, store, service).
+2. Tests are executed and pass (`npx vitest run` or targeted run).
+3. Component compiles with TypeScript.
+4. No axios call is added directly in component when store/service already exists.
+5. New imports resolve under Vite alias setup.
+6. `npm run type-check` passes.
+7. `npm run lint` passes for touched files.
