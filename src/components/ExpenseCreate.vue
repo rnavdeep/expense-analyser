@@ -1,101 +1,91 @@
 <template>
-  <v-container>
-    <v-row>
-      <v-col cols="12" md="6">
-        <div class="expenseCard">
-          <v-card>
-            <div class="cardTitle">
-              <v-card-title>New Expense</v-card-title>
-            </div>
+  <div class="page page--narrow">
+    <header class="page-head">
+      <div>
+        <h1 class="page-title">New expense</h1>
+        <p class="page-sub">Add the details, then attach bills and assign users.</p>
+      </div>
+    </header>
 
-            <v-card-text>
-              <v-form ref="expenseForm" v-model="isFormValid" :disabled="isLoading">
-                <!-- Title Field -->
-                <v-text-field
-                  v-model="formInput.title"
-                  label="Title"
-                  :rules="[rules.required]"
-                  required
-                  :disabled="uploadSuccess"
-                ></v-text-field>
+    <div class="form-card">
+      <v-form ref="expenseForm" v-model="isFormValid" :disabled="isLoading">
+        <!-- Title Field -->
+        <v-text-field
+          v-model="formInput.title"
+          label="Title"
+          :rules="[rules.required]"
+          required
+          :disabled="uploadSuccess"
+          class="mb-2"
+        ></v-text-field>
 
-                <!-- Description Field -->
-                <v-text-field
-                  v-model="formInput.description"
-                  label="Description"
-                  :rules="[rules.required]"
-                  required
-                  textarea
-                  :disabled="uploadSuccess"
-                ></v-text-field>
+        <!-- Description Field -->
+        <v-text-field
+          v-model="formInput.description"
+          label="Description"
+          :rules="[rules.required]"
+          required
+          textarea
+          :disabled="uploadSuccess"
+        ></v-text-field>
 
-                <!-- Document Uploaed -->
-                <eaUploadDocs :expense-id="expenseId.value" />
-                <v-tooltip text="Upload Bills" location="top">
-                  <template v-slot:activator="{ props }">
-                    <v-btn @click="openDocumentDialog" :disabled="!uploadSuccess" v-bind="props">
-                      <v-icon left>mdi-upload</v-icon>
-                      Upload
-                    </v-btn>
-                  </template>
-                </v-tooltip>
+        <!-- Attach bills + assign users -->
+        <div class="attach-row">
+          <eaUploadDocs :expense-id="expenseId.value" />
+          <v-btn
+            variant="tonal"
+            color="secondary"
+            @click="openDocumentDialog"
+            :disabled="!uploadSuccess"
+          >
+            <v-icon start>mdi-upload</v-icon>
+            Upload bills
+          </v-btn>
 
-                <!-- Assign User -->
-                <eaAssignUsers :expense-id="expenseId.value" />
-                <v-tooltip text="Assgin Users" location="top">
-                  <template v-slot:activator="{ props }">
-                    <v-btn
-                      style="margin-top: 10px; color: blue"
-                      @click="openAssignUsersDialog"
-                      :disabled="!uploadSuccess"
-                      v-bind="props"
-                    >
-                      <v-icon left>mdi-account-multiple-plus</v-icon>
-                      Assign Users
-                    </v-btn>
-                  </template>
-                </v-tooltip>
-              </v-form>
-            </v-card-text>
-
-            <v-card-actions>
-              <v-btn
-                color="primary"
-                @click="submitForm"
-                :disabled="!isFormValid || isLoading || uploadSuccess"
-                >Create Expense</v-btn
-              >
-              <v-tooltip text="Clear form and create new expense" location="top">
-                <template v-slot:activator="{ props }">
-                  <v-btn
-                    style="color: cornflowerblue"
-                    @click="resetForm"
-                    :disabled="isLoading"
-                    v-bind="props"
-                    >Upload New Expense</v-btn
-                  >
-                </template>
-              </v-tooltip>
-            </v-card-actions>
-          </v-card>
-
-          <!-- Alert Messages -->
-          <v-alert v-if="alertMessage" :type="uploadSuccess ? 'success' : 'error'" variant="tonal">
-            {{ alertMessage }}
-          </v-alert>
+          <eaAssignUsers :expense-id="expenseId.value" />
+          <v-btn
+            variant="tonal"
+            color="secondary"
+            @click="openAssignUsersDialog"
+            :disabled="!uploadSuccess"
+          >
+            <v-icon start>mdi-account-multiple-plus</v-icon>
+            Assign users
+          </v-btn>
         </div>
+      </v-form>
 
-        <div class="loading" v-if="isLoading">
-          <v-progress-circular
-            color="primary"
-            indeterminate
-            :size="67"
-            :width="5"
-          ></v-progress-circular>
-        </div>
-      </v-col>
-    </v-row>
-  </v-container>
+      <div class="form-actions">
+        <v-btn
+          color="primary"
+          size="large"
+          @click="submitForm"
+          :disabled="!isFormValid || isLoading || uploadSuccess"
+          >Create expense</v-btn
+        >
+        <v-btn variant="text" @click="resetForm" :disabled="isLoading">Start new expense</v-btn>
+      </div>
+
+      <!-- Alert Messages -->
+      <v-alert
+        v-if="alertMessage"
+        :type="uploadSuccess ? 'success' : 'error'"
+        variant="tonal"
+        class="mt-4"
+      >
+        {{ alertMessage }}
+      </v-alert>
+
+      <div class="loading-overlay" v-if="isLoading">
+        <v-progress-circular
+          color="secondary"
+          indeterminate
+          :size="56"
+          :width="5"
+        ></v-progress-circular>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -202,31 +192,43 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.v-container {
-  margin-top: 20px;
-  position: relative;
-  width: 100%;
-  height: 100vh;
+.page--narrow {
+  max-width: 720px;
 }
-.expenseCard {
+
+.form-card {
+  position: relative;
+  background: var(--ea-surface);
+  border: 1px solid var(--ea-border);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+}
+
+.attach-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--ea-border);
+}
+
+.loading-overlay {
   position: absolute;
-  top: 20;
-  left: 0;
-  width: 80%;
-  height: 80%;
-  z-index: 1;
-  background-color: inherit;
-  .cardTitle {
-    background: skyblue;
-    margin-bottom: 20px;
-  }
-}
-.loading {
-  position: relative;
-  z-index: 10;
-  background-color: rgba(255, 255, 255, 0.8);
-  padding: 100px;
-  margin-left: 300px;
-  margin-top: 50px;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 16px;
+  z-index: 5;
 }
 </style>

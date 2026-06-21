@@ -9,3 +9,47 @@
   padding: 0;
   font-weight: normal;
 }
+
+/* ---------------------------------------------------------------------------
+   Phase 2 — shared building blocks for the authenticated app.
+   These are the page shell, header and amount conventions described in the
+   redesign plan (Step 0). Kept global so every view aligns to the same
+   gutters, max width and typographic ranking.
+--------------------------------------------------------------------------- */
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 24px 64px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.page-title {
+  font-family: var(--ea-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-size: 30px;
+  line-height: 1.15;
+  color: var(--ea-ink);
+}
+
+.page-sub {
+  font-size: 15px;
+  color: var(--ea-muted);
+  margin-top: 4px;
+}
+
+/* The redesign's signature for figures: amounts always render in the mono face. */
+.amount {
+  font-family: var(--ea-mono);
+  font-weight: 700;
+}

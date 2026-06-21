@@ -1,45 +1,59 @@
 <template>
-  <v-container class="notifications">
-    <!-- Notifications Section -->
-    <div class="notification-section">
-      <h2 class="section-title">Notifications</h2>
-      <v-list>
-        <v-list-item
+  <div class="page">
+    <header class="page-head">
+      <div>
+        <h1 class="page-title">Notifications</h1>
+        <p class="page-sub">Friend requests and receipt updates.</p>
+      </div>
+    </header>
+
+    <div class="notif-card">
+      <!-- Empty -->
+      <div v-if="notifications.length === 0" class="notif-empty">
+        <v-icon size="28" class="notif-empty-icon">mdi-bell-outline</v-icon>
+        <p>You're all caught up.</p>
+      </div>
+
+      <!-- Rows -->
+      <ul class="notif-list" v-else>
+        <li
           v-for="(n, index) in notifications"
           :key="index"
-          :class="['notification-item', n.isRead ? 'read' : 'unread']"
+          :class="['notif-row', n.isRead ? 'is-read' : 'is-unread']"
         >
-          <div class="notification-content">
-            <v-list-item-content class="notification-text">
-              <v-list-item-title>{{ n.title }}</v-list-item-title>
-              <v-list-item-subtitle>{{ n.message }}</v-list-item-subtitle>
-            </v-list-item-content>
-
-            <v-list-item-action class="notification-actions">
-              <!-- Display accept button for friend requests -->
-              <v-btn
-                v-if="n.isFriendRequest !== null && n.isFriendRequest == 1"
-                color="primary"
-                @click="acceptRequest(n.id)"
-              >
-                Accept Request
-              </v-btn>
-
-              <!-- Icon buttons for regular notifications -->
-              <div v-if="n.isFriendRequest == null || n.isFriendRequest == 0">
-                <v-btn icon color="grey" v-if="n.isRead">
-                  <v-icon>mdi-check-circle</v-icon>
-                </v-btn>
-                <v-btn icon color="primary" v-else>
-                  <v-icon>mdi-eye</v-icon>
-                </v-btn>
-              </div>
-            </v-list-item-action>
+          <span class="notif-dot" :class="{ active: !n.isRead }"></span>
+          <div class="notif-icon">
+            <v-icon size="20">{{
+              n.isFriendRequest == 1 ? 'mdi-account-plus' : 'mdi-receipt-text'
+            }}</v-icon>
           </div>
-        </v-list-item>
-      </v-list>
+
+          <div class="notif-text">
+            <p class="notif-title">{{ n.title }}</p>
+            <p class="notif-message">{{ n.message }}</p>
+          </div>
+
+          <div class="notif-actions">
+            <!-- Accept button for friend requests -->
+            <v-btn
+              v-if="n.isFriendRequest !== null && n.isFriendRequest == 1"
+              color="secondary"
+              size="small"
+              @click="acceptRequest(n.id)"
+            >
+              Accept request
+            </v-btn>
+
+            <!-- Read state for regular notifications -->
+            <template v-else-if="n.isFriendRequest == null || n.isFriendRequest == 0">
+              <v-icon v-if="n.isRead" class="notif-status notif-status--read">mdi-check-circle</v-icon>
+              <v-icon v-else class="notif-status">mdi-eye-outline</v-icon>
+            </template>
+          </div>
+        </li>
+      </ul>
     </div>
-  </v-container>
+  </div>
 </template>
 
 <script lang="ts">
@@ -72,77 +86,107 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.notifications {
+.notif-card {
+  background: var(--ea-surface);
+  border: 1px solid var(--ea-border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.notif-empty {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 16px;
-  background-color: #f1f1f1;
-  border-radius: 8px;
-}
-
-.notification-section {
-  background-color: #ffffff;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.section-title {
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 16px;
-}
-
-.notification-item {
-  border-radius: 8px;
-  margin-bottom: 10px;
-  padding: 12px;
-  transition:
-    background-color 0.3s,
-    transform 0.2s;
-}
-
-.notification-item.unread {
-  background-color: #e3f2fd;
-  font-weight: bold;
-}
-
-.notification-item.read {
-  background-color: #ffffff;
-}
-
-.notification-item:hover {
-  background-color: #fbe6e6;
-  transform: scale(1.02);
-}
-
-.notification-content {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  width: 100%;
+  gap: 10px;
+  padding: 56px 24px;
+  color: var(--ea-muted);
 }
 
-.notification-text {
+.notif-empty-icon {
+  color: var(--ea-emerald);
+}
+
+.notif-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.notif-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--ea-border);
+  transition: background 0.15s ease;
+}
+.notif-row:last-child {
+  border-bottom: none;
+}
+.notif-row:hover {
+  background: var(--ea-paper);
+}
+.notif-row.is-unread {
+  background: var(--ea-emerald-tint);
+}
+.notif-row.is-unread:hover {
+  background: var(--ea-emerald-tint-strong);
+}
+
+.notif-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: transparent;
+  flex-shrink: 0;
+}
+.notif-dot.active {
+  background: var(--ea-emerald);
+}
+
+.notif-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--ea-paper);
+  border: 1px solid var(--ea-border);
+  color: var(--ea-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notif-text {
   flex-grow: 1;
+  min-width: 0;
 }
 
-/* Right-align buttons */
-.notification-actions {
+.notif-title {
+  font-family: var(--ea-display);
+  font-weight: 600;
+  color: var(--ea-ink);
+  font-size: 15px;
+}
+
+.notif-message {
+  font-size: 14px;
+  
+  color: var(--ea-muted);
+  margin-top: 2px;
+}
+
+.notif-actions {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 
-.notification-request {
-  background-color: #ffecb3;
-  padding: 12px;
-  border-radius: 8px;
+.notif-status {
+  color: var(--ea-muted);
 }
-
-.v-btn {
-  font-size: 0.875rem;
+.notif-status--read {
+  color: var(--ea-emerald);
 }
 </style>

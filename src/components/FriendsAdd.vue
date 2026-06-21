@@ -1,51 +1,47 @@
 <template>
-  <div>
-    <!-- Friend Search Section -->
-    <v-container>
-      <v-row align="center" justify="center" class="mb-4">
-        <v-col cols="12" md="2">
-          <h1 class="section-title">Search Friend</h1>
-        </v-col>
-        <v-col cols="12" md="4">
-          <v-text-field
-            v-model="friendSearchQuery"
-            dense
-            outlined
-            label="Search by Username or Email"
-            clearable
-          ></v-text-field>
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-btn color="primary" @click="searchFriend">Search</v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
+  <div class="page page--narrow">
+    <header class="page-head">
+      <div>
+        <h1 class="page-title">Add friend</h1>
+        <p class="page-sub">Find someone by username or email and send a request.</p>
+      </div>
+    </header>
 
-    <!-- Loading Indicator -->
-    <v-row v-if="isLoading" class="justify-center">
-      <v-col cols="12" class="text-center">
-        <v-progress-circular indeterminate color="primary"></v-progress-circular>
-      </v-col>
-    </v-row>
+    <!-- Search -->
+    <div class="search-card">
+      <div class="search-row">
+        <v-text-field
+          v-model="friendSearchQuery"
+          prepend-inner-icon="mdi-account-search"
+          placeholder="Search by username or email"
+          hide-details
+          clearable
+          class="search-input"
+          @keyup.enter="searchFriend"
+        ></v-text-field>
+        <v-btn color="secondary" size="large" @click="searchFriend">Search</v-btn>
+      </div>
+    </div>
 
-    <!-- No user Found -->
-    <v-row v-else-if="!isLoading && !friend" class="justify-center">
-      <v-col cols="12" class="text-center">
-        <p>No user found.</p>
-      </v-col>
-    </v-row>
+    <!-- Loading -->
+    <div v-if="isLoading" class="state-block">
+      <v-progress-circular indeterminate color="secondary" :size="44"></v-progress-circular>
+    </div>
 
-    <!-- Friend Display -->
-    <v-container v-else>
-      <v-row justify="center">
-        <v-col cols="12" md="6" lg="4" class="d-flex justify-center">
-          <div class="friend-card">
-            <span class="friend-username">{{ friend?.username }}</span>
-            <v-btn color="primary" @click="sendRequest(friend)">Send Request</v-btn>
-          </div>
-        </v-col>
-      </v-row>
-    </v-container>
+    <!-- No user found -->
+    <v-alert v-else-if="!friend" type="info" variant="tonal" class="result-alert">
+      Search for a user to send a friend request.
+    </v-alert>
+
+    <!-- Friend result -->
+    <div v-else class="friend-result">
+      <div class="friend-avatar">{{ (friend?.username || '?').charAt(0).toUpperCase() }}</div>
+      <div class="friend-info">
+        <p class="friend-name">{{ friend?.username }}</p>
+        <p class="friend-meta" v-if="friend?.email">{{ friend?.email }}</p>
+      </div>
+      <v-btn color="secondary" @click="sendRequest(friend)">Send request</v-btn>
+    </div>
   </div>
 </template>
 
@@ -93,44 +89,77 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.v-container {
-  padding: 10px;
+.page--narrow {
+  max-width: 640px;
 }
 
-.section-title {
-  font-size: 1.5rem;
-  font-weight: bold;
+.search-card {
+  background: var(--ea-surface);
+  border: 1px solid var(--ea-border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
 }
 
-.text-center {
-  font-size: 1.2rem;
-  color: gray;
-  margin-top: 20px;
-}
-
-.v-progress-circular {
-  margin: 40px 0;
-}
-
-.friend-card {
+.search-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  background-color: #f9f9f9;
-  width: 100%;
+  gap: 12px;
 }
 
-.friend-username {
-  font-weight: 500;
-  font-size: 1.2rem;
-  margin-right: 10px;
+.search-input {
+  flex-grow: 1;
 }
 
-.send-request-btn {
-  margin-left: auto;
+.state-block {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.result-alert {
+  border-radius: 14px;
+}
+
+.friend-result {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  background: var(--ea-surface);
+  border: 1px solid var(--ea-border);
+  border-radius: 16px;
+}
+
+.friend-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--ea-ink);
+  color: #fff;
+  font-family: var(--ea-display);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.friend-info {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.friend-name {
+  font-family: var(--ea-display);
+  font-weight: 600;
+  color: var(--ea-ink);
+  font-size: 16px;
+}
+
+.friend-meta {
+  font-size: 13px;
+  color: var(--ea-muted);
+  margin-top: 2px;
 }
 </style>

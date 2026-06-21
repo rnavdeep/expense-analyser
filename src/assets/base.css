@@ -4,6 +4,10 @@
   --ea-nav:        #1a1d28;   /* always-dark — navbar & hero, never flips */
   --ea-ink:        #1a1d28;
   --ea-emerald:    #2f9e6f;
+  /* Translucent so the fill composites over whatever sits beneath it — this keeps
+     it dark inside teleported overlays/dialogs that render outside .v-theme--dark. */
+  --ea-emerald-tint:        rgba(47, 158, 111, 0.10);   /* subtle emerald fill — icon chips, hover */
+  --ea-emerald-tint-strong: rgba(47, 158, 111, 0.16);   /* slightly deeper emerald fill */
   --ea-paper:      #faf9f6;
   --ea-surface:    #ffffff;
   --ea-border:     #e8e5df;
@@ -20,6 +24,8 @@
   --ea-border:     #2c3047;
   --ea-muted:      #8b93aa;
   --ea-emerald:    #3bc47a;   /* brighter emerald on dark backgrounds */
+  --ea-emerald-tint:        rgba(59, 196, 122, 0.14);  /* translucent so it stays dark */
+  --ea-emerald-tint-strong: rgba(59, 196, 122, 0.20);
 }
 
 :root {
