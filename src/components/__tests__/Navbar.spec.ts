@@ -19,6 +19,9 @@ const notificationStoreMock = vi.hoisted(() => ({
 
 vi.mock('@/stores/Auth', () => ({ useAuthStore: () => authStoreMock }))
 vi.mock('@/stores/Notifications', () => ({ useNotificationStore: () => notificationStoreMock }))
+vi.mock('vuetify', () => ({
+  useTheme: () => ({ global: { current: { value: { dark: false } } } })
+}))
 vi.mock('vue-router', async () => {
   const actual = await vi.importActual<typeof import('vue-router')>('vue-router')
   return {

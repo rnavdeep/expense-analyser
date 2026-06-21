@@ -11,7 +11,7 @@ vi.mock('@/stores/Auth', () => ({
 }))
 
 describe('Home.vue', () => {
-  it('shows login/register prompt when user is logged out', () => {
+  it('shows get-started and log-in CTAs when user is logged out', () => {
     authStoreMock.isAuthenticated = false
 
     const wrapper = mount(Home, {
@@ -24,12 +24,12 @@ describe('Home.vue', () => {
       }
     })
 
-    expect(wrapper.text()).toContain('Register or Login to Continue')
-    expect(wrapper.text()).toContain('Login')
-    expect(wrapper.text()).toContain('Register')
+    expect(wrapper.text()).toContain('Get started')
+    expect(wrapper.text()).toContain('Log in')
+    expect(wrapper.text()).not.toContain('View my expenses')
   })
 
-  it('hides login/register prompt when user is logged in', () => {
+  it('shows the expenses CTA and hides logged-out CTAs when user is logged in', () => {
     authStoreMock.isAuthenticated = true
 
     const wrapper = mount(Home, {
@@ -42,6 +42,7 @@ describe('Home.vue', () => {
       }
     })
 
-    expect(wrapper.text()).not.toContain('Register or Login to Continue')
+    expect(wrapper.text()).toContain('View my expenses')
+    expect(wrapper.text()).not.toContain('Get started')
   })
 })
