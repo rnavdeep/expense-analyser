@@ -45,11 +45,20 @@ state, services, and routing.
 4. **Reuse, don't duplicate.** Use the CSS variables and shared patterns from the design
    system rather than hard-coding hex values. Reuse `.login-card` for Login and Register.
 
-5. **Validate** after changes:
+5. **Update tests for changed markup.** Restyling changes copy and structure, so
+   existing specs that assert on text or DOM will break. After editing a component,
+   update its spec in `src/components/__tests__/` to match the new copy/structure
+   (assert on the new CTAs and visible text, not the old). If a component newly calls a
+   Vuetify composable (e.g. `useTheme()`), mock it in the spec — `shallowMount` runs
+   without the Vuetify plugin (see `Navbar.spec.ts`). Do not weaken assertions about
+   preserved behavior (auth flows, handlers, navigation).
+
+6. **Validate** after changes:
    - `npm run dev` starts with no errors.
+   - `npx vitest run` is green (all specs pass).
    - `npm run type-check` and `npm run lint` pass.
-   - Walk the testing checklist at the end of `references/redesign-plan-phase-1.md`
-     (hero renders dark, feature cards legible, login centered with emerald accent,
+   - Walk the testing checklist at the end of the relevant phase plan
+     (e.g. hero renders dark, feature cards legible, login centered with emerald accent,
      password show/hide works, login success/error flows unchanged, register link works).
 
 ## Guardrails
@@ -60,3 +69,5 @@ state, services, and routing.
   Vuetify defaults).
 - Match existing component conventions (`defineComponent`, TypeScript, `ea*` naming).
 - Avoid broad refactors bundled into a styling change.
+- A restyle is not done until `npx vitest run` is green — update affected specs in the
+  same change, never leave the suite red.

@@ -585,6 +585,8 @@ After making changes, verify:
 - [ ] Login error message still appears on bad credentials
 - [ ] "Create an account" link on login goes to `/register`
 - [ ] Vuetify buttons across the app picked up the new `primary` color
+- [ ] Component specs updated for changed copy/markup; `npx vitest run` is green
+      (e.g. `Home.spec.ts` asserts the new hero CTAs, not the old prompt text)
 
 ---
 

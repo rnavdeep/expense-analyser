@@ -214,6 +214,8 @@ After each step:
 
 - [ ] `npm run dev` starts with no errors
 - [ ] `npm run type-check` and `npm run lint` pass
+- [ ] Component specs updated for changed copy/markup; `npx vitest run` is green
+      (mock new Vuetify composables like `useTheme()` in `shallowMount` specs)
 - [ ] All screens sit on `--ea-paper` with consistent gutters and page headers
 - [ ] Currency amounts render in the mono font everywhere
 - [ ] Cards use surface/border/radius tokens with hover lift; no leftover dark-grey fills
