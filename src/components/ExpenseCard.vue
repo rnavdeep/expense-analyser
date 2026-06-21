@@ -1,45 +1,54 @@
 <template>
-  <v-card variant="elevated" class="fixed-card-size">
-    <v-row class="align-items-center">
-      <v-col class="title-col" style="overflow: hidden">
-        <v-card-title>{{ expense.title }}</v-card-title>
-        <v-card-subtitle>Amount: ${{ expense.amount }}</v-card-subtitle>
-        <v-card-subtitle>Created At: {{ expense.createdAt }}</v-card-subtitle>
-        <v-card-text class="description-text">
-          <p>{{ expense.description }}</p>
-        </v-card-text>
-      </v-col>
+  <v-card class="expense-card" :class="{ 'expense-card--selected': selectable && selected }">
+    <div class="ec-body">
+      <div class="ec-head">
+        <v-checkbox
+          v-if="selectable"
+          class="ec-select"
+          :model-value="selected"
+          hide-details
+          density="compact"
+          color="primary"
+          @update:model-value="onToggleSelect"
+        ></v-checkbox>
+        <h3 class="ec-title">{{ expense.title }}</h3>
+        <span class="ec-date">{{ expense.createdAt }}</span>
+      </div>
 
-      <v-col class="icon-col" cols="auto">
-        <v-tooltip text="Edit Expense" location="top">
-          <template v-slot:activator="{ props }">
-            <v-icon :disabled="isReadOnly" v-bind="props" @click="openEditDialog"
-              >mdi-pencil</v-icon
-            >
-          </template>
-        </v-tooltip>
+      <div class="ec-amount amount">${{ expense.amount }}</div>
 
-        <v-tooltip text="Delete Expense" location="top">
-          <template v-slot:activator="{ props }">
-            <v-icon :disabled="isReadOnly" v-bind="props" @click="confirmDeletion"
-              >mdi-trash-can</v-icon
-            >
-          </template>
-        </v-tooltip>
+      <p class="ec-desc">{{ expense.description }}</p>
+    </div>
 
-        <v-tooltip text="Attached Bills" location="top">
-          <template v-slot:activator="{ props }">
-            <v-icon v-bind="props" @click="openDocumentsDialog">mdi-file-document-multiple</v-icon>
-          </template>
-        </v-tooltip>
+    <div class="ec-actions">
+      <v-tooltip text="Edit Expense" location="top">
+        <template v-slot:activator="{ props }">
+          <v-icon class="ec-action" :disabled="isReadOnly" v-bind="props" @click="openEditDialog"
+            >mdi-pencil</v-icon
+          >
+        </template>
+      </v-tooltip>
 
-        <v-tooltip text="Users Expense Shared With" location="top">
-          <template v-slot:activator="{ props }">
-            <v-icon v-bind="props" @click="openUsersDialog">mdi-account-group</v-icon>
-          </template>
-        </v-tooltip>
-      </v-col>
-    </v-row>
+      <v-tooltip text="Delete Expense" location="top">
+        <template v-slot:activator="{ props }">
+          <v-icon class="ec-action ec-action--danger" :disabled="isReadOnly" v-bind="props" @click="confirmDeletion"
+            >mdi-trash-can</v-icon
+          >
+        </template>
+      </v-tooltip>
+
+      <v-tooltip text="Attached Bills" location="top">
+        <template v-slot:activator="{ props }">
+          <v-icon class="ec-action" v-bind="props" @click="openDocumentsDialog">mdi-file-document-multiple</v-icon>
+        </template>
+      </v-tooltip>
+
+      <v-tooltip text="Users Expense Shared With" location="top">
+        <template v-slot:activator="{ props }">
+          <v-icon class="ec-action" v-bind="props" @click="openUsersDialog">mdi-account-group</v-icon>
+        </template>
+      </v-tooltip>
+    </div>
 
     <!-- Dialog for editing expense -->
     <v-dialog v-model="dialogEdit" max-width="500">
@@ -186,6 +195,8 @@ interface ExpenseCardProps {
   expense: ExpenseListDataDto
   index: number
   isReadOnly: boolean
+  selectable: boolean
+  selected: boolean
 }
 
 export default defineComponent({
@@ -203,9 +214,17 @@ export default defineComponent({
     isReadOnly: {
       type: Boolean,
       required: true
+    },
+    selectable: {
+      type: Boolean,
+      default: false
+    },
+    selected: {
+      type: Boolean,
+      default: false
     }
   },
-  emits: ['edit', 'delete'],
+  emits: ['edit', 'delete', 'toggle-select'],
 
   setup(props: ExpenseCardProps, { emit }) {
     const dialogEdit = ref(false)
@@ -249,6 +268,9 @@ export default defineComponent({
 
     const confirmDeletion = () => {
       return (deleteConfirmed.value = true)
+    }
+    const onToggleSelect = () => {
+      emit('toggle-select', props.expense)
     }
     const openConfirmProcessDialog = (doc: DocumentDialogDto) => {
       selectedDocument.value = doc
@@ -337,6 +359,7 @@ export default defineComponent({
       editExpense,
       isProcessButtonDisabled,
       confirmDeletion,
+      onToggleSelect,
       deleteConfirmed,
       openUsersDialog,
       usersExpense,
@@ -347,34 +370,105 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.fixed-card-size {
-  width: 350px;
-  height: 210px;
-  margin: 10px;
+/* Expense card — white surface, hairline border, hover lift (matches the
+   Phase 1 feature card). Merchant ranked first, total in mono. */
+.expense-card {
+  position: relative;
+  background: var(--ea-surface);
+  border: 1px solid var(--ea-border);
+  border-radius: 16px;
+  padding: 20px 20px 14px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.expense-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+  border-color: #d9d5cc;
+}
+
+.expense-card--selected {
+  border-color: var(--ea-emerald);
+  box-shadow: 0 0 0 1px var(--ea-emerald);
+}
+
+/* Selection checkbox — inline, leading the title row */
+.ec-select {
+  flex: none;
+  margin: -8px 4px -8px -6px;
+}
+
+.ec-body {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.ec-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ec-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--ea-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-size: 18px;
+  color: var(--ea-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ec-date {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--ea-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ec-amount {
+  font-size: 26px;
+  color: var(--ea-ink);
+  margin: 10px 0 8px;
+}
+
+.ec-desc {
+  font-size: 14px;
+  color: var(--ea-muted);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.title-col {
-  background-color: white;
-  padding: 10px;
-  padding-right: 0px;
-  flex-grow: 1;
-}
-
-.icon-col {
-  background-color: skyblue;
+.ec-actions {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
-  margin-right: 10px;
-  margin-top: 10px;
-  height: 250px;
+  gap: 18px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--ea-border);
 }
 
-.v-icon {
-  margin: 10px 0;
+.ec-action {
+  color: var(--ea-muted);
   cursor: pointer;
+  transition: color 0.15s ease;
+}
+.ec-action:hover {
+  color: var(--ea-emerald);
+}
+.ec-action--danger:hover {
+  color: var(--ea-error, #dc2626);
 }
 
 .description-text {
@@ -382,13 +476,6 @@ export default defineComponent({
   overflow-y: auto;
 }
 
-.v-card-title {
-  background: skyblue;
-  margin-bottom: 10px;
-}
-.v-card-title.v-card-subtitle {
-  margin-bottom: 10px;
-}
 .eachDoc {
   list-style: none;
   padding: 0;

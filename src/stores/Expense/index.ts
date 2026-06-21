@@ -218,6 +218,16 @@ export const useExpenseStore = defineStore('Expense', {
       }
     },
 
+    async BulkDeleteExpenses(
+      expenses: ExpenseListDataDto[]
+    ): Promise<{ deleted: number; failed: number }> {
+      const results = await Promise.allSettled(
+        expenses.map((expense) => ExpenseService.DeleteExpense(expense))
+      )
+      const failed = results.filter((r) => r.status === 'rejected').length
+      return { deleted: results.length - failed, failed }
+    },
+
     async GetDocByExpenseId(expenseId: string): Promise<DocumentDialogDto[]> {
       try {
         const resp = await ExpenseService.GetDocByExpenseId(expenseId)

@@ -2,6 +2,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useExpenseStore } from '@/stores/Expense'
 import { ExpenseDataDto } from '@/models/ExpenseCreateForm'
+import ExpenseService from '@/services/ExpenseService'
 
 const createExpenseMock = vi.hoisted(() => vi.fn().mockResolvedValue('expense-1'))
 const getExpensesMock = vi.hoisted(() => vi.fn().mockResolvedValue({ expenses: [], totalRows: 0 }))
@@ -45,5 +46,23 @@ describe('Expense store', () => {
 
     expect(getExpensesMock).toHaveBeenCalled()
     expect(store.totalExpenses).toBe(0)
+  })
+
+  it('BulkDeleteExpenses tallies deleted and failed results', async () => {
+    const store = useExpenseStore()
+    const deleteMock = ExpenseService.DeleteExpense as ReturnType<typeof vi.fn>
+    deleteMock
+      .mockResolvedValueOnce(true)
+      .mockRejectedValueOnce(new Error('boom'))
+      .mockResolvedValueOnce(true)
+
+    const result = await store.BulkDeleteExpenses([
+      { id: 'e1' } as any,
+      { id: 'e2' } as any,
+      { id: 'e3' } as any
+    ])
+
+    expect(deleteMock).toHaveBeenCalledTimes(3)
+    expect(result).toEqual({ deleted: 2, failed: 1 })
   })
 })
