@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<template id="__bundler_thumbnail" data-bg-color="#e7e5df">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <!-- Canvas background -->
+    <rect width="1200" height="800" fill="#e7e5df"/>
+    <!-- Header bar (ink) -->
+    <rect x="80" y="60" width="1040" height="120" rx="6" fill="#1a1d28"/>
+    <!-- Logo mark (emerald) -->
+    <rect x="110" y="95" width="32" height="32" rx="8" fill="#2f9e6f"/>
+    <rect x="119" y="104" width="14" height="14" rx="3" fill="#1a1d28"/>
+    <!-- Nav dots -->
+    <rect x="170" y="107" width="60" height="8" rx="4" fill="#ffffff" opacity="0.5"/>
+    <rect x="248" y="107" width="50" height="8" rx="4" fill="#ffffff" opacity="0.3"/>
+    <rect x="316" y="107" width="55" height="8" rx="4" fill="#ffffff" opacity="0.3"/>
+    <!-- Section label -->
+    <rect x="80" y="210" width="120" height="8" rx="4" fill="#2f9e6f" opacity="0.8"/>
+    <!-- Big title -->
+    <rect x="80" y="232" width="520" height="22" rx="4" fill="#1a1d28"/>
+    <rect x="80" y="262" width="380" height="14" rx="4" fill="#1a1d28" opacity="0.3"/>
+    <!-- Flow map card -->
+    <rect x="80" y="300" width="1040" height="160" rx="4" fill="#ffffff" opacity="0.9"/>
+    <!-- Flow nodes -->
+    <rect x="110" y="340" width="140" height="70" rx="8" fill="#f4f2ec" stroke="#d0cec8" stroke-width="1.5"/>
+    <rect x="310" y="355" width="100" height="40" rx="8" fill="#f4f2ec" stroke="#d0cec8" stroke-width="1.5"/>
+    <rect x="310" y="365" width="100" height="40" rx="8" fill="#f4f2ec" stroke="#d0cec8" stroke-width="1.5"/>
+    <!-- Arrow -->
+    <line x1="460" y1="380" x2="530" y2="380" stroke="#2f9e6f" stroke-width="2"/>
+    <polygon points="530,375 540,380 530,385" fill="#2f9e6f"/>
+    <!-- Auth guard node -->
+    <rect x="545" y="355" width="120" height="50" rx="10" fill="#ecfdf5" stroke="#2f9e6f" stroke-width="1.5" stroke-dasharray="6,3"/>
+    <!-- Arrow 2 -->
+    <line x1="672" y1="380" x2="720" y2="380" stroke="#2f9e6f" stroke-width="2"/>
+    <polygon points="720,375 730,380 720,385" fill="#2f9e6f"/>
+    <!-- App grid -->
+    <rect x="735" y="320" width="350" height="130" rx="8" fill="#f4f2ec" stroke="#1a1d28" stroke-width="1.5"/>
+    <rect x="745" y="330" width="330" height="24" rx="4" fill="#1a1d28"/>
+    <rect x="748" y="364" width="100" height="36" rx="6" fill="#fff" stroke="#ddd" stroke-width="1"/>
+    <rect x="856" y="364" width="100" height="36" rx="6" fill="#fff" stroke="#ddd" stroke-width="1"/>
+    <rect x="964" y="364" width="110" height="36" rx="6" fill="#fff" stroke="#ddd" stroke-width="1"/>
+    <rect x="748" y="406" width="100" height="36" rx="6" fill="#fff" stroke="#ddd" stroke-width="1"/>
+    <rect x="856" y="406" width="100" height="36" rx="6" fill="#fff" stroke="#ddd" stroke-width="1"/>
+    <rect x="964" y="406" width="110" height="36" rx="6" fill="#fff" stroke="#ddd" stroke-width="1"/>
+    <!-- Page mockup cards row -->
+    <rect x="80" y="490" width="340" height="220" rx="4" fill="#ffffff" opacity="0.9"/>
+    <rect x="80" y="490" width="340" height="44" rx="4" fill="#1a1d28"/>
+    <rect x="444" y="490" width="240" height="220" rx="4" fill="#ffffff" opacity="0.9"/>
+    <rect x="444" y="490" width="240" height="8" rx="2" fill="#2f9e6f"/>
+    <rect x="700" y="490" width="240" height="220" rx="4" fill="#ffffff" opacity="0.9"/>
+    <rect x="700" y="490" width="240" height="8" rx="2" fill="#6366f1"/>
+    <rect x="956" y="490" width="164" height="220" rx="4" fill="#ffffff" opacity="0.9"/>
+    <rect x="956" y="490" width="164" height="44" rx="4" fill="#1a1d28"/>
+  </svg>
+</template>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing: border-box; }
+  html,body { margin:0; padding:0; }
+</style>
+</helmet>
+
+<div style="width:max-content; min-width:100%; min-height:100vh; box-sizing:border-box; padding:56px; background:#e7e5df; font-family:'Hanken Grotesk',sans-serif; color:oklch(0.30 0.02 264);">
+
+  <!-- ============ CANVAS HEADER ============ -->
+  <div style="margin-bottom:48px; max-width:1100px;">
+    <div style="font-family:'Space Mono',monospace; font-size:12px; letter-spacing:0.22em; text-transform:uppercase; color:oklch(0.46 0.10 160); margin-bottom:14px;">Expense Analyser · Redesign</div>
+    <h1 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:42px; letter-spacing:-0.025em; margin:0 0 14px; color:oklch(0.22 0.02 264);">All pages, redesigned — and how they connect</h1>
+    <p style="font-size:17px; line-height:1.6; max-width:760px; margin:0; color:oklch(0.46 0.015 264);">Every screen from the live app rebuilt with a unified design system: one app shell, a tabular money treatment, color-coded chips, real empty/loading states, and a consistent emerald-on-ink palette. The map below shows the navigation and the key cross-page interactions.</p>
+  </div>
+
+  <!-- ============ INTERACTION MAP ============ -->
+  <div style="margin-bottom:18px; font-family:'Space Mono',monospace; font-size:12px; letter-spacing:0.16em; text-transform:uppercase; color:oklch(0.40 0.02 264);">01 · Navigation &amp; interaction map</div>
+  <div style="background:#fff; border-radius:2px; box-shadow:0 1px 3px rgba(0,0,0,.08); padding:40px; margin-bottom:56px; width:1600px;">
+
+    <!-- spine: public -> guard -> app -->
+    <div style="display:flex; align-items:stretch; gap:0;">
+
+      <!-- PUBLIC lane -->
+      <div style="flex:0 0 300px;">
+        <div style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:oklch(0.55 0.015 264); margin-bottom:16px;">Public</div>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div style="border:1.5px solid oklch(0.84 0.01 264); border-radius:12px; padding:16px 18px; background:oklch(0.985 0.004 95);">
+            <div style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:16px; color:oklch(0.24 0.02 264);">Home <span style="font-family:'Space Mono',monospace; font-weight:400; font-size:11px; color:oklch(0.55 0.015 264);">/</span></div>
+            <div style="font-size:12.5px; color:oklch(0.52 0.015 264); margin-top:3px;">Landing · value prop + CTAs</div>
+          </div>
+          <div style="display:flex; gap:12px;">
+            <div style="flex:1; border:1.5px solid oklch(0.84 0.01 264); border-radius:12px; padding:14px 16px; background:oklch(0.985 0.004 95);">
+              <div style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:15px; color:oklch(0.24 0.02 264);">Login</div>
+              <div style="font-family:'Space Mono',monospace; font-size:10px; color:oklch(0.55 0.015 264); margin-top:2px;">/login</div>
+            </div>
+            <div style="flex:1; border:1.5px solid oklch(0.84 0.01 264); border-radius:12px; padding:14px 16px; background:oklch(0.985 0.004 95);">
+              <div style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:15px; color:oklch(0.24 0.02 264);">Register</div>
+              <div style="font-family:'Space Mono',monospace; font-size:10px; color:oklch(0.55 0.015 264); margin-top:2px;">/register</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- arrow -->
+      <div style="flex:0 0 120px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;">
+        <div style="font-family:'Space Mono',monospace; font-size:11px; color:oklch(0.46 0.10 160); text-align:center;">login<br>success</div>
+        <div style="font-size:22px; color:oklch(0.55 0.10 160);">→</div>
+      </div>
+
+      <!-- AUTH GUARD -->
+      <div style="flex:0 0 180px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+        <div style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:oklch(0.55 0.015 264); margin-bottom:16px;">Guard</div>
+        <div style="width:150px; text-align:center; border:1.5px dashed oklch(0.62 0.10 160); border-radius:14px; padding:20px 14px; background:oklch(0.97 0.02 160 / 0.5);">
+          <div style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; color:oklch(0.30 0.06 160); line-height:1.35;">router guard<br>requiresLogin</div>
+          <div style="font-size:11.5px; color:oklch(0.46 0.04 160); margin-top:8px; line-height:1.4;">No session →<br>bounce to Login</div>
+        </div>
+      </div>
+
+      <!-- arrow -->
+      <div style="flex:0 0 70px; display:flex; align-items:center; justify-content:center;">
+        <div style="font-size:22px; color:oklch(0.55 0.10 160);">→</div>
+      </div>
+
+      <!-- APP lane -->
+      <div style="flex:1;">
+        <div style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:oklch(0.55 0.015 264); margin-bottom:16px;">Authenticated app · shared nav</div>
+        <div style="border:1.5px solid oklch(0.30 0.02 264); border-radius:14px; overflow:hidden;">
+          <div style="display:flex; align-items:center; gap:6px; background:oklch(0.22 0.02 264); padding:9px 14px;">
+            <div style="width:9px; height:9px; border-radius:3px; background:oklch(0.60 0.11 160);"></div>
+            <span style="font-family:'Space Mono',monospace; font-size:10px; color:oklch(0.74 0.012 264); letter-spacing:0.08em;">PERSISTENT TOP NAV</span>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:16px; background:oklch(0.985 0.004 95);">
+            <div style="border:1px solid oklch(0.88 0.01 264); border-radius:10px; padding:11px 13px; background:#fff;"><div style="font-weight:600; font-size:13.5px; color:oklch(0.26 0.02 264);">My Expenses</div><div style="font-family:'Space Mono',monospace; font-size:10px; color:oklch(0.55 0.015 264);">/myExpenses</div></div>
+            <div style="border:1px solid oklch(0.88 0.01 264); border-radius:10px; padding:11px 13px; background:#fff;"><div style="font-weight:600; font-size:13.5px; color:oklch(0.26 0.02 264);">New Expense</div><div style="font-family:'Space Mono',monospace; font-size:10px; color:oklch(0.55 0.015 264);">/newExpense</div></div>
+            <div style="border:1px solid oklch(0.88 0.01 264); border-radius:10px; padding:11px 13px; background:#fff;"><div style="font-weight:600; font-size:13.5px; color:oklch(0.26 0.02 264);">Doc Results</div><div style="font-family:'Space Mono',monospace; font-size:10px; color:oklch(0.55 0.015 264);">/docResults</div></div>
+            <div style="border:1px solid oklch(0.88 0.01 264); border-radius:10px; padding:11px 13px; background:#fff;"><div style="font-weight:600; font-size:13.5px; color:oklch(0.26 0.02 264);">Shared Expenses</div><div style="font-family:'Space Mono',monospace; font-size:10px; color:oklch(0.55 0.015 264);">/sharedExpenses</div></div>
+            <div style="border:1px solid oklch(0.88 0.01 264); border-radius:10px; padding:11px 13px; background:#fff;"><div style="font-weight:600; font-size:13.5px; color:oklch(0.26 0.02 264);">Friends</div><div style="font-family:'Space Mono',monospace; font-size:10px; color:oklch(0.55 0.015 264);">/friends · /addFriend</div></div>
+            <div style="border:1px solid oklch(0.88 0.01 264); border-radius:10px; padding:11px 13px; background:#fff;"><div style="font-weight:600; font-size:13.5px; color:oklch(0.26 0.02 264);">Notifications</div><div style="font-family:'Space Mono',monospace; font-size:10px; color:oklch(0.55 0.015 264);">/notifications</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- key interactions -->
+    <div style="margin-top:34px; padding-top:30px; border-top:1px solid oklch(0.92 0.005 95);">
+      <div style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:oklch(0.46 0.10 160); margin-bottom:20px;">Key cross-page interactions</div>
+      <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:16px;">
+        <div style="border:1px solid oklch(0.90 0.005 95); border-radius:12px; padding:18px; background:oklch(0.985 0.004 95);">
+          <div style="font-family:'Space Mono',monospace; font-size:11px; color:oklch(0.46 0.10 160); margin-bottom:10px;">A</div>
+          <div style="font-size:13px; line-height:1.5; color:oklch(0.34 0.02 264);"><b style="color:oklch(0.24 0.02 264);">Login → Home.</b> Successful auth redirects home and unlocks the nav.</div>
+        </div>
+        <div style="border:1px solid oklch(0.90 0.005 95); border-radius:12px; padding:18px; background:oklch(0.985 0.004 95);">
+          <div style="font-family:'Space Mono',monospace; font-size:11px; color:oklch(0.46 0.10 160); margin-bottom:10px;">B</div>
+          <div style="font-size:13px; line-height:1.5; color:oklch(0.34 0.02 264);"><b style="color:oklch(0.24 0.02 264);">Upload → Textract → Results.</b> A new expense's receipt is processed, then appears in Doc Results.</div>
+        </div>
+        <div style="border:1px solid oklch(0.90 0.005 95); border-radius:12px; padding:18px; background:oklch(0.985 0.004 95);">
+          <div style="font-family:'Space Mono',monospace; font-size:11px; color:oklch(0.46 0.10 160); margin-bottom:10px;">C</div>
+          <div style="font-size:13px; line-height:1.5; color:oklch(0.34 0.02 264);"><b style="color:oklch(0.24 0.02 264);">Assign friend → Shared.</b> Assigning a user makes the expense show in their Shared Expenses.</div>
+        </div>
+        <div style="border:1px solid oklch(0.90 0.005 95); border-radius:12px; padding:18px; background:oklch(0.985 0.004 95);">
+          <div style="font-family:'Space Mono',monospace; font-size:11px; color:oklch(0.46 0.10 160); margin-bottom:10px;">D</div>
+          <div style="font-size:13px; line-height:1.5; color:oklch(0.34 0.02 264);"><b style="color:oklch(0.24 0.02 264);">SignalR → Notifications.</b> Processing &amp; shares push live; the bell badge updates in real time.</div>
+        </div>
+        <div style="border:1px solid oklch(0.90 0.005 95); border-radius:12px; padding:18px; background:oklch(0.985 0.004 95);">
+          <div style="font-family:'Space Mono',monospace; font-size:11px; color:oklch(0.46 0.10 160); margin-bottom:10px;">E</div>
+          <div style="font-size:13px; line-height:1.5; color:oklch(0.34 0.02 264);"><b style="color:oklch(0.24 0.02 264);">Session lost → Login.</b> Any protected route without a valid session bounces back to Login.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ROW: AUTH & ENTRY ============ -->
+  <div style="margin-bottom:18px; font-family:'Space Mono',monospace; font-size:12px; letter-spacing:0.16em; text-transform:uppercase; color:oklch(0.40 0.02 264);">02 · Entry &amp; auth</div>
+  <div style="display:flex; gap:40px; align-items:flex-start; margin-bottom:56px;">
+
+    <!-- HOME -->
+    <div style="flex:none; width:1100px;">
+      <div style="font-family:'Space Mono',monospace; font-size:12px; color:oklch(0.42 0.02 264); margin-bottom:10px;">Home <span style="color:oklch(0.58 0.015 264);">· landing</span></div>
+      <div style="background:#fff; border-radius:2px; box-shadow:0 1px 3px rgba(0,0,0,.08); overflow:hidden;">
+        <!-- public nav -->
+        <div style="display:flex; align-items:center; justify-content:space-between; height:62px; padding:0 30px; background:oklch(0.20 0.02 264);">
+          <div style="display:flex; align-items:center; gap:11px;">
+            <div style="width:26px; height:26px; border-radius:8px; background:oklch(0.60 0.11 160); display:flex; align-items:center; justify-content:center;"><div style="width:9px; height:9px; border-radius:3px; background:oklch(0.20 0.02 264);"></div></div>
+            <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; color:#fff;">Expense Analyser</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span style="font-size:14px; font-weight:600; color:oklch(0.85 0.01 264); padding:9px 18px;">Login</span>
+            <span style="font-size:14px; font-weight:700; color:oklch(0.18 0.02 264); background:oklch(0.60 0.11 160); padding:9px 18px; border-radius:9px;">Register</span>
+          </div>
+        </div>
+        <!-- hero -->
+        <div style="position:relative; background:oklch(0.20 0.02 264); padding:64px 56px 72px; overflow:hidden;">
+          <div style="position:absolute; top:-160px; right:-120px; width:460px; height:460px; border-radius:50%; background:radial-gradient(circle, oklch(0.60 0.11 160 / 0.28), transparent 62%);"></div>
+          <div style="position:relative; max-width:620px;">
+            <div style="font-family:'Space Mono',monospace; font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color:oklch(0.70 0.09 160); margin-bottom:22px;">Expense intelligence</div>
+            <h2 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:46px; line-height:1.05; letter-spacing:-0.025em; margin:0 0 20px; color:#fff;">Snap a receipt. Get clean, shareable expense data.</h2>
+            <p style="font-size:17px; line-height:1.6; color:oklch(0.80 0.012 264); margin:0 0 32px;">AWS Textract reads merchant, totals and line items automatically. Organise, split and settle with friends — with live updates.</p>
+            <div style="display:flex; gap:14px;">
+              <span style="font-size:15px; font-weight:700; color:oklch(0.18 0.02 264); background:oklch(0.60 0.11 160); padding:13px 26px; border-radius:11px;">Get started — it's free</span>
+              <span style="font-size:15px; font-weight:600; color:oklch(0.92 0.008 264); border:1px solid oklch(0.42 0.015 264); padding:13px 26px; border-radius:11px;">Log in</span>
+            </div>
+          </div>
+        </div>
+        <!-- features -->
+        <div style="padding:48px 56px; display:grid; grid-template-columns:repeat(3,1fr); gap:22px;">
+          <div style="border:1px solid oklch(0.91 0.005 95); border-radius:14px; padding:26px;">
+            <svg width="32" height="32" viewBox="0 0 40 40" fill="none" style="margin-bottom:16px;"><rect x="9" y="6" width="22" height="28" rx="3" stroke="oklch(0.50 0.10 160)" stroke-width="2"/><line x1="14" y1="14" x2="26" y2="14" stroke="oklch(0.50 0.10 160)" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="20" x2="26" y2="20" stroke="oklch(0.50 0.10 160)" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="26" x2="21" y2="26" stroke="oklch(0.50 0.10 160)" stroke-width="2" stroke-linecap="round"/></svg>
+            <h3 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:18px; margin:0 0 8px; color:oklch(0.24 0.02 264);">Upload bills</h3>
+            <p style="font-size:14px; line-height:1.55; color:oklch(0.50 0.015 264); margin:0;">Drop in an image or PDF of any receipt — all your bills in one place.</p>
+          </div>
+          <div style="border:1px solid oklch(0.91 0.005 95); border-radius:14px; padding:26px;">
+            <svg width="32" height="32" viewBox="0 0 40 40" fill="none" style="margin-bottom:16px;"><circle cx="20" cy="20" r="13" stroke="oklch(0.50 0.10 160)" stroke-width="2"/><circle cx="20" cy="20" r="6" stroke="oklch(0.50 0.10 160)" stroke-width="2"/><circle cx="20" cy="20" r="1.5" fill="oklch(0.50 0.10 160)"/></svg>
+            <h3 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:18px; margin:0 0 8px; color:oklch(0.24 0.02 264);">Process receipts</h3>
+            <p style="font-size:14px; line-height:1.55; color:oklch(0.50 0.015 264); margin:0;">Textract extracts totals and details — no manual typing.</p>
+          </div>
+          <div style="border:1px solid oklch(0.91 0.005 95); border-radius:14px; padding:26px;">
+            <svg width="32" height="32" viewBox="0 0 40 40" fill="none" style="margin-bottom:16px;"><circle cx="11" cy="11" r="5" stroke="oklch(0.50 0.10 160)" stroke-width="2"/><circle cx="29" cy="11" r="5" stroke="oklch(0.50 0.10 160)" stroke-width="2"/><circle cx="20" cy="29" r="5" stroke="oklch(0.50 0.10 160)" stroke-width="2"/><line x1="15" y1="13.5" x2="25" y2="13.5" stroke="oklch(0.50 0.10 160)" stroke-width="2"/><line x1="13.5" y1="15.5" x2="18" y2="24.5" stroke="oklch(0.50 0.10 160)" stroke-width="2"/><line x1="26.5" y1="15.5" x2="22" y2="24.5" stroke="oklch(0.50 0.10 160)" stroke-width="2"/></svg>
+            <h3 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:18px; margin:0 0 8px; color:oklch(0.24 0.02 264);">Share expense</h3>
+            <p style="font-size:14px; line-height:1.55; color:oklch(0.50 0.015 264); margin:0;">Split costs with other users and track who owes what.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGIN -->
+    <div style="flex:none; width:460px;">
+      <div style="font-family:'Space Mono',monospace; font-size:12px; color:oklch(0.42 0.02 264); margin-bottom:10px;">Login <span style="color:oklch(0.58 0.015 264);">· /login</span></div>
+      <div style="background:#fff; border-radius:2px; box-shadow:0 1px 3px rgba(0,0,0,.08); overflow:hidden; min-height:620px; display:flex; flex-direction:column;">
+        <div style="height:8px; background:oklch(0.60 0.11 160);"></div>
+        <div style="padding:48px 44px; flex:1; display:flex; flex-direction:column;">
+          <div style="width:34px; height:34px; border-radius:10px; background:oklch(0.20 0.02 264); display:flex; align-items:center; justify-content:center; margin-bottom:30px;"><div style="width:11px; height:11px; border-radius:3px; background:oklch(0.60 0.11 160);"></div></div>
+          <h2 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:30px; letter-spacing:-0.02em; margin:0 0 8px; color:oklch(0.22 0.02 264);">Welcome back</h2>
+          <p style="font-size:15px; color:oklch(0.52 0.015 264); margin:0 0 34px;">Log in to manage your expenses.</p>
+
+          <label style="font-size:13px; font-weight:600; color:oklch(0.40 0.02 264); margin-bottom:7px; display:block;">Username</label>
+          <div style="height:48px; border:1px solid oklch(0.86 0.008 264); border-radius:11px; display:flex; align-items:center; padding:0 16px; margin-bottom:20px; font-size:15px; color:oklch(0.30 0.02 264);">alex.p</div>
+
+          <label style="font-size:13px; font-weight:600; color:oklch(0.40 0.02 264); margin-bottom:7px; display:block;">Password</label>
+          <div style="height:48px; border:1px solid oklch(0.86 0.008 264); border-radius:11px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; margin-bottom:10px; font-size:18px; letter-spacing:3px; color:oklch(0.30 0.02 264);"><span>••••••••</span><span style="font-size:12px; letter-spacing:0; color:oklch(0.55 0.015 264);">show</span></div>
+          <div style="text-align:right; margin-bottom:26px;"><span style="font-size:13px; color:oklch(0.46 0.10 160); font-weight:600;">Forgot password?</span></div>
+
+          <div style="height:50px; border-radius:11px; background:oklch(0.20 0.02 264); color:#fff; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; margin-bottom:18px;">Log in</div>
+          <div style="text-align:center; font-size:14px; color:oklch(0.52 0.015 264); margin-top:auto;">New here? <span style="color:oklch(0.46 0.10 160); font-weight:600;">Create an account</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REGISTER -->
+    <div style="flex:none; width:460px;">
+      <div style="font-family:'Space Mono',monospace; font-size:12px; color:oklch(0.42 0.02 264); margin-bottom:10px;">Register <span style="color:oklch(0.58 0.015 264);">· /register</span></div>
+      <div style="background:#fff; border-radius:2px; box-shadow:0 1px 3px rgba(0,0,0,.08); overflow:hidden; min-height:620px; display:flex; flex-direction:column;">
+        <div style="height:8px; background:oklch(0.60 0.11 265);"></div>
+        <div style="padding:48px 44px; flex:1; display:flex; flex-direction:column;">
+          <div style="width:34px; height:34px; border-radius:10px; background:oklch(0.20 0.02 264); display:flex; align-items:center; justify-content:center; margin-bottom:30px;"><div style="width:11px; height:11px; border-radius:3px; background:oklch(0.60 0.11 265);"></div></div>
+          <h2 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:30px; letter-spacing:-0.02em; margin:0 0 8px; color:oklch(0.22 0.02 264);">Create account</h2>
+          <p style="font-size:15px; color:oklch(0.52 0.015 264); margin:0 0 30px;">Start tracking in under a minute.</p>
+
+          <div style="display:flex; gap:12px; margin-bottom:18px;">
+            <div style="flex:1;"><label style="font-size:13px; font-weight:600; color:oklch(0.40 0.02 264); margin-bottom:7px; display:block;">First name</label><div style="height:46px; border:1px solid oklch(0.86 0.008 264); border-radius:11px; display:flex; align-items:center; padding:0 14px; font-size:15px; color:oklch(0.30 0.02 264);">Alex</div></div>
+            <div style="flex:1;"><label style="font-size:13px; font-weight:600; color:oklch(0.40 0.02 264); margin-bottom:7px; display:block;">Last name</label><div style="height:46px; border:1px solid oklch(0.86 0.008 264); border-radius:11px; display:flex; align-items:center; padding:0 14px; font-size:15px; color:oklch(0.30 0.02 264);">Park</div></div>
+          </div>
+          <label style="font-size:13px; font-weight:600; color:oklch(0.40 0.02 264); margin-bottom:7px; display:block;">Email</label>
+          <div style="height:46px; border:1px solid oklch(0.86 0.008 264); border-radius:11px; display:flex; align-items:center; padding:0 14px; margin-bottom:18px; font-size:15px; color:oklch(0.30 0.02 264);">alex.park@email.com</div>
+          <label style="font-size:13px; font-weight:600; color:oklch(0.40 0.02 264); margin-bottom:7px; display:block;">Password</label>
+          <div style="height:46px; border:1px solid oklch(0.62 0.10 160); border-radius:11px; display:flex; align-items:center; padding:0 14px; margin-bottom:8px; font-size:18px; letter-spacing:3px; color:oklch(0.30 0.02 264);">••••••••••</div>
+          <div style="display:flex; gap:5px; margin-bottom:28px;"><div style="flex:1; height:4px; border-radius:2px; background:oklch(0.60 0.11 160);"></div><div style="flex:1; height:4px; border-radius:2px; background:oklch(0.60 0.11 160);"></div><div style="flex:1; height:4px; border-radius:2px; background:oklch(0.60 0.11 160);"></div><div style="flex:1; height:4px; border-radius:2px; background:oklch(0.90 0.005 95);"></div></div>
+
+          <div style="height:50px; border-radius:11px; background:oklch(0.20 0.02 264); color:#fff; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; margin-bottom:18px;">Create account</div>
+          <div style="text-align:center; font-size:14px; color:oklch(0.52 0.015 264); margin-top:auto;">Already have one? <span style="color:oklch(0.46 0.10 160); font-weight:600;">Log in</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============ ROW: CORE EXPENSE FLOW ============ -->
+  <div style="margin-bottom:18px; font-family:'Space Mono',monospace; font-size:12px; letter-spacing:0.16em; text-transform:uppercase; color:oklch(0.40 0.02 264);">03 · Core expense flow</div>
+  <div style="display:flex; gap:40px; align-items:flex-start; margin-bottom:56px;">
+
+    <!-- MY EXPENSES -->
+    <div style="flex:none; width:1180px;">
+      <div style="font-family:'Space Mono',monospace; font-size:12px; color:oklch(0.42 0.02 264); margin-bottom:10px;">My Expenses <span style="color:oklch(0.58 0.015 264);">· /myExpenses · card grid + search/sort</span></div>
+      <div style="background:#fff; border-radius:2px; box-shadow:0 1px 3px rgba(0,0,0,.08); overflow:hidden;">
+        <!-- APP NAV -->
+        <div style="display:flex; align-items:center; justify-content:space-between; height:60px; padding:0 26px; background:oklch(0.20 0.02 264);">
+          <div style="display:flex; align-items:center; gap:30px;">
+            <div style="display:flex; align-items:center; gap:10px;"><div style="width:24px; height:24px; border-radius:7px; background:oklch(0.60 0.11 160); display:flex; align-items:center; justify-content:center;"><div style="width:8px; height:8px; border-radius:2px; background:oklch(0.20 0.02 264);"></div></div><span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; color:#fff;">Expense Analyser</span></div>
+            <div style="display:flex; align-items:center; gap:6px; font-size:13.5px;">
+              <span style="color:#fff; font-weight:600; padding:7px 13px; border-radius:8px; background:oklch(0.30 0.03 160);">Expenses</span>
+              <span style="color:oklch(0.74 0.012 264); padding:7px 13px;">New</span>
+              <span style="color:oklch(0.74 0.012 264); padding:7px 13px;">Shared</span>
+              <span style="color:oklch(0.74 0.012 264); padding:7px 13px;">Results</span>
+              <span style="color:oklch(0.74 0.012 264); padding:7px 13px;">Friends</span>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:18px;">
+            <div style="position:relative;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 16 V12 a6 6 0 0 1 12 0 V16 l2 3 H4 Z" stroke="oklch(0.80 0.012 264)" stroke-width="1.8" stroke-linejoin="round"/></svg><div style="position:absolute; top:-3px; right:-3px; width:15px; height:15px; border-radius:50%; background:oklch(0.62 0.13 160); color:#fff; font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center; border:2px solid oklch(0.20 0.02 264);">3</div></div>
+            <div style="width:32px; height:32px; border-radius:50%; background:oklch(0.60 0.11 160); color:#fff; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center;">AP</div>
+          </div>
+        </div>
+        <!-- content -->
+        <div style="padding:32px;">
+          <div style="display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:24px;">
+            <div>
+              <h2 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:28px; letter-spacing:-0.02em; margin:0 0 4px; color:oklch(0.22 0.02 264);">My Expenses</h2>
+              <div style="font-size:14px; color:oklch(0.52 0.015 264);">128 expenses · <span style="font-family:'Space Mono',monospace;">$4,182.55</span> total</div>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <div style="display:flex; align-items:center; gap:8px; height:42px; border:1px solid oklch(0.88 0.008 264); border-radius:10px; padding:0 14px; font-size:14px; color:oklch(0.50 0.015 264); width:260px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="oklch(0.55 0.015 264)" stroke-width="2"/><line x1="16" y1="16" x2="20" y2="20" stroke="oklch(0.55 0.015 264)" stroke-width="2" stroke-linecap="round"/></svg>Search title, amount…</div>
+              <div style="display:flex; align-items:center; gap:8px; height:42px; border:1px solid oklch(0.88 0.008 264); border-radius:10px; padding:0 14px; font-size:14px; color:oklch(0.40 0.02 264); font-weight:600;">Sort: Newest <span style="color:oklch(0.55 0.015 264);">▾</span></div>
+              <div style="display:flex; align-items:center; gap:7px; height:42px; border-radius:10px; padding:0 18px; font-size:14px; font-weight:700; color:oklch(0.18 0.02 264); background:oklch(0.60 0.11 160);">+ New expense</div>
+            </div>
+          </div>
+          <!-- filter chips -->
+          <div style="display:flex; gap:8px; margin-bottom:22px;">
+            <span style="font-size:13px; font-weight:600; padding:7px 14px; border-radius:20px; background:oklch(0.20 0.02 264); color:#fff;">All</span>
+            <span style="font-size:13px; padding:7px 14px; border-radius:20px; background:#fff; color:oklch(0.45 0.015 264); border:1px solid oklch(0.88 0.008 264);">This month</span>
+            <span style="font-size:13px; padding:7px 14px; border-radius:20px; background:#fff; color:oklch(0.45 0.015 264); border:1px solid oklch(0.88 0.008 264);">Shared</span>
+            <span style="font-size:13px; padding:7px 14px; border-radius:20px; background:#fff; color:oklch(0.45 0.015 264); border:1px solid oklch(0.88 0.008 264);">Has receipt</span>
+          </div>
+          <!-- card grid -->
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px;">
+            <!-- expense card -->
+            <div style="border:1px solid oklch(0.91 0.005 95); border-radius:14px; padding:20px;">
+              <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px;"><div style="width:40px; height:40px; border-radius:11px; background:oklch(0.95 0.03 160); display:flex; align-items:center; justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="6" y="3" width="12" height="18" rx="2" stroke="oklch(0.48 0.10 160)" stroke-width="1.8"/><line x1="9" y1="8" x2="15" y2="8" stroke="oklch(0.48 0.10 160)" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="12" x2="15" y2="12" stroke="oklch(0.48 0.10 160)" stroke-width="1.8" stroke-linecap="round"/></svg></div><span style="font-size:10px; font-family:'Space Mono',monospace; color:oklch(0.42 0.04 160); background:oklch(0.95 0.03 160); padding:4px 8px; border-radius:6px;">RECEIPT</span></div>
+              <div style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:16px; color:oklch(0.24 0.02 264); margin-bottom:3px;">Whole Foods Market</div>
+              <div style="font-size:13px; color:oklch(0.55 0.015 264); margin-bottom:16px;">Groceries · Jun 9, 2026</div>
+              <div style="display:flex; align-items:baseline; justify-content:space-between;"><span style="font-family:'Space Mono',monospace; font-weight:700; font-size:22px; color:oklch(0.24 0.02 264);">$62.40</span><div style="display:flex; gap:8px; color:oklch(0.55 0.015 264);"><span style="font-size:12px;">Edit</span><span style="font-size:12px; color:oklch(0.50 0.13 25);">Delete</span></div></div>
+            </div>
+            <div style="border:1px solid oklch(0.91 0.005 95); border-radius:14px; padding:20px;">
+              <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px;"><div style="width:40px; height:40px; border-radius:11px; background:oklch(0.95 0.03 265); display:flex; align-items:center; justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="12" rx="2" stroke="oklch(0.48 0.10 265)" stroke-width="1.8"/><circle cx="12" cy="12" r="2.5" stroke="oklch(0.48 0.10 265)" stroke-width="1.8"/></svg></div></div>
+              <div style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:16px; color:oklch(0.24 0.02 264); margin-bottom:3px;">Uber ride</div>
+              <div style="font-size:13px; color:oklch(0.55 0.015 264); margin-bottom:16px;">Transport · Jun 7, 2026</div>
+              <div style="display:flex; align-items:baseline; justify-content:space-between;"><span style="font-family:'Space Mono',monospace; font-weight:700; font-size:22px; color:oklch(0.24 0.02 264);">$18.30</span><div style="display:flex; gap:8px; color:oklch(0.55 0.015 264);"><span style="font-size:12px;">Edit</span><span style="font-size:12px; color:oklch(0.50 0.13 25);">Delete</span></div></div>
+            </div>
+            <div style="border:1px solid oklch(0.91 0.005 95); border-radius:14px; padding:20px;">
+              <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px;"><div style="width:40px; height:40px; border-radius:11px; background:oklch(0.95 0.03 90); display:flex; align-items:center; justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 9 L12 4 L20 9 V19 H4 Z" stroke="oklch(0.50 0.08 90)" stroke-width="1.8" stroke-linejoin="round"/></svg></div><span style="font-size:10px; font-family:'Space Mono',monospace; color:oklch(0.42 0.10 160); background:oklch(0.95 0.03 160); padding:4px 8px; border-radius:6px;">SHARED ×3</span></div>
+              <div style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:16px; color:oklch(0.24 0.02 264); margin-bottom:3px;">Lake house weekend</div>
+              <div style="font-size:13px; color:oklch(0.55 0.015 264); margin-bottom:16px;">Travel · Jun 2, 2026</div>
+              <div style="display:flex; align-items:baseline; justify-content:space-between;"><span style="font-family:'Space Mono',monospace; font-weight:700; font-size:22px; color:oklch(0.24 0.02 264);">$420.00</span><div style="display:flex; gap:8px; color:oklch(0.55 0.015 264);"><span style="font-size:12px;">Edit</span><span style="font-size:12px; color:oklch(0.50 0.13 25);">Delete</span></div></div>
+            </div>
+            <div style="border:1px solid oklch(0.91 0.005 95); border-radius:14px; padding:20px;">
+              <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px;"><div style="width:40px; height:40px; border-radius:11px; background:oklch(0.93 0.01 264); display:flex; align-items:center; justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="12" rx="2" stroke="oklch(0.50 0.015 264)" stroke-width="1.8"/></svg></div></div>
+              <div style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:16px; color:oklch(0.24 0.02 264); margin-bottom:3px;">Netflix</div>
+              <div style="font-size:13px; color:oklch(0.55 0.015 264); margin-bottom:16px;">Subscriptions · Jun 1, 2026</div>
+              <div style="display:flex; align-items:baseline; justify-content:space-between;"><span style="font-family:'Space Mono',monospace; font-weight:700; font-size:22px; color:oklch(0.24 0.02 264);">$15.49</span><div style="display:flex; gap:8px; color:oklch(0.55 0.015 264);"><span style="font-size:12px;">Edit</span><span style="font-size:12px; color:oklch(0.50 0.13 25);">Delete</span></div></div>
+            </div>
+            <div style="border:1px solid oklch(0.91 0.005 95); border-radius:14px; padding:20px;">
+              <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px;"><div style="width:40px; height:40px; border-radius:11px; background:oklch(0.95 0.03 30); display:flex; align-items:center; justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 11 h14 v8 h-14 z M7 11 V8 a5 5 0 0 1 10 0 v3" stroke="oklch(0.52 0.10 30)" stroke-width="1.8" stroke-linejoin="round"/></svg></div><span style="font-size:10px; font-family:'Space Mono',monospace; color:oklch(0.42 0.04 160); background:oklch(0.95 0.03 160); padding:4px 8px; border-radius:6px;">RECEIPT</span></div>
+              <div style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:16px; color:oklch(0.24 0.02 264); margin-bottom:3px;">Shell fuel</div>
+              <div style="font-size:13px; color:oklch(0.55 0.015 264); margin-bottom:16px;">Transport · May 29, 2026</div>
+              <div style="display:flex; align-items:baseline; justify-content:space-between;"><span style="font-family:'Space Mono',monospace; font-weight:700; font-size:22px; color:oklch(0.24 0.02 264);">$54.10</span><div style="display:flex; gap:8px; color:oklch(0.55 0.015 264);"><span style="font-size:12px;">Edit</span><span style="font-size:12px; color:oklch(0.50 0.13 25);">Delete</span></div></div>
+            </div>
+            <div style="border:1px solid oklch(0.91 0.005 95); border-radius:14px; padding:20px;">
+              <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px;"><div style="width:40px; height:40px; border-radius:11px; background:oklch(0.95 0.03 200); display:flex; align-items:center; justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="oklch(0.50 0.08 200)" stroke-width="1.8"/><path d="M12 8 v4 l3 2" stroke="oklch(0.50 0.08 200)" stroke-width="1.8" stroke-linecap="round"/></svg></div></div>
+              <div style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:16px; color:oklch(0.24 0.02 264); margin-bottom:3px;">Team dinner</div>
+              <div style="font-size:13px; color:oklch(0.55 0.015 264); margin-bottom:16px;">Dining · May 24, 2026</div>
+              <div style="display:flex; align-items:baseline; justify-content:space-between;"><span style="font-family:'Space Mono',monospace; font-weight:700; font-size:22px; color:oklch(0.24 0.02 264);">$184.50</span><div style="display:flex; gap:8px; color:oklch(0.55 0.015 264);"><span style="font-size:12px;">Edit</span><span style="font-size:12px; color:oklch(0.50 0.13 25);">Delete</span></div></div>
+            </div>
+          </div>
+          <!-- pagination -->
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-top:26px; padding-top:20px; border-top:1px solid oklch(0.93 0.005 95);">
+            <span style="font-family:'Space Mono',monospace; font-size:12px; color:oklch(0.55 0.015 264);">Showing 1–9 of 128</span>
+            <div style="display:flex; gap:6px;">
+              <div style="width:32px; height:32px; border-radius:8px; border:1px solid oklch(0.88 0.008 264); display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:13px; color:oklch(0.55 0.015 264);">‹</div>
+              <div style="width:32px; height:32px; border-radius:8px; background:oklch(0.20 0.02 264); color:#fff; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:13px;">1</div>
+              <div style="width:32px; height:32px; border-radius:8px; border:1px solid oklch(0.88 0.008 264); display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:13px; color:oklch(0.40 0.02 264);">2</div>
+              <div style="width:32px; height:32px; border-radius:8px; border:1px solid oklch(0.88 0.008 264); display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:13px; color:oklch(0.40 0.02 264);">3</div>
+              <div style="width:32px; height:32px; border-radius:8px; border:1px solid oklch(0.88 0.008 264); display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:13px; color:oklch(0.40 0.02 264);">›</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEW EXPENSE -->
+    <div style="flex:none; width:760px;">
+      <div style="font-family:'Space Mono',monospace; font-size:12px; color:oklch(0.42 0.02 264); margin-bottom:10px;">New Expense <span style="color:oklch(0.58 0.015 264);">· /newExpense · create + upload + assign</span></div>
+      <div style="background:#fff; border-radius:2px; box-shadow:0 1px 3px rgba(0,0,0,.08); overflow:hidden;">
+        <div style="height:60px; background:oklch(0.20 0.02 264); display:flex; align-items:center; padding:0 26px; gap:30px;">
+          <div style="display:flex; align-items:center; gap:10px;"><div style="width:24px; height:24px; border-radius:7px; background:oklch(0.60 0.11 160); display:flex; align-items:center; justify-content:center;"><div style="width:8px; height:8px; border-radius:2px; background:oklch(0.20 0.02 264);"></div></div><span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; color:#fff;">Expense Analyser</span></div>
+          <span style="color:#fff; font-weight:600; font-size:13.5px; padding:7px 13px; border-radius:8px; background:oklch(0.30 0.03 160);">New</span>
+        </div>
+        <div style="padding:34px;">
+          <h2 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:26px; letter-spacing:-0.02em; margin:0 0 6px; color:oklch(0.22 0.02 264);">New expense</h2>
+          <p style="font-size:14.5px; color:oklch(0.52 0.015 264); margin:0 0 28px;">Create it, attach a receipt, then assign who's splitting.</p>
+
+          <!-- stepper -->
+          <div style="display:flex; align-items:center; gap:0; margin-bottom:30px;">
+            <div style="display:flex; align-items:center; gap:9px;"><div style="width:26px; height:26px; border-radius:50%; background:oklch(0.60 0.11 160); color:oklch(0.18 0.02 264); font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center;">1</div><span style="font-size:13px; font-weight:600; color:oklch(0.26 0.02 264);">Details</span></div>
+            <div style="flex:1; height:2px; background:oklch(0.60 0.11 160); margin:0 12px;"></div>
+            <div style="display:flex; align-items:center; gap:9px;"><div style="width:26px; height:26px; border-radius:50%; background:oklch(0.60 0.11 160); color:oklch(0.18 0.02 264); font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center;">2</div><span style="font-size:13px; font-weight:600; color:oklch(0.26 0.02 264);">Upload</span></div>
+            <div style="flex:1; height:2px; background:oklch(0.90 0.005 95); margin:0 12px;"></div>
+            <div style="display:flex; align-items:center; gap:9px;"><div style="width:26px; height:26px; border-radius:50%; background:#fff; border:1.5px solid oklch(0.86 0.008 264); color:oklch(0.55 0.015 264); font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center;">3</div><span style="font-size:13px; font-weight:600; color:oklch(0.55 0.015 264);">Assign</span></div>
+          </div>
+
+          <label style="font-size:13px; font-weight:600; color:oklch(0.40 0.02 264); margin-bottom:7px; display:block;">Title</label>
+          <div style="height:46px; border:1px solid oklch(0.86 0.008 264); border-radius:11px; display:flex; align-items:center; padding:0 14px; margin-bottom:18px; font-size:15px; color:oklch(0.30 0.02 264);">Whole Foods Market</div>
+          <label style="font-size:13px; font-weight:600; color:oklch(0.40 0.02 264); margin-bottom:7px; display:block;">Description</label>
+          <div style="min-height:70px; border:1px solid oklch(0.86 0.008 264); border-radius:11px; padding:12px 14px; margin-bottom:20px; font-size:14px; color:oklch(0.40 0.02 264); line-height:1.5;">Weekly grocery run — splitting with the house.</div>
+
+          <!-- dropzone -->
+          <div style="border:1.5px dashed oklch(0.62 0.10 160); border-radius:13px; padding:26px; background:oklch(0.97 0.02 160 / 0.5); display:flex; align-items:center; gap:18px; margin-bottom:18px;">
+            <div style="width:46px; height:46px; border-radius:12px; background:oklch(0.95 0.03 160); display:flex; align-items:center; justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 16 V5 M8 9 l4-4 4 4" stroke="oklch(0.46 0.10 160)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 16 v3 h14 v-3" stroke="oklch(0.46 0.10 160)" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <div style="flex:1;"><div style="font-weight:600; font-size:15px; color:oklch(0.26 0.02 264);">Drop a receipt, or browse</div><div style="font-size:13px; color:oklch(0.50 0.015 264);">PNG, JPG or PDF — Textract reads it on upload</div></div>
+          </div>
+          <!-- uploaded file -->
+          <div style="display:flex; align-items:center; gap:12px; border:1px solid oklch(0.91 0.005 95); border-radius:11px; padding:12px 14px; margin-bottom:24px;">
+            <div style="width:34px; height:34px; border-radius:8px; background:oklch(0.95 0.03 160); display:flex; align-items:center; justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M7 3 h7 l5 5 v13 h-12 z" stroke="oklch(0.46 0.10 160)" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+            <div style="flex:1;"><div style="font-size:13.5px; font-weight:600; color:oklch(0.28 0.02 264);">receipt-wholefoods.pdf</div><div style="font-family:'Space Mono',monospace; font-size:11px; color:oklch(0.46 0.10 160);">✓ processed · 248 KB</div></div>
+            <span style="font-size:18px; color:oklch(0.60 0.015 264);">×</span>
+          </div>
+
+          <div style="display:flex; gap:12px;">
+            <div style="flex:1; height:48px; border-radius:11px; background:oklch(0.20 0.02 264); color:#fff; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700;">Create expense</div>
+            <div style="height:48px; border-radius:11px; border:1px solid oklch(0.86 0.008 264); color:oklch(0.40 0.02 264); display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:600; padding:0 20px;">Assign users</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============ ROW: DOC RESULTS ============ -->
+  <div style="display:flex; gap:40px; align-items:flex-start; margin-bottom:56px;">
+    <!-- DOCUMENT RESULTS -->
+    <div style="flex:none; width:1180px;">
+      <div style="font-family:'Space Mono',monospace; font-size:12px; color:oklch(0.42 0.02 264); margin-bottom:10px;">Document Results <span style="color:oklch(0.58 0.015 264);">· /docResults · Textract extraction (showcase)</span></div>
+      <div style="background:#fff; border-radius:2px; box-shadow:0 1px 3px rgba(0,0,0,.08); overflow:hidden;">
+        <div style="height:60px; background:oklch(0.20 0.02 264); display:flex; align-items:center; padding:0 26px; gap:30px;">
+          <div style="display:flex; align-items:center; gap:10px;"><div style="width:24px; height:24px; border-radius:7px; background:oklch(0.60 0.11 160); display:flex; align-items:center; justify-content:center;"><div style="width:8px; height:8px; border-radius:2px; background:oklch(0.20 0.02 264);"></div></div><span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; color:#fff;">Expense Analyser</span></div>
+          <span style="color:#fff; font-weight:600; font-size:13.5px; padding:7px 13px; border-radius:8px; background:oklch(0.30 0.03 160);">Results</span>
+        </div>
+        <div style="padding:32px;">
+          <div style="display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:24px;">
+            <div>
+              <h2 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:26px; letter-spacing:-0.02em; margin:0 0 4px; color:oklch(0.22 0.02 264);">Extraction results</h2>
+              <div style="font-size:14px; color:oklch(0.52 0.015 264);">Select an expense and document to view what Textract captured.</div>
+            </div>
+            <div style="display:flex; gap:12px;">
+              <div style="display:flex; align-items:center; gap:10px; height:42px; border:1px solid oklch(0.88 0.008 264); border-radius:10px; padding:0 14px; font-size:14px; color:oklch(0.30 0.02 264); font-weight:600; width:230px; justify-content:space-between;">Whole Foods Market <span style="color:oklch(0.55 0.015 264);">▾</span></div>
+              <div style="display:flex; align-items:center; gap:10px; height:42px; border:1px solid oklch(0.88 0.008 264); border-radius:10px; padding:0 14px; font-size:14px; color:oklch(0.30 0.02 264); font-weight:600; width:230px; justify-content:space-between;">receipt-wholefoods.pdf <span style="color:oklch(0.55 0.015 264);">▾</span></div>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:0.85fr 1.15fr; gap:24px;">
+            <!-- receipt + summary -->
+            <div>
+              <div style="position:relative; border-radius:13px; border:1px solid oklch(0.91 0.005 95); background:repeating-linear-gradient(135deg, oklch(0.97 0.004 95), oklch(0.97 0.004 95) 11px, oklch(0.94 0.006 95) 11px, oklch(0.94 0.006 95) 22px); height:280px; display:flex; align-items:center; justify-content:center; margin-bottom:18px; overflow:hidden;">
+                <span style="font-family:'Space Mono',monospace; font-size:12px; color:oklch(0.50 0.015 264); background:#fff; padding:7px 12px; border-radius:7px; border:1px solid oklch(0.90 0.005 95);">receipt-wholefoods.pdf</span>
+                <div style="position:absolute; left:0; right:0; top:40%; height:2px; background:oklch(0.60 0.11 160 / 0.6);"></div>
+                <div style="position:absolute; top:14px; right:14px; font-size:10px; font-family:'Space Mono',monospace; color:oklch(0.46 0.10 160); background:oklch(0.95 0.03 160); padding:5px 9px; border-radius:6px;">SCANNED</div>
+              </div>
+              <!-- summary card -->
+              <div style="border:1px solid oklch(0.86 0.05 160); border-radius:13px; padding:20px; background:oklch(0.97 0.02 160 / 0.45);">
+                <div style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:oklch(0.42 0.08 160); margin-bottom:14px;">Summary fields</div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;"><span style="color:oklch(0.50 0.015 264);">Name</span><span style="font-weight:600; color:oklch(0.26 0.02 264);">Whole Foods Mkt</span></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;"><span style="color:oklch(0.50 0.015 264);">Address</span><span style="font-weight:600; color:oklch(0.26 0.02 264);">Austin, TX</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:baseline; padding-top:10px; border-top:1px solid oklch(0.86 0.04 160);"><span style="font-size:13px; color:oklch(0.50 0.015 264);">Total</span><span style="font-family:'Space Mono',monospace; font-weight:700; font-size:24px; color:oklch(0.42 0.10 160);">$62.40</span></div>
+              </div>
+            </div>
+            <!-- line items table -->
+            <div>
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+                <span style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:17px; color:oklch(0.24 0.02 264);">Line items</span>
+                <div style="display:flex; align-items:center; gap:8px; height:36px; border:1px solid oklch(0.88 0.008 264); border-radius:9px; padding:0 12px; font-size:13px; color:oklch(0.55 0.015 264); width:180px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="oklch(0.55 0.015 264)" stroke-width="2"/><line x1="16" y1="16" x2="20" y2="20" stroke="oklch(0.55 0.015 264)" stroke-width="2" stroke-linecap="round"/></svg>Search items</div>
+              </div>
+              <div style="border:1px solid oklch(0.91 0.005 95); border-radius:13px; overflow:hidden;">
+                <div style="display:grid; grid-template-columns:2fr 1fr 1fr; padding:12px 18px; font-family:'Space Mono',monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:oklch(0.55 0.015 264); background:oklch(0.975 0.004 95); border-bottom:1px solid oklch(0.92 0.005 95);"><span>Item</span><span style="text-align:right;">Qty</span><span style="text-align:right;">Price</span></div>
+                <div style="display:grid; grid-template-columns:2fr 1fr 1fr; padding:13px 18px; font-size:14px; border-bottom:1px solid oklch(0.95 0.004 95); align-items:center;"><span style="color:oklch(0.30 0.02 264);">Organic bananas</span><span style="font-family:'Space Mono',monospace; text-align:right; color:oklch(0.45 0.015 264);">2</span><span style="font-family:'Space Mono',monospace; text-align:right; color:oklch(0.28 0.02 264);">$3.20</span></div>
+                <div style="display:grid; grid-template-columns:2fr 1fr 1fr; padding:13px 18px; font-size:14px; border-bottom:1px solid oklch(0.95 0.004 95); align-items:center;"><span style="color:oklch(0.30 0.02 264);">Cold brew coffee</span><span style="font-family:'Space Mono',monospace; text-align:right; color:oklch(0.45 0.015 264);">1</span><span style="font-family:'Space Mono',monospace; text-align:right; color:oklch(0.28 0.02 264);">$11.98</span></div>
+                <div style="display:grid; grid-template-columns:2fr 1fr 1fr; padding:13px 18px; font-size:14px; border-bottom:1px solid oklch(0.95 0.004 95); align-items:center;"><span style="color:oklch(0.30 0.02 264);">Sourdough loaf</span><span style="font-family:'Space Mono',monospace; text-align:right; color:oklch(0.45 0.015 264);">1</span><span style="font-family:'Space Mono',monospace; text-align:right; color:oklch(0.28 0.02 264);">$6.50</span></div>
+                <div style="display:grid; grid-template-columns:2fr 1fr 1fr; padding:13px 18px; font-size:14px; border-bottom:1px solid oklch(0.95 0.004 95); align-items:center;"><span style="color:oklch(0.30 0.02 264);">Free-range eggs</span><span style="font-family:'Space Mono',monospace; text-align:right; color:oklch(0.45 0.015 264);">1</span><span style="font-family:'Space Mono',monospace; text-align:right; color:oklch(0.28 0.02 264);">$7.49</span></div>
+                <div style="display:grid; grid-template-columns:2fr 1fr 1fr; padding:13px 18px; font-size:14px; border-bottom:1px solid oklch(0.95 0.004 95); align-items:center;"><span style="color:oklch(0.30 0.02 264);">Avocado (each)</span><span style="font-family:'Space Mono',monospace; text-align:right; color:oklch(0.45 0.015 264);">4</span><span style="font-family:'Space Mono',monospace; text-align:right; color:oklch(0.28 0.02 264);">$5.16</span></div>
+                <div style="display:grid; grid-template-columns:2fr 1fr 1fr; padding:13px 18px; font-size:14px; align-items:center;"><span style="color:oklch(0.30 0.02 264);">Sparkling water ×6</span><span style="font-family:'Space Mono',monospace; text-align:right; color:oklch(0.45 0.015 264);">1</span><span style="font-family:'Space Mono',monospace; text-align:right; color:oklch(0.28 0.02 264);">$5.99</span></div>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:baseline; margin-top:18px; padding:16px 18px; background:oklch(0.20 0.02 264); border-radius:12px;">
+                <span style="font-size:14px; color:oklch(0.80 0.012 264);">Extracted total</span>
+                <span style="font-family:'Space Mono',monospace; font-weight:700; font-size:26px; color:oklch(0.74 0.10 160);">$62.40</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROCESSING STATE (the async Textract moment) -->
+    <div style="flex:none; width:520px;">
+      <div style="font-family:'Space Mono',monospace; font-size:12px; color:oklch(0.42 0.02 264); margin-bottom:10px;">Processing state <span style="color:oklch(0.58 0.015 264);">· async Textract</span></div>
+      <div style="background:#fff; border-radius:2px; box-shadow:0 1px 3px rgba(0,0,0,.08); overflow:hidden; min-height:300px;">
+        <div style="height:60px; background:oklch(0.20 0.02 264); display:flex; align-items:center; padding:0 26px;"><div style="display:flex; align-items:center; gap:10px;"><div style="width:24px; height:24px; border-radius:7px; background:oklch(0.60 0.11 160); display:flex; align-items:center; justify-content:center;"><div style="width:8px; height:8px; border-radius:2px; background:oklch(0.20 0.02 264);"></div></div><span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; color:#fff;">Expense Analyser</span></div></div>
+        <div style="padding:40px 34px;">
+          <div style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:oklch(0.46 0.10 160); margin-bottom:24px;">Reading your receipt</div>
+          <!-- progress steps -->
+          <div style="display:flex; flex-direction:column; gap:0;">
+            <div style="display:flex; align-items:center; gap:14px; padding:12px 0;"><div style="width:24px; height:24px; border-radius:50%; background:oklch(0.60 0.11 160); display:flex; align-items:center; justify-content:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 12 l4 4 l10-10" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span style="font-size:14.5px; font-weight:600; color:oklch(0.26 0.02 264);">Uploaded</span></div>
+            <div style="width:2px; height:14px; background:oklch(0.60 0.11 160); margin-left:11px;"></div>
+            <div style="display:flex; align-items:center; gap:14px; padding:12px 0;"><div style="width:24px; height:24px; border-radius:50%; background:oklch(0.60 0.11 160); display:flex; align-items:center; justify-content:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 12 l4 4 l10-10" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span style="font-size:14.5px; font-weight:600; color:oklch(0.26 0.02 264);">Queued for Textract</span></div>
+            <div style="width:2px; height:14px; background:oklch(0.60 0.11 160); margin-left:11px;"></div>
+            <div style="display:flex; align-items:center; gap:14px; padding:12px 0;"><div style="width:24px; height:24px; border-radius:50%; border:2.5px solid oklch(0.60 0.11 160); border-top-color:transparent;"></div><div><span style="font-size:14.5px; font-weight:600; color:oklch(0.26 0.02 264);">Extracting data…</span><div style="font-family:'Space Mono',monospace; font-size:11px; color:oklch(0.50 0.015 264);">reading line items &amp; totals</div></div></div>
+            <div style="width:2px; height:14px; background:oklch(0.90 0.005 95); margin-left:11px;"></div>
+            <div style="display:flex; align-items:center; gap:14px; padding:12px 0;"><div style="width:24px; height:24px; border-radius:50%; border:2px solid oklch(0.88 0.008 264);"></div><span style="font-size:14.5px; font-weight:600; color:oklch(0.60 0.015 264);">Ready in Doc Results</span></div>
+          </div>
+          <div style="margin-top:24px; padding:14px 16px; border-radius:11px; background:oklch(0.985 0.004 95); border:1px solid oklch(0.91 0.005 95); display:flex; align-items:center; gap:11px;">
+            <div style="width:8px; height:8px; border-radius:50%; background:oklch(0.66 0.13 160);"></div>
+            <span style="font-size:12.5px; color:oklch(0.46 0.02 264);">You'll get a <b>live notification</b> when it's done — no need to wait here.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ROW: SOCIAL ============ -->
+  <div style="margin-bottom:18px; font-family:'Space Mono',monospace; font-size:12px; letter-spacing:0.16em; text-transform:uppercase; color:oklch(0.40 0.02 264);">04 · Sharing &amp; social</div>
+  <div style="display:flex; gap:40px; align-items:flex-start;">
+
+    <!-- SHARED EXPENSES -->
+    <div style="flex:none; width:760px;">
+      <div style="font-family:'Space Mono',monospace; font-size:12px; color:oklch(0.42 0.02 264); margin-bottom:10px;">Shared Expenses <span style="color:oklch(0.58 0.015 264);">· /sharedExpenses</span></div>
+      <div style="background:#fff; border-radius:2px; box-shadow:0 1px 3px rgba(0,0,0,.08); overflow:hidden;">
+        <div style="height:60px; background:oklch(0.20 0.02 264); display:flex; align-items:center; padding:0 26px; gap:30px;"><div style="display:flex; align-items:center; gap:10px;"><div style="width:24px; height:24px; border-radius:7px; background:oklch(0.60 0.11 160); display:flex; align-items:center; justify-content:center;"><div style="width:8px; height:8px; border-radius:2px; background:oklch(0.20 0.02 264);"></div></div><span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; color:#fff;">Expense Analyser</span></div><span style="color:#fff; font-weight:600; font-size:13.5px; padding:7px 13px; border-radius:8px; background:oklch(0.30 0.03 160);">Shared</span></div>
+        <div style="padding:32px;">
+          <div style="display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:24px;">
+            <div><h2 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:26px; letter-spacing:-0.02em; margin:0 0 4px; color:oklch(0.22 0.02 264);">Shared with you</h2><div style="font-size:14px; color:oklch(0.52 0.015 264);">You owe <span style="font-family:'Space Mono',monospace; color:oklch(0.46 0.10 160); font-weight:600;">$186.13</span> across 2 expenses</div></div>
+          </div>
+          <!-- shared card -->
+          <div style="border:1px solid oklch(0.91 0.005 95); border-radius:14px; padding:22px; margin-bottom:16px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+              <div style="display:flex; align-items:center; gap:13px;"><div style="width:42px; height:42px; border-radius:11px; background:oklch(0.95 0.03 90); display:flex; align-items:center; justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 9 L12 4 L20 9 V19 H4 Z" stroke="oklch(0.50 0.08 90)" stroke-width="1.8" stroke-linejoin="round"/></svg></div><div><div style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:16px; color:oklch(0.24 0.02 264);">Lake house weekend</div><div style="font-size:12.5px; color:oklch(0.55 0.015 264);">from Alex P. · split 3 ways</div></div></div>
+              <span style="font-family:'Space Mono',monospace; font-weight:700; font-size:20px; color:oklch(0.24 0.02 264);">$420.00</span>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;"><div style="display:flex;"><div style="width:28px; height:28px; border-radius:50%; background:oklch(0.60 0.11 160); color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; border:2px solid #fff;">AP</div><div style="width:28px; height:28px; border-radius:50%; background:oklch(0.60 0.11 265); color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; border:2px solid #fff; margin-left:-8px;">TR</div><div style="width:28px; height:28px; border-radius:50%; background:oklch(0.55 0.06 60); color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; border:2px solid #fff; margin-left:-8px;">JD</div></div><span style="font-family:'Space Mono',monospace; font-size:13px; color:oklch(0.46 0.10 160);">you owe $140.00</span></div>
+            <div style="height:6px; border-radius:4px; background:oklch(0.94 0.005 95); overflow:hidden;"><div style="width:66%; height:100%; background:oklch(0.60 0.11 160);"></div></div>
+          </div>
+          <div style="border:1px solid oklch(0.91 0.005 95); border-radius:14px; padding:22px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+              <div style="display:flex; align-items:center; gap:13px;"><div style="width:42px; height:42px; border-radius:11px; background:oklch(0.95 0.03 200); display:flex; align-items:center; justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="oklch(0.50 0.08 200)" stroke-width="1.8"/><path d="M12 8 v4 l3 2" stroke="oklch(0.50 0.08 200)" stroke-width="1.8" stroke-linecap="round"/></svg></div><div><div style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:16px; color:oklch(0.24 0.02 264);">Team dinner</div><div style="font-size:12.5px; color:oklch(0.55 0.015 264);">from Taylor R. · split 4 ways</div></div></div>
+              <span style="font-family:'Space Mono',monospace; font-weight:700; font-size:20px; color:oklch(0.24 0.02 264);">$184.50</span>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;"><div style="display:flex;"><div style="width:28px; height:28px; border-radius:50%; background:oklch(0.60 0.11 265); color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; border:2px solid #fff;">TR</div><div style="width:28px; height:28px; border-radius:50%; background:oklch(0.60 0.11 160); color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; border:2px solid #fff; margin-left:-8px;">AP</div></div><span style="font-family:'Space Mono',monospace; font-size:13px; color:oklch(0.46 0.10 160);">you owe $46.13</span></div>
+            <div style="height:6px; border-radius:4px; background:oklch(0.94 0.005 95); overflow:hidden;"><div style="width:40%; height:100%; background:oklch(0.60 0.11 265);"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FRIENDS + ADD FRIEND stacked -->
+    <div style="flex:none; width:520px; display:flex; flex-direction:column; gap:40px;">
+      <!-- FRIENDS -->
+      <div>
+        <div style="font-family:'Space Mono',monospace; font-size:12px; color:oklch(0.42 0.02 264); margin-bottom:10px;">Friends <span style="color:oklch(0.58 0.015 264);">· /friends</span></div>
+        <div style="background:#fff; border-radius:2px; box-shadow:0 1px 3px rgba(0,0,0,.08); overflow:hidden;">
+          <div style="height:54px; background:oklch(0.20 0.02 264); display:flex; align-items:center; padding:0 24px;"><span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14px; color:#fff;">Friends</span></div>
+          <div style="padding:24px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;"><span style="font-size:14px; color:oklch(0.52 0.015 264);">4 friends</span><span style="font-size:13px; font-weight:700; color:oklch(0.18 0.02 264); background:oklch(0.60 0.11 160); padding:8px 14px; border-radius:9px;">+ Add friend</span></div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <div style="display:flex; align-items:center; gap:13px; border:1px solid oklch(0.91 0.005 95); border-radius:11px; padding:12px 14px;"><div style="width:38px; height:38px; border-radius:50%; background:oklch(0.60 0.11 160); color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center;">TR</div><div style="flex:1;"><div style="font-size:14.5px; font-weight:600; color:oklch(0.26 0.02 264);">Taylor Reed</div><div style="font-size:12px; color:oklch(0.55 0.015 264);">taylor.r@email.com</div></div><span style="font-size:18px; color:oklch(0.60 0.13 25);">×</span></div>
+              <div style="display:flex; align-items:center; gap:13px; border:1px solid oklch(0.91 0.005 95); border-radius:11px; padding:12px 14px;"><div style="width:38px; height:38px; border-radius:50%; background:oklch(0.60 0.11 265); color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center;">JD</div><div style="flex:1;"><div style="font-size:14.5px; font-weight:600; color:oklch(0.26 0.02 264);">Jordan Diaz</div><div style="font-size:12px; color:oklch(0.55 0.015 264);">jordan.d@email.com</div></div><span style="font-size:18px; color:oklch(0.60 0.13 25);">×</span></div>
+              <div style="display:flex; align-items:center; gap:13px; border:1px solid oklch(0.91 0.005 95); border-radius:11px; padding:12px 14px;"><div style="width:38px; height:38px; border-radius:50%; background:oklch(0.55 0.06 60); color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center;">SM</div><div style="flex:1;"><div style="font-size:14.5px; font-weight:600; color:oklch(0.26 0.02 264);">Sam Morgan</div><div style="font-size:12px; color:oklch(0.55 0.015 264);">sam.m@email.com</div></div><span style="font-size:18px; color:oklch(0.60 0.13 25);">×</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ADD FRIEND -->
+      <div>
+        <div style="font-family:'Space Mono',monospace; font-size:12px; color:oklch(0.42 0.02 264); margin-bottom:10px;">Add Friend <span style="color:oklch(0.58 0.015 264);">· /addFriend</span></div>
+        <div style="background:#fff; border-radius:2px; box-shadow:0 1px 3px rgba(0,0,0,.08); overflow:hidden;">
+          <div style="height:54px; background:oklch(0.20 0.02 264); display:flex; align-items:center; padding:0 24px;"><span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14px; color:#fff;">Add a friend</span></div>
+          <div style="padding:24px;">
+            <p style="font-size:14px; color:oklch(0.52 0.015 264); margin:0 0 18px;">Invite by email to start sharing expenses.</p>
+            <label style="font-size:13px; font-weight:600; color:oklch(0.40 0.02 264); margin-bottom:7px; display:block;">Email address</label>
+            <div style="display:flex; gap:10px;"><div style="flex:1; height:46px; border:1px solid oklch(0.86 0.008 264); border-radius:11px; display:flex; align-items:center; padding:0 14px; font-size:15px; color:oklch(0.30 0.02 264);">casey.lee@email.com</div><div style="height:46px; border-radius:11px; background:oklch(0.20 0.02 264); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; padding:0 20px;">Send</div></div>
+            <div style="margin-top:16px; padding:12px 14px; border-radius:11px; background:oklch(0.97 0.02 160 / 0.5); border:1px solid oklch(0.86 0.05 160); display:flex; align-items:center; gap:10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12 l4 4 l10-10" stroke="oklch(0.46 0.10 160)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span style="font-size:13px; color:oklch(0.40 0.06 160);">Invite sent to casey.lee@email.com</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div style="flex:none; width:520px;">
+      <div style="font-family:'Space Mono',monospace; font-size:12px; color:oklch(0.42 0.02 264); margin-bottom:10px;">Notifications <span style="color:oklch(0.58 0.015 264);">· /notifications · live SignalR</span></div>
+      <div style="background:#fff; border-radius:2px; box-shadow:0 1px 3px rgba(0,0,0,.08); overflow:hidden;">
+        <div style="height:60px; background:oklch(0.20 0.02 264); display:flex; align-items:center; justify-content:space-between; padding:0 24px;"><span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14px; color:#fff;">Notifications</span><span style="font-family:'Space Mono',monospace; font-size:11px; color:oklch(0.70 0.09 160); display:flex; align-items:center; gap:6px;"><span style="width:7px; height:7px; border-radius:50%; background:oklch(0.66 0.13 160);"></span>LIVE</span></div>
+        <div style="padding:20px 24px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;"><span style="font-size:13px; font-weight:600; color:oklch(0.40 0.02 264);">3 unread</span><span style="font-size:13px; color:oklch(0.46 0.10 160); font-weight:600;">Mark all read</span></div>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <!-- unread: processed -->
+            <div style="display:flex; gap:13px; border:1px solid oklch(0.86 0.05 160); border-radius:12px; padding:14px; background:oklch(0.97 0.02 160 / 0.4);">
+              <div style="width:36px; height:36px; border-radius:10px; background:oklch(0.95 0.03 160); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="oklch(0.46 0.10 160)" stroke-width="1.8"/><path d="M8.5 12 l2.5 2.5 l4.5-5" stroke="oklch(0.46 0.10 160)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div style="flex:1;"><div style="font-size:14px; color:oklch(0.26 0.02 264); line-height:1.45;"><b>Receipt processed.</b> Whole Foods Market is ready in Doc Results.</div><div style="font-family:'Space Mono',monospace; font-size:11px; color:oklch(0.46 0.10 160); margin-top:4px;">just now</div></div>
+              <div style="width:8px; height:8px; border-radius:50%; background:oklch(0.62 0.13 160); flex-shrink:0; margin-top:4px;"></div>
+            </div>
+            <!-- unread: shared -->
+            <div style="display:flex; gap:13px; border:1px solid oklch(0.86 0.05 265); border-radius:12px; padding:14px; background:oklch(0.97 0.02 265 / 0.4);">
+              <div style="width:36px; height:36px; border-radius:10px; background:oklch(0.95 0.03 265); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3.2" stroke="oklch(0.46 0.10 265)" stroke-width="1.8"/><path d="M4 18 a5 5 0 0 1 10 0" stroke="oklch(0.46 0.10 265)" stroke-width="1.8" stroke-linecap="round"/><line x1="17" y1="8" x2="17" y2="14" stroke="oklch(0.46 0.10 265)" stroke-width="1.8" stroke-linecap="round"/><line x1="14" y1="11" x2="20" y2="11" stroke="oklch(0.46 0.10 265)" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+              <div style="flex:1;"><div style="font-size:14px; color:oklch(0.26 0.02 264); line-height:1.45;"><b>Taylor R.</b> shared "Team dinner" with you — you owe $46.13.</div><div style="font-family:'Space Mono',monospace; font-size:11px; color:oklch(0.46 0.10 265); margin-top:4px;">2 min ago</div></div>
+              <div style="width:8px; height:8px; border-radius:50%; background:oklch(0.62 0.13 160); flex-shrink:0; margin-top:4px;"></div>
+            </div>
+            <!-- unread: friend -->
+            <div style="display:flex; gap:13px; border:1px solid oklch(0.91 0.005 95); border-radius:12px; padding:14px; background:#fff;">
+              <div style="width:36px; height:36px; border-radius:10px; background:oklch(0.95 0.01 264); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="oklch(0.50 0.015 264)" stroke-width="1.8"/><path d="M5 19 a7 7 0 0 1 14 0" stroke="oklch(0.50 0.015 264)" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+              <div style="flex:1;"><div style="font-size:14px; color:oklch(0.26 0.02 264); line-height:1.45;"><b>Casey Lee</b> accepted your friend invite.</div><div style="font-family:'Space Mono',monospace; font-size:11px; color:oklch(0.55 0.015 264); margin-top:4px;">1 hour ago</div></div>
+              <div style="width:8px; height:8px; border-radius:50%; background:oklch(0.62 0.13 160); flex-shrink:0; margin-top:4px;"></div>
+            </div>
+            <!-- read -->
+            <div style="display:flex; gap:13px; border:1px solid oklch(0.93 0.005 95); border-radius:12px; padding:14px; opacity:0.6;">
+              <div style="width:36px; height:36px; border-radius:10px; background:oklch(0.95 0.01 264); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="oklch(0.50 0.015 264)" stroke-width="1.8"/><path d="M8.5 12 l2.5 2.5 l4.5-5" stroke="oklch(0.50 0.015 264)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div style="flex:1;"><div style="font-size:14px; color:oklch(0.40 0.02 264); line-height:1.45;">Receipt processed. Shell fuel is ready in Doc Results.</div><div style="font-family:'Space Mono',monospace; font-size:11px; color:oklch(0.58 0.015 264); margin-top:4px;">yesterday</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>
