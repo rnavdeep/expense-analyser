@@ -11,5 +11,7 @@ module.exports = {
   ],
   parserOptions: {
     ecmaVersion: 'latest'
-  }
+  },
+  // Skill docs and exported design mockups are not app source — don't lint them.
+  ignorePatterns: ['skills/']
 }
