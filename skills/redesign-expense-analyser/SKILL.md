@@ -13,9 +13,12 @@ state, services, and routing.
 
 1. Read `references/design-system.md` for the shared tokens (colors, fonts, Vuetify
    theme, reusable card/hero patterns). This applies to every page.
-2. Read `references/redesign-plan-phase-1.md` for the step-by-step plan covering the
-   foundation setup plus Home, Login, and Register (with ready-to-paste templates and
-   styles).
+2. Read the step-by-step plan for the work at hand:
+   - `references/redesign-plan-phase-1.md` — foundation setup plus Home, Login, and
+     Register (ready-to-paste templates and styles).
+   - `references/redesign-plan-phase-2.md` — the authenticated app (expense list/card,
+     create+upload+assign flow, document results, shared expenses, notifications,
+     friends, navigation drawer).
 3. Open the mockups in `assets/mockups/` (start with
    `Expense Analyser Redesign.dc.html`) to inspect exact spacing, color, and typography
    in DevTools before implementing.
