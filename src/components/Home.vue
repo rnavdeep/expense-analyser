@@ -1,63 +1,60 @@
 <template>
   <div class="home-container">
-    <!-- Hero Section -->
-    <div class="hero-section">
-      <!-- Uncomment this to display the app icon -->
-      <!-- <img src="@/assets/eaIcon.png" alt="App Icon" class="app-icon" /> -->
-      <!-- <h1>Expense Analyser</h1> -->
-      <p class="subtitle">
-        The Expense Analyzer is an application that uses AWS Textract to automatically extract and
-        analyze data from receipts. Users can upload images or PDFs of their receipts, from which
-        the app identifies key information like total amounts, dates, and merchant details. It
-        categorizes expenses, calculates totals, and provides data visualization tools to help users
-        understand their spending patterns. With a user-friendly interface and export options for
-        reports, the Expense Analyzer simplifies expense tracking and enhances financial insights.
-      </p>
-      <p v-if="!isUserLoggedIn" class="next">Register or Login to Continue</p>
-      <div v-if="!isUserLoggedIn" class="button-group">
-        <router-link to="/login">
-          <button class="btn login-btn">Login</button>
-        </router-link>
-        <router-link to="/register">
-          <button class="btn register-btn">Register</button>
-        </router-link>
-      </div>
-    </div>
 
-    <!-- Features Section -->
-    <div class="features-section">
-      <h2>Features</h2>
+    <!-- ── HERO ── -->
+    <section class="hero-section">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="hero-content">
+        <div class="hero-eyebrow">Expense Intelligence</div>
+        <h1 class="hero-heading">
+          Snap a receipt.<br>Get clean, shareable expense data.
+        </h1>
+        <p class="hero-sub">
+          AWS Textract reads merchant, totals and line items automatically.
+          Organise, split and settle with friends — with live updates.
+        </p>
+        <div v-if="!isUserLoggedIn" class="hero-actions">
+          <router-link to="/register">
+            <v-btn color="secondary" size="large" class="cta-primary">
+              Get started — it's free
+            </v-btn>
+          </router-link>
+          <router-link to="/login">
+            <v-btn variant="outlined" size="large" class="cta-secondary">
+              Log in
+            </v-btn>
+          </router-link>
+        </div>
+        <div v-else class="hero-actions">
+          <router-link to="/myExpenses">
+            <v-btn color="secondary" size="large" class="cta-primary">View my expenses</v-btn>
+          </router-link>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FEATURES ── -->
+    <section class="features-section">
+      <h2 class="section-heading">Everything in one place</h2>
       <div class="features-grid">
         <div class="feature-card">
-          <img src="@/assets/eaUploadIcon.png" alt="Upload Receipts" />
-          <h3>Upload Bills</h3>
-          <p>Easily manage and organize all your bills in one place.</p>
+          <v-icon size="32" color="secondary" class="feature-icon">mdi-receipt-text-outline</v-icon>
+          <h3>Upload bills</h3>
+          <p>Drop in an image or PDF of any receipt — all your bills in one place.</p>
         </div>
         <div class="feature-card">
-          <img src="@/assets/eaProcessIcon.png" alt="Process Receipts" />
-          <h3>Process Receipts</h3>
-          <p>Process receipts and bills to extract total and other information.</p>
+          <v-icon size="32" color="secondary" class="feature-icon">mdi-text-recognition</v-icon>
+          <h3>Process receipts</h3>
+          <p>Textract extracts totals and details — no manual typing.</p>
         </div>
         <div class="feature-card">
-          <img src="@/assets/eaShareExpense.png" alt="Share Expense" />
-          <h3>Share Expense</h3>
-          <p>Share expenses with other app users.</p>
+          <v-icon size="32" color="secondary" class="feature-icon">mdi-account-group-outline</v-icon>
+          <h3>Share expense</h3>
+          <p>Split costs with other users and track who owes what.</p>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Testimonials Section -->
-    <div class="testimonials-section">
-      <h2>What Our Users Say</h2>
-      <div class="testimonial">
-        <p>"This app completely changed how I manage my work. Highly recommend!"</p>
-        <span>- Alex P.</span>
-      </div>
-      <div class="testimonial">
-        <p>"The collaborative features made team projects so much smoother. Love it!"</p>
-        <span>- Taylor R.</span>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -69,10 +66,7 @@ export default defineComponent({
   name: 'eaHome',
   setup() {
     const authStore = useAuthStore()
-
-    // Create a computed property for isUserLoggedIn
     const isUserLoggedIn = computed(() => authStore.isAuthenticated)
-
     return {
       ...authStore,
       isUserLoggedIn
@@ -85,178 +79,138 @@ export default defineComponent({
 .home-container {
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 60px);
   width: 100%;
-  max-width: 1300px;
-  margin: 0 auto;
-  padding: 0 20px;
 }
 
-/* Hero Section: Centered content */
+/* ── Hero ── */
 .hero-section {
+  background-color: var(--ea-nav);
+  color: #ffffff;
+  padding: 64px 56px 72px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-glow {
+  position: absolute;
+  top: -160px;
+  right: -120px;
+  width: 460px;
+  height: 460px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(47, 158, 111, 0.28), transparent 62%);
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  max-width: 900px;
+  width: 100%;
+}
+
+.hero-eyebrow {
+  font-family: var(--ea-mono);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #6ee7b7;
+  margin-bottom: 22px;
+}
+
+.hero-heading {
+  font-family: var(--ea-display);
+  font-weight: 600;
+  font-size: clamp(32px, 4vw, 46px);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  margin: 0 0 20px;
+}
+
+.hero-sub {
+  font-size: 17px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.72);
+  margin: 0 0 32px;
+}
+
+.hero-actions {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding: 40px 20px;
+  gap: 14px;
+  flex-wrap: wrap;
 }
 
-.app-icon {
-  width: 350px;
-  height: auto;
-  margin-bottom: 50px;
+.cta-primary {
+  background-color: var(--ea-emerald) !important;
+  color: var(--ea-ink) !important;
+  font-weight: 700 !important;
 }
 
-h1 {
-  font-size: 36px;
-  margin-bottom: 10px;
+.cta-secondary {
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
 }
 
-.subtitle {
-  font-size: 18px;
-  margin-bottom: 30px;
-}
-
-.next {
-  font-size: larger;
-  font-style: italic;
-  margin-bottom: 10px;
-}
-
-.button-group {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
-}
-
-/* Button styles */
-.btn {
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  border: none;
-  border-radius: 4px;
-}
-
-.login-btn {
-  background-color: #3498db;
-  color: white;
-}
-
-.register-btn {
-  background-color: #2ecc71;
-  color: white;
-}
-
-.btn:hover {
-  transform: translateY(-2px); /* Lift effect on hover */
-}
-
-/* Features Section */
+/* ── Features ── */
 .features-section {
-  padding: 60px 20px;
+  padding: 48px 56px 64px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.features-section h2 {
-  font-size: 52px;
-  margin-bottom: 30px;
-  text-align: center;
+.section-heading {
+  font-family: var(--ea-display);
+  font-weight: 600;
+  font-size: 28px;
+  letter-spacing: -0.02em;
+  color: var(--ea-ink);
+  margin-bottom: 28px;
 }
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 22px;
 }
 
 .feature-card {
-  padding: 20px;
-  background-color: #494a50; /* Light grey background for cards */
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Soft shadow effect */
-  transition: transform 0.3s ease; /* Smooth hover transition */
-  text-align: center;
+  border: 1px solid var(--ea-border);
+  border-radius: 14px;
+  padding: 26px;
+  background: var(--ea-surface);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .feature-card:hover {
-  transform: translateY(-5px); /* Lift effect on hover */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-3px);
 }
 
-.feature-card img {
-  width: 80px;
-  height: auto;
-  margin-bottom: 15px;
+.feature-icon {
+  display: block;
+  margin-bottom: 16px;
 }
 
 .feature-card h3 {
-  font-size: 24px;
-  margin-bottom: 10px;
-  font-style: italic;
-  font-weight: bold;
+  font-family: var(--ea-display);
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--ea-ink);
+  margin: 0 0 8px;
 }
 
-/* Testimonials Section */
-.testimonials-section {
-  padding: 20px 20px;
-  text-align: center;
-}
-
-.testimonials-section h2 {
-  font-size: 32px;
-  margin-bottom: 30px;
-}
-
-.testimonial {
-  margin-bottom: 20px;
-  max-width: 400px; /* Limit width for readability */
-  margin-left: auto; /* Center testimonials */
-  margin-right: auto; /* Center testimonials */
-}
-
-.testimonial p {
-  font-size: 16px;
-  font-style: italic;
-  margin-bottom: 5px;
-}
-
-.testimonial span {
+.feature-card p {
   font-size: 14px;
-  color: #777;
+  line-height: 1.55;
+  color: var(--ea-muted);
+  margin: 0;
 }
 
-/* Media Queries for responsiveness  ---- ToDO*/
+/* ── Responsive ── */
 @media (max-width: 768px) {
-  .hero-section h1 {
-    font-size: 28px;
-  }
-
-  .subtitle {
-    font-size: 16px;
-  }
-
-  .features-section h2 {
-    font-size: 36px;
-  }
-
-  .feature-card h3 {
-    font-size: 20px;
-  }
-
-  .btn {
-    font-size: 14px;
-    padding: 8px 16px;
-  }
-}
-
-@media (max-width: 480px) {
-  .hero-section {
-    padding: 20px 10px;
-  }
-
-  .features-grid {
-    grid-template-columns: 1fr;
-  }
+  .hero-section { padding: 48px 24px 56px; }
+  .features-section { padding: 40px 24px 48px; }
+  .features-grid { grid-template-columns: 1fr; }
 }
 </style>

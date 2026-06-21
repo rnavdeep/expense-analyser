@@ -11,7 +11,6 @@
         </main>
       </v-main>
     </div>
-    <v-footer>ednvvednfpenfpq</v-footer>
   </v-app>
 </template>
 
@@ -24,17 +23,13 @@ import { createPinia } from 'pinia'
 
 export default defineComponent({
   name: 'App',
-  components: {
-    eaNavbar,
-    eaNavigationDrawer
-  },
+  components: { eaNavbar, eaNavigationDrawer },
   setup() {
     createPinia()
   },
   mounted() {
     TextractNotificationService.start()
   },
-
   beforeUnmount() {
     TextractNotificationService.stop()
   }
@@ -42,38 +37,33 @@ export default defineComponent({
 </script>
 
 <style>
-/* Set the body's background color */
 body {
-  background-color: white; /* White background for the body */
-  margin: 10px; /* Remove default margin */
-  height: 100vh; /* Make body take the full viewport height */
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  /* background synced with theme via JS in main.ts and Navbar toggle */
+  background-color: #faf9f6;
 }
 
-/* Apply the same background color to v-app */
 .app-background {
-  background-color: white;
   height: 100vh;
 }
+
 .main-body {
-  width: 1350px;
-  padding: 10px;
-  margin: 10px;
-}
-/* Main content styles */
-.main-content {
-  height: calc(100vh - 64px); /* Adjust height based on navbar height */
-  padding: 0; /* Remove any padding if you want no space around */
-  overflow-y: scroll; /* Allow vertical scrolling */
+  width: 100%;
 }
 
-/* Hide scrollbar for Webkit browsers */
-.main-content::-webkit-scrollbar {
-  display: none; /* Hide scrollbar */
+/* Prevent Vuetify layout vars from the nav drawer narrowing public pages */
+.v-main {
+  padding-inline-start: 0 !important;
+  padding-inline-end: 0 !important;
 }
 
-/* Hide scrollbar for other browsers */
 .main-content {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  height: calc(100vh - 64px);
+  overflow-y: auto;
 }
+
+.main-content::-webkit-scrollbar { display: none; }
+.main-content { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
