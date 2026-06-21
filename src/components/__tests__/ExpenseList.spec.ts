@@ -23,6 +23,21 @@ describe('ExpenseList.vue', () => {
     expect((wrapper.vm as any).currentPage).toBe(2)
   })
 
+  it('searches on typed text alone, defaulting the field to Title and resetting to page 1', async () => {
+    const wrapper = shallowMount(ExpenseList)
+    await flushPromises()
+    expenseStoreMock.GetExpenses.mockClear()
+
+    const vm = wrapper.vm as any
+    vm.currentPage = 4
+    vm.searchValue = 'coffee'
+    await vm.performSearch()
+
+    expect(vm.currentPage).toBe(1)
+    const searchFilter = expenseStoreMock.GetExpenses.mock.calls.at(-1)?.[2]
+    expect(searchFilter).toMatchObject({ propertyName: 'Title', value: 'coffee', type: 'like' })
+  })
+
   it('selects expenses and bulk deletes them through the store', async () => {
     expenseStoreMock.expenses = [
       { id: 'e1', title: 'A' },

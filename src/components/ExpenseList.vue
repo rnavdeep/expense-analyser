@@ -279,9 +279,11 @@ export default defineComponent({
     const buildSearchFilter = async () => {
       //search object
       var filterBy = null
-      //build filter object
-      if (selectedSearchField.value != null && selectedSearchField.value != null) {
-        filterBy = new FilterBy(selectedSearchField.value, searchValue.value, 'like')
+      //build filter whenever the user typed a query; default the field to Title
+      //when none is explicitly selected so plain text search works on its own.
+      if (searchValue.value != null && searchValue.value !== '') {
+        const field = selectedSearchField.value ?? 'Title'
+        filterBy = new FilterBy(field, searchValue.value, 'like')
       }
       return filterBy
     }
@@ -295,6 +297,8 @@ export default defineComponent({
       return sortBy
     }
     const performSearch = async () => {
+      // Reset to the first page so filtered results aren't hidden on a later page.
+      currentPage.value = 1
       await fetchExpenses(await buildSearchFilter(), await buildSortFilter())
     }
     const performSort = async () => {
