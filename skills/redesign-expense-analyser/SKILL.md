@@ -19,6 +19,9 @@ state, services, and routing.
    - `references/redesign-plan-phase-2.md` — the authenticated app (expense list/card,
      create+upload+assign flow, document results, shared expenses, notifications,
      friends, navigation drawer).
+   - `references/redesign-plan-phase-3.md` — the app shell: consolidate the top
+     `Navbar` + left `NavigationDrawer` rail into a single persistent top nav (per the
+     mockups), responsive mobile menu, dark-mode parity, and final QA.
 3. Open the mockups in `assets/mockups/` (start with
    `Expense Analyser Redesign.dc.html`) to inspect exact spacing, color, and typography
    in DevTools before implementing.

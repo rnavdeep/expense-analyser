@@ -2,7 +2,6 @@
   <v-app class="app-background">
     <div class="navbar">
       <eaNavbar />
-      <eaNavigationDrawer />
     </div>
     <div class="main-body">
       <v-main>
@@ -17,13 +16,12 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import eaNavbar from './components/Navbar.vue'
-import eaNavigationDrawer from './components/NavigationDrawer.vue'
 import TextractNotificationService from './services/TextractNotificationService'
 import { createPinia } from 'pinia'
 
 export default defineComponent({
   name: 'App',
-  components: { eaNavbar, eaNavigationDrawer },
+  components: { eaNavbar },
   setup() {
     createPinia()
   },
@@ -53,7 +51,7 @@ body {
   width: 100%;
 }
 
-/* Prevent Vuetify layout vars from the nav drawer narrowing public pages */
+/* Content spans full width; the temporary mobile drawer does not offset layout. */
 .v-main {
   padding-inline-start: 0 !important;
   padding-inline-end: 0 !important;
