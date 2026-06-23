@@ -24,6 +24,12 @@ const router = createRouter({
       }
     },
     {
+      path: '/dashboard',
+      name: 'Dashboard',
+      component: () => import('../views/DashboardView.vue'),
+      meta: { requiresLogin: true, title: 'Dashboard', description: 'Overview of your expenses' }
+    },
+    {
       path: '/about',
       name: 'about',
       component: () => import('../views/AboutView.vue'),
@@ -106,6 +112,9 @@ router.beforeEach(async (to, from, next) => {
     } else {
       next() // Proceed to the route
     }
+  } else if (to.name === 'home' && authStore.isAuthenticated) {
+    // Authenticated users land on the data-rich dashboard, not the marketing home
+    next({ name: 'Dashboard' })
   } else if (to.meta.requiresGuest && authStore.isAuthenticated) {
     // Route is guest-only, redirect to home if logged in
     next({ name: 'home' })

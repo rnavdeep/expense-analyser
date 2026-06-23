@@ -133,6 +133,7 @@ export default defineComponent({
     // Top-nav routes (matches the redesign's persistent top nav). Add Friend and
     // Notifications are reachable from the Friends screen and the bell respectively.
     const navLinks = [
+      { title: 'Dashboard', to: '/dashboard', icon: 'mdi-view-dashboard' },
       { title: 'Expenses', to: '/myExpenses', icon: 'mdi-piggy-bank' },
       { title: 'New', to: '/newExpense', icon: 'mdi-receipt-text-plus' },
       { title: 'Shared', to: '/sharedExpenses', icon: 'mdi-account-multiple' },

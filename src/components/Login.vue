@@ -105,10 +105,10 @@ export default defineComponent({
         if (authStore.loginResponse?.isLoggedIn) {
           formData.value.username = ''
           formData.value.password = ''
-          successMessage.value = 'Login successful! Redirecting to Home....'
+          successMessage.value = 'Login successful! Redirecting to your dashboard....'
           errorMessage.value = ''
 
-          router.push('/')
+          router.push('/dashboard')
         } else {
           errorMessage.value = authStore.loginResponse.errors
         }
