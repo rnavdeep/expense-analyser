@@ -12,7 +12,11 @@ Build frontend features that match the current repo conventions:
 - API logic in services (`src/services`)
 - Route entries in `src/router/index.ts` for new pages
 
-Read `references/frontend-component-conventions.md` before implementation.
+Read `references/frontend-component-conventions.md` before implementation — it now
+includes the **Design System** the redesign (Phases 1–3) established. New UI must match
+that system (the `.page` shell, `--ea-*` tokens, `.amount`, theme colors), not bare
+Vuetify defaults. The full design reference is
+`skills/redesign-expense-analyser/references/design-system.md`.
 
 Use templates from `assets/component-options-template.vue` and `assets/view-wrapper-template.vue` when bootstrapping files.
 
@@ -39,8 +43,14 @@ Use templates from `assets/component-options-template.vue` and `assets/view-wrap
 - Implement store state/actions next.
 - Implement component/view behavior last.
 
-5. Follow existing component style.
-- Prefer Vuetify primitives (`v-container`, `v-row`, `v-col`, `v-card`, `v-form`, `v-btn`, `v-alert`).
+5. Follow the redesigned component style.
+- Wrap full pages in the global `.page` / `.page-head` shell; don't re-declare those
+  classes (they live in `src/assets/main.css`).
+- Style with `--ea-*` tokens and theme colors (`color="secondary"` = emerald CTA,
+  `color="primary"` = ink) — no hard-coded hexes, so light AND dark themes both work.
+- Render every currency figure with `class="amount"`.
+- Reuse the feature-card / empty-state / icon-chip patterns (see `ExpenseList.vue`,
+  `ExpenseCard.vue`); for breakpoints use `useDisplay()`.
 - Use `defineComponent` with TypeScript in components.
 - Keep component names in `ea*` style to match current usage.
 - Keep local styles `scoped` unless intentionally global.
@@ -63,6 +73,8 @@ Use templates from `assets/component-options-template.vue` and `assets/view-wrap
 ## Guardrails
 
 - Preserve path aliases and imports (`@/stores`, `@/models`, `@/services`) where already used.
-- Keep views minimal wrappers when no page-level logic is required.
+- Keep views minimal wrappers (the `.page` shell lives in the component, not the view).
 - Avoid broad style refactors while adding a single component.
 - Do not introduce new state libraries or component frameworks.
+- Do not hard-code colors/fonts or re-declare the global shell/`.amount` classes — read
+  the `--ea-*` tokens so dark mode keeps working.
