@@ -7,7 +7,7 @@ import { computed, defineComponent, type PropType } from 'vue'
 import { Bar } from 'vue-chartjs'
 import type { ChartOptions, TooltipItem } from 'chart.js'
 import './chartSetup'
-import type { MonthlyPoint } from '@/data/dashboardSeed'
+import type { MonthlyPoint } from '@/models/Dashboard'
 
 const INK = '#1a1d28'
 const BAR = '#e8e5df'

@@ -23,6 +23,20 @@
       </div>
     </header>
 
+    <!-- ── Error state ── -->
+    <div v-if="error" class="dash-state error-state">
+      <v-icon size="28" color="secondary">mdi-alert-circle-outline</v-icon>
+      <p class="state-msg">{{ error }}</p>
+      <button type="button" class="state-btn" @click="retry">Retry</button>
+    </div>
+
+    <!-- ── Loading state (first load) ── -->
+    <div v-else-if="isLoading && !data" class="dash-state">
+      <v-progress-circular indeterminate color="secondary" size="32" />
+      <p class="state-msg">Loading your dashboard…</p>
+    </div>
+
+    <template v-else-if="data">
     <!-- ── KPI strip ── -->
     <section class="kpi-strip">
       <div v-for="kpi in kpiCards" :key="kpi.label" class="kpi-card" :style="{ borderTopColor: kpi.accent }">
@@ -114,21 +128,25 @@
         </div>
       </div>
     </section>
+    </template>
   </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref } from 'vue'
+import { computed, defineComponent, onMounted, ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useAuthStore } from '../stores/Auth'
+import { useDashboardStore } from '../stores/Dashboard'
 import MonthlyBarChart from './dashboard/MonthlyBarChart.vue'
 import CategoryDonut from './dashboard/CategoryDonut.vue'
-import { getDashboardData, type DashboardPeriod } from '@/data/dashboardSeed'
+import type { DashboardPeriod } from '@/models/Dashboard'
 
 export default defineComponent({
   name: 'eaDashboard',
   components: { MonthlyBarChart, CategoryDonut },
   setup() {
     const authStore = useAuthStore()
+    const dashboardStore = useDashboardStore()
 
     const period = ref<DashboardPeriod>('month')
     const periodOptions: { label: string; value: DashboardPeriod }[] = [
@@ -137,8 +155,12 @@ export default defineComponent({
       { label: 'Year', value: 'year' }
     ]
 
-    // Seed-backed for now — see API NOTEs in dashboardSeed.ts for the real endpoints.
-    const data = computed(() => getDashboardData(period.value))
+    // Live data, keyed off the active period — see the summary/monthly/balances
+    // endpoints on ExpenseController.
+    const { data, isLoading, error } = storeToRefs(dashboardStore)
+
+    onMounted(() => dashboardStore.LoadDashboard(period.value))
+    watch(period, (p) => dashboardStore.LoadDashboard(p))
 
     const displayName = computed(() => (authStore.userName || 'there').trim() || 'there')
 
@@ -158,6 +180,7 @@ export default defineComponent({
     const initialsOf = (name: string) => (name || '').trim().slice(0, 1).toUpperCase() || '?'
 
     const kpiCards = computed(() => {
+      if (!data.value) return []
       const k = data.value.kpis
       const deltaSign = k.totalSpentDelta >= 0 ? '+' : ''
       return [
@@ -192,10 +215,15 @@ export default defineComponent({
       ]
     })
 
+    const retry = () => dashboardStore.LoadDashboard(period.value)
+
     return {
       period,
       periodOptions,
       data,
+      isLoading,
+      error,
+      retry,
       displayName,
       greeting,
       kpiCards,
@@ -488,6 +516,36 @@ export default defineComponent({
 }
 .owe-amount { color: #dc2626; }
 .owed-amount { color: var(--ea-emerald); }
+
+/* ── Loading / error states ── */
+.dash-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 320px;
+  text-align: center;
+}
+
+.state-msg {
+  font-size: 14px;
+  color: var(--ea-muted);
+  margin: 0;
+}
+
+.state-btn {
+  font-family: var(--ea-display);
+  font-weight: 600;
+  font-size: 13px;
+  color: #ffffff;
+  background: var(--ea-ink);
+  border: none;
+  border-radius: 10px;
+  padding: 9px 20px;
+  cursor: pointer;
+}
+.state-btn:hover { opacity: 0.9; }
 
 /* ── Responsive ── */
 @media (max-width: 900px) {

@@ -7,7 +7,7 @@ import { computed, defineComponent, type PropType } from 'vue'
 import { Doughnut } from 'vue-chartjs'
 import type { ChartOptions, TooltipItem } from 'chart.js'
 import './chartSetup'
-import type { CategorySlice } from '@/data/dashboardSeed'
+import type { CategorySlice } from '@/models/Dashboard'
 
 export default defineComponent({
   name: 'CategoryDonut',
