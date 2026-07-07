@@ -1,36 +1,42 @@
 <template>
-  <div>
-    <!-- Friends List Section -->
-    <v-container>
-      <v-row align="center" justify="center" class="mb-4">
-        <v-col cols="12" md="8">
-          <h1 class="section-title">Friends List</h1>
-        </v-col>
-      </v-row>
+  <div class="page">
+    <header class="page-head">
+      <div>
+        <h1 class="page-title">Friends</h1>
+        <p class="page-sub">People you split expenses with.</p>
+      </div>
+      <router-link to="/addFriend" class="head-cta">
+        <v-btn color="secondary" size="large">Add friend</v-btn>
+      </router-link>
+    </header>
 
-      <!-- Loading Indicator -->
-      <v-row v-if="isLoading" class="justify-center">
-        <v-col cols="12" class="text-center">
-          <v-progress-circular indeterminate color="primary"></v-progress-circular>
-        </v-col>
-      </v-row>
+    <!-- Loading -->
+    <div v-if="isLoading" class="state-block">
+      <v-progress-circular indeterminate color="secondary" :size="44"></v-progress-circular>
+    </div>
 
-      <!-- No Friends Found -->
-      <v-row v-else-if="!isLoading && friends.length === 0" class="justify-center">
-        <v-col cols="12" class="text-center">
-          <p>No friends found.</p>
-        </v-col>
-      </v-row>
+    <!-- Empty -->
+    <div v-else-if="friends.length === 0" class="empty-state">
+      <div class="empty-chip">
+        <v-icon size="28">mdi-account-group-outline</v-icon>
+      </div>
+      <h2 class="empty-title">No friends yet</h2>
+      <p class="empty-sub">Add a friend to start sharing expenses.</p>
+      <router-link to="/addFriend" class="head-cta">
+        <v-btn color="secondary">Add friend</v-btn>
+      </router-link>
+    </div>
 
-      <!-- Friends List Display -->
-      <v-container v-else>
-        <v-row justify="center">
-          <v-col cols="12" md="10">
-            <v-data-table :items="friends"></v-data-table>
-          </v-col>
-        </v-row>
-      </v-container>
-    </v-container>
+    <!-- Friends -->
+    <div v-else class="friend-list">
+      <div v-for="(friend, index) in friends" :key="index" class="friend-row">
+        <div class="friend-avatar">{{ (friend.username || '?').charAt(0).toUpperCase() }}</div>
+        <div class="friend-info">
+          <p class="friend-name">{{ friend.username }}</p>
+          <p class="friend-meta">{{ (friend.sharedExpenses?.length || 0) }} shared expenses</p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -54,23 +60,102 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.v-container {
-  padding: 10px;
+.head-cta {
+  text-decoration: none;
 }
 
-.section-title {
-  font-size: 1.5rem;
-  font-weight: bold;
+.state-block {
+  display: flex;
+  justify-content: center;
+  padding: 64px 0;
+}
+
+.empty-state {
   text-align: center;
+  padding: 56px 24px;
+  border: 1px dashed var(--ea-border);
+  border-radius: 16px;
+  background: var(--ea-surface);
 }
 
-.text-center {
-  font-size: 1.2rem;
-  color: gray;
-  margin-top: 20px;
+.empty-chip {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--ea-emerald-tint);
+  color: var(--ea-emerald);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
 }
 
-.v-progress-circular {
-  margin: 40px 0;
+.empty-title {
+  font-family: var(--ea-display);
+  font-weight: 600;
+  font-size: 20px;
+  color: var(--ea-ink);
+  margin-bottom: 6px;
+}
+
+.empty-sub {
+  font-size: 14px;
+  color: var(--ea-muted);
+  margin-bottom: 20px;
+}
+
+/* Friend rows */
+.friend-list {
+  background: var(--ea-surface);
+  border: 1px solid var(--ea-border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.friend-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--ea-border);
+  transition: background 0.15s ease;
+}
+.friend-row:last-child {
+  border-bottom: none;
+}
+.friend-row:hover {
+  background: var(--ea-paper);
+}
+
+.friend-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--ea-ink);
+  color: #fff;
+  font-family: var(--ea-display);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.friend-info {
+  min-width: 0;
+}
+
+.friend-name {
+  font-family: var(--ea-display);
+  font-weight: 600;
+  color: var(--ea-ink);
+  font-size: 15px;
+}
+
+.friend-meta {
+  font-family: var(--ea-mono);
+  font-size: 12px;
+  color: var(--ea-muted);
+  margin-top: 2px;
 }
 </style>

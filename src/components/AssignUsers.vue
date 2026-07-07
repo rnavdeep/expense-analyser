@@ -1,69 +1,62 @@
 <template>
   <!-- Dialog for assigning users to expenses -->
-  <div class="resizable-box">
-    <v-dialog v-model="dialogAssignUsers" max-width="500">
-      <v-card>
-        <v-card-title class="docTitle">Manage Expense Users</v-card-title>
+  <div class="assign-wrap">
+    <v-dialog v-model="dialogAssignUsers" max-width="520">
+      <v-card class="assign-card">
+        <div class="assign-head">
+          <h3 class="assign-title">Manage expense users</h3>
+        </div>
 
-        <!-- Assign User Section -->
-        <v-card-text>
-          <h3 class="section-title">Assign User to Expense</h3>
-          <div class="users">
+        <div class="assign-body">
+          <!-- Assign user -->
+          <div class="assign-row">
             <v-select
-              label="Select User"
+              label="Select user"
               :items="availableUsers"
               v-model="selectedUserId"
               item-value="id"
               item-title="username"
-              outlined
-              dense
+              hide-details
+              density="comfortable"
+              class="assign-select"
             ></v-select>
-            <v-btn text="Add User" style="background-color: lightgreen" @click="addUserToExpense"
-              >Add</v-btn
-            >
+            <v-btn color="secondary" @click="addUserToExpense">
+              <v-icon start>mdi-plus</v-icon>
+              Add
+            </v-btn>
           </div>
-        </v-card-text>
 
-        <!-- Divider between sections -->
-        <v-divider></v-divider>
+          <!-- Assigned users -->
+          <p class="assigned-label">Assigned users</p>
+          <div class="assigned-chips" v-if="assignedUsers.length">
+            <v-chip
+              v-for="(user, index) in assignedUsers"
+              :key="index"
+              color="secondary"
+              variant="tonal"
+              closable
+              @click:close="removeUserFromExpense(user.userId)"
+            >
+              {{ user.userName }}
+            </v-chip>
+          </div>
+          <p v-else class="assigned-empty">No users assigned yet.</p>
 
-        <!-- Show Section (Assigned Users) -->
-        <v-card-text>
-          <h3 class="section-title">Assigned Users</h3>
-          <ol class="eachUser">
-            <li v-for="(user, index) in assignedUsers" :key="index" class="user-item">
-              <span class="user-index">{{ index + 1 }}.</span>
-              <p class="userName">{{ user.userName }}</p>
-              <v-tooltip :text="`Remove ${user.userName}`" location="top">
-                <template v-slot:activator="{ props }">
-                  <v-icon
-                    @click="removeUserFromExpense(user.userId)"
-                    v-bind="props"
-                    style="color: dark-red; margin-left: 40px"
-                    >mdi-account-remove</v-icon
-                  >
-                </template>
-              </v-tooltip>
-              <v-divider :opacity="100" style="width: 400px; margin-left: 40px"></v-divider>
-            </li>
-          </ol>
-        </v-card-text>
-
-        <!-- Loading Indicator -->
-        <div class="loading" v-if="isUserAssigning">
-          <v-progress-circular
-            color="primary"
-            indeterminate
-            :size="37"
-            :width="4"
-          ></v-progress-circular>
+          <!-- Loading Indicator -->
+          <div class="loading" v-if="isUserAssigning">
+            <v-progress-circular
+              color="secondary"
+              indeterminate
+              :size="32"
+              :width="3"
+            ></v-progress-circular>
+          </div>
         </div>
 
         <!-- Dialog actions -->
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn text="Close" @click="closeUserDialog">Close</v-btn>
-        </v-card-actions>
+        <div class="assign-actions">
+          <v-btn variant="text" @click="closeUserDialog">Close</v-btn>
+        </div>
       </v-card>
     </v-dialog>
   </div>
@@ -146,54 +139,60 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.resizable-box {
-  height: 100%;
-  width: 100%;
-  background-color: aqua;
-  position: relative;
+.assign-card {
+  background: var(--ea-surface);
+  border: 1px solid var(--ea-border);
+  border-radius: 16px;
+  padding: 24px;
 }
 
-.users {
+.assign-head {
+  margin-bottom: 16px;
+}
+
+.assign-title {
+  font-family: var(--ea-display);
+  font-weight: 600;
+  font-size: 20px;
+  color: var(--ea-ink);
+}
+
+.assign-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
-.section-title {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 10px;
+.assign-select {
+  flex-grow: 1;
 }
 
-.eachUser {
-  list-style: none;
-  padding: 0;
-  counter-reset: item;
+.assigned-label {
+  font-family: var(--ea-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ea-muted);
+  margin: 22px 0 10px;
 }
 
-.user-item {
-  display: grid;
-  grid-template-columns: 30px 1fr auto;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
+.assigned-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.user-index {
-  text-align: right;
-  font-weight: bold;
-}
-
-.userName {
-  margin: 0;
+.assigned-empty {
+  font-size: 14px;
+  color: var(--ea-muted);
 }
 
 .loading {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100px;
-  margin-top: 20px;
+  height: 72px;
+  margin-top: 16px;
 }
 
 .v-btn {

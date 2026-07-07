@@ -80,7 +80,7 @@ describe('Login.vue', () => {
     ;(wrapper.vm as any).formData.password = 'secret'
     await (wrapper.vm as any).handlelogin()
 
-    expect(pushMock).toHaveBeenCalledWith('/')
+    expect(pushMock).toHaveBeenCalledWith('/dashboard')
     expect((wrapper.vm as any).successMessage).toContain('Login successful')
   })
 

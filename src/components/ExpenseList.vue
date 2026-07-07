@@ -1,126 +1,143 @@
 <template>
-  <div>
-    <!-- Search and Sort Button Group -->
-    <div class="search-sort-buttons">
-      <v-row align="center" justify="center">
-        <v-col cols="12" md="2">
-          <v-btn color="primary" @click="searchEnabled">Search</v-btn>
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-btn color="primary" @click="sortEnabled">Sort</v-btn>
-        </v-col>
-      </v-row>
+  <div class="page">
+    <header class="page-head">
+      <div>
+        <h1 class="page-title">My expenses</h1>
+        <p class="page-sub">All your receipts, organised.</p>
+      </div>
+      <div class="head-actions">
+        <v-btn
+          v-if="expenses.length"
+          :color="selectMode ? 'primary' : undefined"
+          :variant="selectMode ? 'flat' : 'outlined'"
+          size="large"
+          prepend-icon="mdi-checkbox-multiple-marked-outline"
+          @click="toggleSelectMode"
+          >{{ selectMode ? 'Done' : 'Select' }}</v-btn
+        >
+        <router-link to="/newExpense" class="head-cta">
+          <v-btn color="secondary" size="large">New expense</v-btn>
+        </router-link>
+      </div>
+    </header>
+
+    <!-- Bulk selection action bar -->
+    <div v-if="selectMode" class="bulk-bar">
+      <span class="bulk-count">{{ selectedIds.length }} selected</span>
+      <div class="bulk-actions">
+        <v-btn variant="text" :disabled="!selectedIds.length" @click="clearSelection">Clear</v-btn>
+        <v-btn
+          color="error"
+          :disabled="!selectedIds.length"
+          prepend-icon="mdi-trash-can"
+          @click="bulkDeleteConfirm = true"
+          >Delete selected</v-btn
+        >
+      </div>
     </div>
 
-    <!-- Search Section -->
-    <div v-if="isSearchEnabled" class="search-section">
-      <v-container>
-        <v-row align="center" class="mb-4">
-          <v-col cols="12" md="2">
-            <h1 class="section-title">Search:</h1>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-select
-              clearable
-              dense
-              outlined
-              label="Select Field"
-              :items="searchFields"
-              v-model="selectedSearchField"
-            ></v-select>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-text-field
-              v-model="searchValue"
-              dense
-              outlined
-              :counter="10"
-              label="Search Value"
-              required
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" md="2">
-            <v-btn color="primary" @click="performSearch">Search</v-btn>
-          </v-col>
-        </v-row>
-      </v-container>
+    <!-- Search / sort toolbar -->
+    <div class="filter-bar">
+      <v-text-field
+        v-model="searchValue"
+        class="filter-search"
+        placeholder="Search expenses…"
+        prepend-inner-icon="mdi-magnify"
+        clearable
+        hide-details
+        @keyup.enter="performSearch"
+      ></v-text-field>
+      <v-select
+        v-model="selectedSearchField"
+        :items="searchFields"
+        label="Field"
+        clearable
+        hide-details
+        class="filter-select"
+      ></v-select>
+      <v-select
+        v-model="selectedSortField"
+        :items="sortFields"
+        label="Sort by"
+        clearable
+        hide-details
+        class="filter-select"
+      ></v-select>
+      <v-select
+        v-model="sortOrder"
+        :items="['Asc', 'Desc']"
+        label="Order"
+        clearable
+        hide-details
+        class="filter-select filter-select--sm"
+      ></v-select>
+      <v-btn color="primary" size="large" @click="performSearch">Apply</v-btn>
     </div>
 
-    <!-- Sort Section -->
-    <div v-if="isSortEnabled" class="sort-section">
-      <v-container>
-        <v-row align="center" class="mb-4">
-          <v-col cols="12" md="2">
-            <h1 class="section-title">Sort:</h1>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-select
-              clearable
-              dense
-              outlined
-              label="Select Sort Field"
-              :items="sortFields"
-              v-model="selectedSortField"
-            ></v-select>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-select
-              clearable
-              dense
-              outlined
-              label="Sort Order"
-              :items="['Asc', 'Desc']"
-              v-model="sortOrder"
-            ></v-select>
-          </v-col>
-          <v-col cols="12" md="2">
-            <v-btn color="primary" @click="performSort">Sort</v-btn>
-          </v-col>
-        </v-row>
-      </v-container>
+    <!-- Loading -->
+    <div v-if="isLoading" class="state-block">
+      <v-progress-circular indeterminate color="secondary" :size="44"></v-progress-circular>
     </div>
-  </div>
-  <v-container>
-    <!-- Loading Data -->
-    <v-row v-if="isLoading" class="justify-center">
-      <v-col cols="12" class="text-center">
-        <v-progress-circular indeterminate color="primary"></v-progress-circular>
-      </v-col>
-    </v-row>
 
-    <!-- Not Found -->
-    <v-row v-else-if="!isLoading && expenses.length === 0" class="justify-center">
-      <v-col cols="12" class="text-center">
-        <p>No expenses found.</p>
-      </v-col>
-    </v-row>
+    <!-- Empty -->
+    <div v-else-if="expenses.length === 0" class="empty-state">
+      <div class="empty-chip">
+        <v-icon size="28">mdi-receipt-text-outline</v-icon>
+      </div>
+      <h2 class="empty-title">No expenses found</h2>
+      <p class="empty-sub">Create your first expense or adjust your filters.</p>
+      <div class="empty-actions">
+        <router-link to="/newExpense">
+          <v-btn color="secondary">New expense</v-btn>
+        </router-link>
+        <v-btn variant="text" @click="resetList()">Reset filters</v-btn>
+      </div>
+    </div>
 
-    <!-- Expenses Found -->
-    <v-row v-else>
-      <v-col v-for="(expense, index) in expenses" :key="expense.id" cols="12" md="4">
+    <!-- Grid -->
+    <template v-else>
+      <div class="expense-grid">
         <eaExpenseCard
+          v-for="(expense, index) in expenses"
+          :key="expense.id"
           :expense="expense"
           :index="index"
           :isReadOnly="false"
+          :selectable="selectMode"
+          :selected="selectedIds.includes(expense.id)"
           @edit="editExpense"
           @delete="deleteExpense(expense)"
+          @toggle-select="toggleSelect"
         />
-      </v-col>
-    </v-row>
+      </div>
 
-    <!-- Pagination -->
-    <v-row class="justify-center">
-      <v-col v-if="!(!isLoading && expenses.length === 0)" cols="auto">
+      <div class="pagination-row">
         <v-pagination
           v-model="currentPage"
           @update:model-value="onPageChange"
           :length="200"
           :show-first-last-page="true"
         />
-      </v-col>
-      <v-btn v-if="!isLoading && expenses.length === 0" @click="resetList()">Reset</v-btn>
-    </v-row>
-  </v-container>
+      </div>
+    </template>
+
+    <!-- Bulk delete confirmation -->
+    <v-dialog v-model="bulkDeleteConfirm" max-width="400">
+      <v-card>
+        <v-card-title>Confirm Delete</v-card-title>
+        <v-card-text>
+          Deleting expenses will remove attached bills and processed bills results. <br />
+          Are you sure you want to delete
+          <strong>{{ selectedIds.length }}</strong>
+          selected {{ selectedIds.length === 1 ? 'expense' : 'expenses' }}?
+        </v-card-text>
+        <v-card-actions>
+          <v-btn text="Cancel" @click="bulkDeleteConfirm = false">Cancel</v-btn>
+          <v-btn text="Ok" @click="confirmBulkDelete">Ok</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </div>
 </template>
 
 <script lang="ts">
@@ -149,6 +166,10 @@ export default defineComponent({
     const searchValue = ref(null)
     const selectedSortField = ref(null)
     const sortOrder = ref(null)
+    // Bulk-select state
+    const selectMode = ref(false)
+    const selectedIds = ref<string[]>([])
+    const bulkDeleteConfirm = ref(false)
     // Fetch expenses and count on mount
     onMounted(async () => {
       try {
@@ -201,6 +222,44 @@ export default defineComponent({
       }
     }
 
+    // Selection helpers
+    const toggleSelect = (expense: any) => {
+      const idx = selectedIds.value.indexOf(expense.id)
+      if (idx === -1) {
+        selectedIds.value.push(expense.id)
+      } else {
+        selectedIds.value.splice(idx, 1)
+      }
+    }
+    const clearSelection = () => {
+      selectedIds.value = []
+    }
+    const toggleSelectMode = () => {
+      selectMode.value = !selectMode.value
+      if (!selectMode.value) {
+        clearSelection()
+      }
+    }
+
+    // Bulk delete handler
+    const confirmBulkDelete = async () => {
+      const selected = expenses.value.filter((e) => selectedIds.value.includes(e.id))
+      bulkDeleteConfirm.value = false
+      try {
+        await expenseStore.BulkDeleteExpenses(selected)
+      } catch (error) {
+        console.error('Error deleting expenses:', error)
+      } finally {
+        clearSelection()
+        selectMode.value = false
+        // If the page emptied out, step back a page.
+        if (selected.length >= expenses.value.length && currentPage.value > 1) {
+          currentPage.value -= 1
+        }
+        await fetchExpenses(await buildSearchFilter(), await buildSortFilter())
+      }
+    }
+
     //open search box
     const searchEnabled = async () => {
       isSearchEnabled.value = !isSearchEnabled.value
@@ -220,9 +279,11 @@ export default defineComponent({
     const buildSearchFilter = async () => {
       //search object
       var filterBy = null
-      //build filter object
-      if (selectedSearchField.value != null && selectedSearchField.value != null) {
-        filterBy = new FilterBy(selectedSearchField.value, searchValue.value, 'like')
+      //build filter whenever the user typed a query; default the field to Title
+      //when none is explicitly selected so plain text search works on its own.
+      if (searchValue.value != null && searchValue.value !== '') {
+        const field = selectedSearchField.value ?? 'Title'
+        filterBy = new FilterBy(field, searchValue.value, 'like')
       }
       return filterBy
     }
@@ -236,6 +297,8 @@ export default defineComponent({
       return sortBy
     }
     const performSearch = async () => {
+      // Reset to the first page so filtered results aren't hidden on a later page.
+      currentPage.value = 1
       await fetchExpenses(await buildSearchFilter(), await buildSortFilter())
     }
     const performSort = async () => {
@@ -261,73 +324,139 @@ export default defineComponent({
       searchValue,
       sortOrder,
       performSearch,
-      performSort
+      performSort,
+      selectMode,
+      selectedIds,
+      bulkDeleteConfirm,
+      toggleSelect,
+      clearSelection,
+      toggleSelectMode,
+      confirmBulkDelete
     }
   }
 })
 </script>
 
 <style scoped>
-.v-container {
-  padding: 10px;
+.head-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.v-col {
-  margin-bottom: 10px;
+.head-cta {
+  text-decoration: none;
 }
 
-.v-pagination {
+/* Bulk selection action bar */
+.bulk-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  border: 1px solid var(--ea-border);
+  border-radius: 12px;
+  background: var(--ea-emerald-tint);
+}
+
+.bulk-count {
+  font-weight: 600;
+  color: var(--ea-ink);
+}
+
+.bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Filter toolbar */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.filter-search {
+  flex: 1 1 240px;
+  min-width: 200px;
+}
+
+.filter-select {
+  flex: 0 0 150px;
+  max-width: 170px;
+}
+
+.filter-select--sm {
+  flex: 0 0 120px;
+}
+
+/* Card grid */
+.expense-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+/* States */
+.state-block {
   display: flex;
   justify-content: center;
-  margin-top: 10px;
+  padding: 64px 0;
 }
 
-.v-pagination__item {
-  color: #007bff;
-}
-.v-pagination__item--active {
-  background-color: #007bff;
-  color: white;
-}
-
-.text-center {
-  font-size: 1.5rem;
-  color: gray;
-  margin-top: 40px;
+.empty-state {
+  text-align: center;
+  padding: 56px 24px;
+  border: 1px dashed var(--ea-border);
+  border-radius: 16px;
+  background: var(--ea-surface);
 }
 
-.v-progress-circular {
-  margin: 40px 0;
+.empty-chip {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--ea-emerald-tint);
+  color: var(--ea-emerald);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
 }
 
-.search {
-  padding: 20px;
+.empty-title {
+  font-family: var(--ea-display);
+  font-weight: 600;
+  font-size: 20px;
+  color: var(--ea-ink);
+  margin-bottom: 6px;
 }
 
-.search-title {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-@media (max-width: 960px) {
-  .search-title {
-    text-align: center;
-  }
-}
-.search-sort-buttons {
+.empty-sub {
+  font-size: 14px;
+  color: var(--ea-muted);
   margin-bottom: 20px;
 }
 
-.section-title {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: bold;
+.empty-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+}
+.empty-actions a {
+  text-decoration: none;
 }
 
-@media (max-width: 960px) {
-  .section-title {
-    text-align: center;
-  }
+.pagination-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 36px;
 }
 </style>

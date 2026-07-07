@@ -1,0 +1,4 @@
+interface:
+  display_name: "Expense Analyser Redesign"
+  short_description: "Restyle the Vue + Vuetify frontend to the approved redesign mockups"
+  default_prompt: "Redesign a page in this expense-analyser project to match the approved mockups, applying the shared design system (fonts, ink + emerald palette, Vuetify theme) without changing app behavior."

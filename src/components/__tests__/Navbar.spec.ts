@@ -19,6 +19,12 @@ const notificationStoreMock = vi.hoisted(() => ({
 
 vi.mock('@/stores/Auth', () => ({ useAuthStore: () => authStoreMock }))
 vi.mock('@/stores/Notifications', () => ({ useNotificationStore: () => notificationStoreMock }))
+vi.mock('vuetify', () => ({
+  useTheme: () => ({
+    global: { current: { value: { dark: false } }, name: { value: 'light' } }
+  }),
+  useDisplay: () => ({ mobile: { value: false } })
+}))
 vi.mock('vue-router', async () => {
   const actual = await vi.importActual<typeof import('vue-router')>('vue-router')
   return {
@@ -38,5 +44,32 @@ describe('Navbar.vue', () => {
     ;(wrapper.vm as any).onClickBell()
     expect(pushMock).toHaveBeenCalledWith('/notifications')
     expect(notificationStoreMock.ReadAllUnreadNotifications).toHaveBeenCalled()
+  })
+
+  it('exposes the authenticated top-nav links and avatar initials', () => {
+    const wrapper = shallowMount(Navbar)
+    const vm = wrapper.vm as any
+
+    expect(vm.showAppNav).toBe(true)
+    expect(vm.navLinks.map((l: any) => l.to)).toEqual([
+      '/dashboard',
+      '/myExpenses',
+      '/newExpense',
+      '/sharedExpenses',
+      '/docResults',
+      '/friends'
+    ])
+    expect(vm.initials).toBe('AL')
+  })
+
+  it('closes the mobile drawer on logout', async () => {
+    const wrapper = shallowMount(Navbar)
+    const vm = wrapper.vm as any
+    vm.drawer = true
+
+    await vm.logout()
+
+    expect(vm.drawer).toBe(false)
+    expect(authStoreMock.logout).toHaveBeenCalled()
   })
 })

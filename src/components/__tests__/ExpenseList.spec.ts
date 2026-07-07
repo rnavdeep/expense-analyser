@@ -4,9 +4,10 @@ import ExpenseList from '../ExpenseList.vue'
 
 const expenseStoreMock = vi.hoisted(() => ({
   isPageLoading: false,
-  expenses: [],
+  expenses: [] as any[],
   GetExpenses: vi.fn().mockResolvedValue(undefined),
-  DeleteExpense: vi.fn().mockResolvedValue(true)
+  DeleteExpense: vi.fn().mockResolvedValue(true),
+  BulkDeleteExpenses: vi.fn().mockResolvedValue({ deleted: 1, failed: 0 })
 }))
 
 vi.mock('@/stores/Expense', () => ({ useExpenseStore: () => expenseStoreMock }))
@@ -20,5 +21,48 @@ describe('ExpenseList.vue', () => {
 
     await (wrapper.vm as any).onPageChange(2)
     expect((wrapper.vm as any).currentPage).toBe(2)
+  })
+
+  it('searches on typed text alone, defaulting the field to Title and resetting to page 1', async () => {
+    const wrapper = shallowMount(ExpenseList)
+    await flushPromises()
+    expenseStoreMock.GetExpenses.mockClear()
+
+    const vm = wrapper.vm as any
+    vm.currentPage = 4
+    vm.searchValue = 'coffee'
+    await vm.performSearch()
+
+    expect(vm.currentPage).toBe(1)
+    const searchFilter = expenseStoreMock.GetExpenses.mock.calls.at(-1)?.[2]
+    expect(searchFilter).toMatchObject({ propertyName: 'Title', value: 'coffee', type: 'like' })
+  })
+
+  it('selects expenses and bulk deletes them through the store', async () => {
+    expenseStoreMock.expenses = [
+      { id: 'e1', title: 'A' },
+      { id: 'e2', title: 'B' }
+    ]
+    const wrapper = shallowMount(ExpenseList)
+    await flushPromises()
+
+    const vm = wrapper.vm as any
+    vm.toggleSelectMode()
+    expect(vm.selectMode).toBe(true)
+
+    vm.toggleSelect({ id: 'e1' })
+    vm.toggleSelect({ id: 'e2' })
+    expect(vm.selectedIds).toEqual(['e1', 'e2'])
+
+    // Deselecting removes the id
+    vm.toggleSelect({ id: 'e2' })
+    expect(vm.selectedIds).toEqual(['e1'])
+
+    await vm.confirmBulkDelete()
+
+    expect(expenseStoreMock.BulkDeleteExpenses).toHaveBeenCalledWith([{ id: 'e1', title: 'A' }])
+    expect(expenseStoreMock.GetExpenses).toHaveBeenCalled()
+    expect(vm.selectedIds).toEqual([])
+    expect(vm.selectMode).toBe(false)
   })
 })

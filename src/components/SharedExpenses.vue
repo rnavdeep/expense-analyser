@@ -1,126 +1,91 @@
 <template>
-  <div>
-    <!-- Search and Sort Button Group -->
-    <div class="search-sort-buttons">
-      <v-row align="center" justify="center">
-        <v-col cols="12" md="2">
-          <v-btn color="primary" @click="searchEnabled">Search</v-btn>
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-btn color="primary" @click="sortEnabled">Sort</v-btn>
-        </v-col>
-      </v-row>
+  <div class="page">
+    <header class="page-head">
+      <div>
+        <h1 class="page-title">Shared expenses</h1>
+        <p class="page-sub">Split costs with other users and track who owes what.</p>
+      </div>
+    </header>
+
+    <!-- Search / sort toolbar -->
+    <div class="filter-bar">
+      <v-text-field
+        v-model="searchValue"
+        class="filter-search"
+        placeholder="Search shared expenses…"
+        prepend-inner-icon="mdi-magnify"
+        clearable
+        hide-details
+        @keyup.enter="performSearch"
+      ></v-text-field>
+      <v-select
+        v-model="selectedSearchField"
+        :items="searchFields"
+        label="Field"
+        clearable
+        hide-details
+        class="filter-select"
+      ></v-select>
+      <v-select
+        v-model="selectedSortField"
+        :items="sortFields"
+        label="Sort by"
+        clearable
+        hide-details
+        class="filter-select"
+      ></v-select>
+      <v-select
+        v-model="sortOrder"
+        :items="['Asc', 'Desc']"
+        label="Order"
+        clearable
+        hide-details
+        class="filter-select filter-select--sm"
+      ></v-select>
+      <v-btn color="primary" size="large" @click="performSearch">Apply</v-btn>
     </div>
 
-    <!-- Search Section -->
-    <div v-if="isSearchEnabled" class="search-section">
-      <v-container>
-        <v-row align="center" class="mb-4">
-          <v-col cols="12" md="2">
-            <h1 class="section-title">Search:</h1>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-select
-              clearable
-              dense
-              outlined
-              label="Select Field"
-              :items="searchFields"
-              v-model="selectedSearchField"
-            ></v-select>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-text-field
-              v-model="searchValue"
-              dense
-              outlined
-              :counter="10"
-              label="Search Value"
-              required
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" md="2">
-            <v-btn color="primary" @click="performSearch">Search</v-btn>
-          </v-col>
-        </v-row>
-      </v-container>
+    <!-- Loading -->
+    <div v-if="isLoading" class="state-block">
+      <v-progress-circular indeterminate color="secondary" :size="44"></v-progress-circular>
     </div>
 
-    <!-- Sort Section -->
-    <div v-if="isSortEnabled" class="sort-section">
-      <v-container>
-        <v-row align="center" class="mb-4">
-          <v-col cols="12" md="2">
-            <h1 class="section-title">Sort:</h1>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-select
-              clearable
-              dense
-              outlined
-              label="Select Sort Field"
-              :items="sortFields"
-              v-model="selectedSortField"
-            ></v-select>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-select
-              clearable
-              dense
-              outlined
-              label="Sort Order"
-              :items="['Asc', 'Desc']"
-              v-model="sortOrder"
-            ></v-select>
-          </v-col>
-          <v-col cols="12" md="2">
-            <v-btn color="primary" @click="performSort">Sort</v-btn>
-          </v-col>
-        </v-row>
-      </v-container>
+    <!-- Empty -->
+    <div v-else-if="expenses.length === 0" class="empty-state">
+      <div class="empty-chip">
+        <v-icon size="28">mdi-account-multiple-outline</v-icon>
+      </div>
+      <h2 class="empty-title">No shared expenses</h2>
+      <p class="empty-sub">Expenses shared with you will appear here.</p>
+      <div class="empty-actions">
+        <v-btn variant="text" @click="resetList()">Reset filters</v-btn>
+      </div>
     </div>
-  </div>
-  <v-container>
-    <!-- Loading Data -->
-    <v-row v-if="isLoading" class="justify-center">
-      <v-col cols="12" class="text-center">
-        <v-progress-circular indeterminate color="primary"></v-progress-circular>
-      </v-col>
-    </v-row>
 
-    <!-- Not Found -->
-    <v-row v-else-if="!isLoading && expenses.length === 0" class="justify-center">
-      <v-col cols="12" class="text-center">
-        <p>No expenses found.</p>
-      </v-col>
-    </v-row>
-
-    <!-- Expenses Found -->
-    <v-row v-else>
-      <v-col v-for="(expense, index) in expenses" :key="expense.id" cols="12" md="4">
+    <!-- Grid -->
+    <template v-else>
+      <div class="expense-grid">
         <eaExpenseCard
+          v-for="(expense, index) in expenses"
+          :key="expense.id"
           :expense="expense"
           :index="index"
           :isReadOnly="true"
           @edit="editExpense"
           @delete="deleteExpense(expense)"
         />
-      </v-col>
-    </v-row>
+      </div>
 
-    <!-- Pagination -->
-    <v-row class="justify-center">
-      <v-col v-if="!(!isLoading && expenses.length === 0)" cols="auto">
+      <div class="pagination-row">
         <v-pagination
           v-model="currentPage"
           @update:model-value="onPageChange"
           :length="200"
           :show-first-last-page="true"
         />
-      </v-col>
-      <v-btn v-if="!isLoading && expenses.length === 0" @click="resetList()">Reset</v-btn>
-    </v-row>
-  </v-container>
+      </div>
+    </template>
+  </div>
 </template>
 
 <script lang="ts">
@@ -268,66 +233,84 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.v-container {
-  padding: 10px;
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
 }
 
-.v-col {
-  margin-bottom: 10px;
+.filter-search {
+  flex: 1 1 240px;
+  min-width: 200px;
 }
 
-.v-pagination {
+.filter-select {
+  flex: 0 0 150px;
+  max-width: 170px;
+}
+
+.filter-select--sm {
+  flex: 0 0 120px;
+}
+
+.expense-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.state-block {
   display: flex;
   justify-content: center;
-  margin-top: 10px;
+  padding: 64px 0;
 }
 
-.v-pagination__item {
-  color: #007bff;
-}
-.v-pagination__item--active {
-  background-color: #007bff;
-  color: white;
-}
-
-.text-center {
-  font-size: 1.5rem;
-  color: gray;
-  margin-top: 40px;
+.empty-state {
+  text-align: center;
+  padding: 56px 24px;
+  border: 1px dashed var(--ea-border);
+  border-radius: 16px;
+  background: var(--ea-surface);
 }
 
-.v-progress-circular {
-  margin: 40px 0;
+.empty-chip {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--ea-emerald-tint);
+  color: var(--ea-emerald);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
 }
 
-.search {
-  padding: 20px;
+.empty-title {
+  font-family: var(--ea-display);
+  font-weight: 600;
+  font-size: 20px;
+  color: var(--ea-ink);
+  margin-bottom: 6px;
 }
 
-.search-title {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-@media (max-width: 960px) {
-  .search-title {
-    text-align: center;
-  }
-}
-.search-sort-buttons {
+.empty-sub {
+  font-size: 14px;
+  color: var(--ea-muted);
   margin-bottom: 20px;
 }
 
-.section-title {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: bold;
+.empty-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
 }
 
-@media (max-width: 960px) {
-  .section-title {
-    text-align: center;
-  }
+.pagination-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 36px;
 }
 </style>

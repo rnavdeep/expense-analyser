@@ -40,4 +40,30 @@ describe('ExpenseCard.vue', () => {
 
     expect(wrapper.emitted('delete')).toBeTruthy()
   })
+
+  it('renders a checkbox and emits toggle-select when selectable', () => {
+    const expense = { id: 'e1', title: 'T', description: 'D', amount: 10, createdAt: '2026-01-01' }
+    const wrapper = shallowMount(ExpenseCard, {
+      props: { expense, index: 0, isReadOnly: false, selectable: true, selected: false }
+    })
+
+    expect(wrapper.find('.ec-select').exists()).toBe(true)
+
+    ;(wrapper.vm as any).onToggleSelect()
+
+    expect(wrapper.emitted('toggle-select')).toBeTruthy()
+    expect(wrapper.emitted('toggle-select')?.[0]).toEqual([expense])
+  })
+
+  it('does not render the checkbox when not selectable', () => {
+    const wrapper = shallowMount(ExpenseCard, {
+      props: {
+        expense: { id: 'e1', title: 'T', description: 'D', amount: 10, createdAt: '2026-01-01' },
+        index: 0,
+        isReadOnly: false
+      }
+    })
+
+    expect(wrapper.find('.ec-select').exists()).toBe(false)
+  })
 })

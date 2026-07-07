@@ -1,35 +1,55 @@
 @import './base.css';
 
+/* App fills the viewport — Vuetify's v-app handles all internal layout.
+   (The Vue starter template's grid/max-width/centering rules were removed:
+   they constrained #app to a 1280px two-column grid and broke full-width pages.) */
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  width: 100%;
+  margin: 0;
+  padding: 0;
   font-weight: normal;
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+/* ---------------------------------------------------------------------------
+   Phase 2 — shared building blocks for the authenticated app.
+   These are the page shell, header and amount conventions described in the
+   redesign plan (Step 0). Kept global so every view aligns to the same
+   gutters, max width and typographic ranking.
+--------------------------------------------------------------------------- */
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 24px 64px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
+.page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
+.page-title {
+  font-family: var(--ea-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-size: 30px;
+  line-height: 1.15;
+  color: var(--ea-ink);
+}
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+.page-sub {
+  font-size: 15px;
+  color: var(--ea-muted);
+  margin-top: 4px;
+}
+
+/* The redesign's signature for figures: amounts always render in the mono face. */
+.amount {
+  font-family: var(--ea-mono);
+  font-weight: 700;
 }

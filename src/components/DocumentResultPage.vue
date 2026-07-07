@@ -1,98 +1,101 @@
 <template>
-  <div class="resultsPage">
-    <v-container>
-      <v-row>
-        <v-col cols="12">
-          <p class="headline">Please Select the Expense and Document to view Results</p>
-        </v-col>
-      </v-row>
+  <div class="page">
+    <header class="page-head">
+      <div class="head-with-icon">
+        <div class="check-chip">
+          <v-icon size="24">mdi-check-decagram</v-icon>
+        </div>
+        <div>
+          <h1 class="page-title">Receipt results</h1>
+          <p class="page-sub">Select an expense and document to view the extracted data.</p>
+        </div>
+      </div>
+    </header>
 
-      <v-row class="selectValues">
-        <v-col cols="12" md="6">
-          <v-select
-            label="Select Expense"
-            :items="expenseTitles"
-            v-model="selectedExpense"
-            item-value="id"
-            item-title="title"
-            return-object
-            outlined
-            dense
-            clearable
-          ></v-select>
-        </v-col>
+    <!-- Selectors -->
+    <div class="select-card">
+      <div class="select-row">
+        <v-select
+          label="Select expense"
+          :items="expenseTitles"
+          v-model="selectedExpense"
+          item-value="id"
+          item-title="title"
+          return-object
+          hide-details
+          clearable
+          class="select-field"
+        ></v-select>
 
-        <v-col cols="12" md="6">
-          <v-select
-            label="Select Document"
-            :items="documents"
-            v-model="selectedDocument"
-            item-value="id"
-            item-title="name"
-            return-object
-            :disabled="!documents.length"
-            outlined
-            dense
-            clearable
-          ></v-select>
-        </v-col>
-      </v-row>
+        <v-select
+          label="Select document"
+          :items="documents"
+          v-model="selectedDocument"
+          item-value="id"
+          item-title="name"
+          return-object
+          :disabled="!documents.length"
+          hide-details
+          clearable
+          class="select-field"
+        ></v-select>
 
-      <!-- Separate row for the submit button -->
-      <v-row>
-        <v-col cols="12" class="d-flex justify-center">
-          <v-btn color="primary" @click="getResults" class="submit-btn">Submit</v-btn>
-        </v-col>
-      </v-row>
+        <v-btn color="primary" size="large" @click="getResults" class="submit-btn">View results</v-btn>
+      </div>
+    </div>
 
-      <v-row v-if="isSummaryAvailable">
-        <v-col cols="12">
-          <v-card flat class="summary-card">
-            <v-card-title>{{ expenseResults?.extractSummary().NAME }}</v-card-title>
-            <v-card-subtitle>{{ expenseResults?.extractSummary().ADDRESS }}</v-card-subtitle>
-            <v-card-text>Total: {{ expenseResults?.extractSummary().TOTAL }}</v-card-text>
-            <v-card-actions>
-              <v-btn color="warning" @click="removeSummary()">Remove Summary</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-col>
-      </v-row>
+    <!-- Extracted summary -->
+    <div v-if="isSummaryAvailable" class="summary-card">
+      <div class="summary-head">
+        <h3 class="summary-title">Receipt processed</h3>
+        <v-btn variant="text" size="small" @click="removeSummary()">Hide summary</v-btn>
+      </div>
+      <div class="kv-grid">
+        <div class="kv">
+          <span class="kv-key">Merchant</span>
+          <span class="kv-val">{{ expenseResults?.extractSummary().NAME }}</span>
+        </div>
+        <div class="kv">
+          <span class="kv-key">Address</span>
+          <span class="kv-val">{{ expenseResults?.extractSummary().ADDRESS }}</span>
+        </div>
+        <div class="kv">
+          <span class="kv-key">Total</span>
+          <span class="kv-val amount">{{ expenseResults?.extractSummary().TOTAL }}</span>
+        </div>
+      </div>
+    </div>
 
-      <v-row>
-        <v-col cols="12">
-          <v-card flat class="results-card">
-            <v-card-title class="headline">Results</v-card-title>
-            <v-card-text>
-              <v-text-field
-                v-model="search"
-                label="Search"
-                prepend-inner-icon="mdi-magnify"
-                variant="outlined"
-                hide-details
-                dense
-                class="search-field"
-              ></v-text-field>
+    <!-- Line items -->
+    <div class="results-card">
+      <div class="results-head">
+        <h3 class="results-title">Line items</h3>
+        <v-text-field
+          v-model="search"
+          placeholder="Search items…"
+          prepend-inner-icon="mdi-magnify"
+          hide-details
+          density="comfortable"
+          class="results-search"
+        ></v-text-field>
+      </div>
 
-              <v-data-table
-                :headers="columns"
-                :items="columnData"
-                :search="search"
-                dense
-                class="results-table"
-              ></v-data-table>
-            </v-card-text>
-          </v-card>
-          <div class="loading" v-if="loading">
-            <v-progress-circular
-              color="primary"
-              indeterminate
-              :size="100"
-              :width="2.5"
-            ></v-progress-circular>
-          </div>
-        </v-col>
-      </v-row>
-    </v-container>
+      <v-data-table
+        :headers="columns"
+        :items="columnData"
+        :search="search"
+        class="results-table"
+      ></v-data-table>
+
+      <div class="loading" v-if="loading">
+        <v-progress-circular
+          color="secondary"
+          indeterminate
+          :size="56"
+          :width="3"
+        ></v-progress-circular>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -190,31 +193,142 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.resultsPage {
-  padding: 24px;
+.head-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
-.selectValues {
-  margin-bottom: 16px;
+.check-chip {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--ea-emerald-tint);
+  color: var(--ea-emerald);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.select-card {
+  background: var(--ea-surface);
+  border: 1px solid var(--ea-border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.select-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.select-field {
+  flex: 1 1 240px;
+  min-width: 200px;
 }
 
 .submit-btn {
-  min-width: 120px;
+  min-width: 140px;
 }
 
-.results-card {
-  margin-top: 24px;
+/* Extracted summary as a key/value card */
+.summary-card {
+  background: var(--ea-surface);
+  border: 1px solid var(--ea-border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
 }
 
-.search-field {
+.summary-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 16px;
 }
 
+.summary-title {
+  font-family: var(--ea-display);
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--ea-ink);
+}
+
+.kv-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.kv {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--ea-border);
+}
+.kv:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.kv-key {
+  font-family: var(--ea-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ea-muted);
+}
+
+.kv-val {
+  color: var(--ea-ink);
+  font-weight: 600;
+  text-align: right;
+}
+.kv-val.amount {
+  font-size: 18px;
+}
+
+/* Results table */
+.results-card {
+  background: var(--ea-surface);
+  border: 1px solid var(--ea-border);
+  border-radius: 16px;
+  padding: 24px;
+  position: relative;
+}
+
+.results-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.results-title {
+  font-family: var(--ea-display);
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--ea-ink);
+}
+
+.results-search {
+  flex: 0 1 260px;
+}
+
 .results-table {
-  margin-top: 16px;
+  margin-top: 8px;
 }
 
 .loading {
-  margin-left: calc(50vw - 30%);
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
 }
 </style>

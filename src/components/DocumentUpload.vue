@@ -1,72 +1,75 @@
 <template>
   <!-- Dialog for viewing and uploading documents -->
-  <div class="resizable-box">
-    <v-dialog v-model="dialogUploadDocs" max-width="500">
-      <v-card>
-        <v-card-title class="docTitle">Manage Bills</v-card-title>
-
-        <!-- Create Section (Upload Documents) -->
-        <v-card-text>
-          <h3 class="section-title">Upload New Document</h3>
-          <v-file-input
-            label="Drag and Drop Or Click Me"
-            ref="fileInput"
-            counter
-            show-size
-            :multiple="false"
-            @change="uploadFile"
-            :disabled="isDocumentUploading"
-          ></v-file-input>
-        </v-card-text>
-
-        <!-- Divider between sections -->
-        <v-divider></v-divider>
-
-        <!-- Show Section (Existing Documents) -->
-        <v-card-text>
-          <h3 class="section-title">Uploaded Documents</h3>
-          <ol class="eachDoc">
-            <li v-for="(doc, index) in documents" :key="index" class="document-item">
-              <span class="doc-index">{{ index + 1 }}.</span>
-              <p class="docName">{{ doc.name }}</p>
-              <v-tooltip :text="`Delete ${doc.name}`" location="top">
-                <template v-slot:activator="{ props }">
-                  <v-icon
-                    @click="deleteFile(doc.id)"
-                    v-bind="props"
-                    style="color: dark-red; margin-left: 40px"
-                    >mdi-trash-can</v-icon
-                  >
-                </template>
-              </v-tooltip>
-              <v-divider :opacity="100" style="width: 400px; margin-left: 40px"></v-divider>
-            </li>
-          </ol>
-        </v-card-text>
-
-        <div class="loading" v-if="isDocumentUploading">
-          <v-progress-circular
-            color="primary"
-            indeterminate
-            :size="67"
-            :width="5"
-          ></v-progress-circular>
+  <div class="upload-wrap">
+    <v-dialog v-model="dialogUploadDocs" max-width="520">
+      <v-card class="upload-card">
+        <div class="upload-head">
+          <h3 class="upload-title">Upload bills</h3>
         </div>
 
-        <!-- Alert Messages -->
-        <v-alert
-          v-if="alertMessage.trim().length > 0"
-          :type="alertMessage === 'Success' ? 'success' : 'error'"
-          variant="tonal"
-        >
-          {{ alertMessage }}
-        </v-alert>
+        <div class="upload-body">
+          <!-- Dropzone -->
+          <div class="dropzone">
+            <v-icon size="32" class="dropzone-icon">mdi-cloud-upload-outline</v-icon>
+            <p class="dropzone-text">Drag &amp; drop or click to upload</p>
+            <p class="dropzone-hint">Image or PDF</p>
+            <v-file-input
+              label="Choose a file"
+              ref="fileInput"
+              counter
+              show-size
+              :multiple="false"
+              @change="uploadFile"
+              :disabled="isDocumentUploading"
+              prepend-icon=""
+              prepend-inner-icon="mdi-paperclip"
+              hide-details
+              class="dropzone-input"
+            ></v-file-input>
+          </div>
+
+          <!-- Uploaded documents -->
+          <div class="uploaded" v-if="documents.length">
+            <p class="uploaded-label">Uploaded documents</p>
+            <ul class="doc-list">
+              <li v-for="(doc, index) in documents" :key="index" class="doc-row">
+                <v-icon size="18" class="doc-row-icon">mdi-file-document-outline</v-icon>
+                <span class="doc-name">{{ doc.name }}</span>
+                <v-tooltip :text="`Delete ${doc.name}`" location="top">
+                  <template v-slot:activator="{ props }">
+                    <v-icon class="doc-del" v-bind="props" @click="deleteFile(doc.id)"
+                      >mdi-trash-can-outline</v-icon
+                    >
+                  </template>
+                </v-tooltip>
+              </li>
+            </ul>
+          </div>
+
+          <div class="loading" v-if="isDocumentUploading">
+            <v-progress-circular
+              color="secondary"
+              indeterminate
+              :size="40"
+              :width="4"
+            ></v-progress-circular>
+          </div>
+
+          <!-- Alert Messages -->
+          <v-alert
+            v-if="alertMessage.trim().length > 0"
+            :type="alertMessage === 'Success' ? 'success' : 'error'"
+            variant="tonal"
+            class="mt-2"
+          >
+            {{ alertMessage }}
+          </v-alert>
+        </div>
 
         <!-- Dialog actions -->
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn text="Close" @click="closeDocumentDialog">Close</v-btn>
-        </v-card-actions>
+        <div class="upload-actions">
+          <v-btn variant="text" @click="closeDocumentDialog">Close</v-btn>
+        </div>
       </v-card>
     </v-dialog>
   </div>
@@ -144,47 +147,122 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.resizable-box {
-  height: 100%;
-  width: 100%;
-  background-color: aqua;
-  position: relative;
+.upload-card {
+  background: var(--ea-surface);
+  border: 1px solid var(--ea-border);
+  border-radius: 16px;
+  padding: 24px;
 }
 
-.eachDoc {
+.upload-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.upload-title {
+  font-family: var(--ea-display);
+  font-weight: 600;
+  font-size: 20px;
+  color: var(--ea-ink);
+}
+
+/* Dropzone */
+.dropzone {
+  border: 1px dashed var(--ea-border);
+  border-radius: 14px;
+  padding: 28px 20px 16px;
+  text-align: center;
+  background: var(--ea-paper);
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+.dropzone:hover {
+  border-color: var(--ea-emerald);
+  background: var(--ea-emerald-tint);
+}
+
+.dropzone-icon {
+  color: var(--ea-emerald);
+}
+
+.dropzone-text {
+  font-family: var(--ea-display);
+  font-weight: 600;
+  color: var(--ea-ink);
+  margin-top: 8px;
+}
+
+.dropzone-hint {
+  font-size: 12px;
+  color: var(--ea-muted);
+  margin-bottom: 12px;
+}
+
+.dropzone-input {
+  margin-top: 4px;
+}
+
+/* Uploaded list */
+.uploaded {
+  margin-top: 20px;
+}
+
+.uploaded-label {
+  font-family: var(--ea-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ea-muted);
+  margin-bottom: 8px;
+}
+
+.doc-list {
   list-style: none;
   padding: 0;
-  counter-reset: item;
+  margin: 0;
 }
 
-.section-title {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.document-item {
-  display: grid;
-  grid-template-columns: 30px 1fr auto;
+.doc-row {
+  display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--ea-border);
+}
+.doc-row:last-child {
+  border-bottom: none;
 }
 
-.doc-index {
-  text-align: right;
-  font-weight: bold;
+.doc-row-icon {
+  color: var(--ea-muted);
 }
 
-.docName {
-  margin: 0;
+.doc-name {
+  flex-grow: 1;
+  color: var(--ea-ink);
+  font-size: 14px;
+}
+
+.doc-del {
+  color: var(--ea-muted);
+  cursor: pointer;
+}
+.doc-del:hover {
+  color: var(--ea-error, #dc2626);
 }
 
 .loading {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100px;
-  margin-top: 20px;
+  height: 80px;
+  margin-top: 16px;
+}
+
+.upload-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
 }
 </style>
