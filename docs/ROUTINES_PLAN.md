@@ -75,7 +75,7 @@ GET  /Budget?period=month
 
 ## Phase checklist
 
-- [ ] **F1 — Settlement models, service, store**
+- [x] **F1 — Settlement models, service, store**
 - [ ] **F2 — Settle-up dialog on the dashboard balances panel**
 - [ ] **F3 — Balance detail view (`/balances/:userId`)**
 - [ ] **F4 — Budget models, service, store**
