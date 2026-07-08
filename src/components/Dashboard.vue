@@ -107,12 +107,15 @@
 
         <div class="balance-group">
           <div class="balance-label owe"><span class="kpi-dot owe-dot"></span>You owe</div>
-          <div v-for="b in data.balances.youOwe" :key="'owe-' + b.name" class="balance-row owe-row">
+          <div v-for="b in data.balances.youOwe" :key="'owe-' + b.userId" class="balance-row owe-row">
             <div class="balance-person">
               <div class="person-avatar">{{ initialsOf(b.name) }}</div>
               <span>{{ b.name }}</span>
             </div>
-            <span class="amount balance-amount owe-amount">{{ formatCurrency(b.amount) }}</span>
+            <div class="balance-owe-right">
+              <span class="amount balance-amount owe-amount">{{ formatCurrency(b.amount) }}</span>
+              <v-btn size="small" variant="text" color="secondary" @click="openSettleUp(b)">Settle up</v-btn>
+            </div>
           </div>
         </div>
 
@@ -129,6 +132,19 @@
       </div>
     </section>
     </template>
+
+    <SettleUpDialog
+      v-if="settleUpTarget"
+      v-model="settleUpOpen"
+      :payee-user-id="settleUpTarget.userId"
+      :payee-name="settleUpTarget.name"
+      :max-amount="settleUpTarget.amount"
+      @settled="onSettled"
+    />
+
+    <v-snackbar v-model="snackbar" color="secondary" :timeout="3000">
+      {{ snackbarText }}
+    </v-snackbar>
   </div>
 </template>
 
@@ -139,11 +155,12 @@ import { useAuthStore } from '../stores/Auth'
 import { useDashboardStore } from '../stores/Dashboard'
 import MonthlyBarChart from './dashboard/MonthlyBarChart.vue'
 import CategoryDonut from './dashboard/CategoryDonut.vue'
-import type { DashboardPeriod } from '@/models/Dashboard'
+import SettleUpDialog from './SettleUpDialog.vue'
+import type { BalanceEntry, DashboardPeriod } from '@/models/Dashboard'
 
 export default defineComponent({
   name: 'eaDashboard',
-  components: { MonthlyBarChart, CategoryDonut },
+  components: { MonthlyBarChart, CategoryDonut, SettleUpDialog },
   setup() {
     const authStore = useAuthStore()
     const dashboardStore = useDashboardStore()
@@ -217,6 +234,23 @@ export default defineComponent({
 
     const retry = () => dashboardStore.LoadDashboard(period.value)
 
+    // ── Settle-up dialog ──
+    const settleUpOpen = ref(false)
+    const settleUpTarget = ref<BalanceEntry | null>(null)
+    const snackbar = ref(false)
+    const snackbarText = ref('')
+
+    const openSettleUp = (balance: BalanceEntry) => {
+      settleUpTarget.value = balance
+      settleUpOpen.value = true
+    }
+
+    const onSettled = () => {
+      snackbarText.value = `Settled up with ${settleUpTarget.value?.name}`
+      snackbar.value = true
+      dashboardStore.LoadDashboard(period.value)
+    }
+
     return {
       period,
       periodOptions,
@@ -229,7 +263,13 @@ export default defineComponent({
       kpiCards,
       formatCurrency,
       formatDate,
-      initialsOf
+      initialsOf,
+      settleUpOpen,
+      settleUpTarget,
+      snackbar,
+      snackbarText,
+      openSettleUp,
+      onSettled
     }
   }
 })
@@ -516,6 +556,12 @@ export default defineComponent({
 }
 .owe-amount { color: #dc2626; }
 .owed-amount { color: var(--ea-emerald); }
+
+.balance-owe-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
 /* ── Loading / error states ── */
 .dash-state {

@@ -84,7 +84,7 @@ describe('Dashboard store', () => {
       { label: 'Jun', amount: 80 },
       { label: 'Jul', amount: 100 }
     ])
-    expect(d.balances.youOwe[0]).toEqual({ name: 'Sam', amount: 60 })
+    expect(d.balances.youOwe[0]).toEqual({ userId: 'u1', name: 'Sam', amount: 60 })
     expect(d.recent).toHaveLength(1)
   })
 
