@@ -148,6 +148,12 @@ describe('Dashboard.vue', () => {
     expect(dialog.text()).toBe('Sam - 60')
   })
 
+  it('links each balances row to its detail page', async () => {
+    const wrapper = await mountDashboard()
+    expect(wrapper.find('.owe-row').attributes('href')).toBe('/balances/u1')
+    expect(wrapper.find('.owed-row').attributes('href')).toBe('/balances/u2')
+  })
+
   it('refreshes the dashboard and shows a confirmation after settling', async () => {
     const wrapper = await mountDashboard()
     await wrapper.find('.owe-row .balance-owe-right button').trigger('click')

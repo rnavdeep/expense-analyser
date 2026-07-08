@@ -77,7 +77,7 @@ GET  /Budget?period=month
 
 - [x] **F1 — Settlement models, service, store**
 - [x] **F2 — Settle-up dialog on the dashboard balances panel**
-- [ ] **F3 — Balance detail view (`/balances/:userId`)**
+- [x] **F3 — Balance detail view (`/balances/:userId`)**
 - [ ] **F4 — Budget models, service, store**
 - [ ] **F5 — Budget settings page (`/budgets`)**
 - [ ] **F6 — Dashboard budget progress widget**

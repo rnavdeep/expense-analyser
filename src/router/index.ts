@@ -95,6 +95,12 @@ const router = createRouter({
       name: 'Friends',
       component: FriendsListView,
       meta: { requiresLogin: true, title: 'Friends', description: 'Friends' }
+    },
+    {
+      path: '/balances/:userId',
+      name: 'BalanceDetail',
+      component: () => import('../views/BalanceDetailView.vue'),
+      meta: { requiresLogin: true, title: 'Balance detail', description: 'History with a friend' }
     }
   ]
 })
