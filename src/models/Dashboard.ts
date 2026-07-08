@@ -34,6 +34,7 @@ export interface CategorySlice {
 }
 
 export interface BalanceEntry {
+  userId: string
   name: string
   amount: number
 }

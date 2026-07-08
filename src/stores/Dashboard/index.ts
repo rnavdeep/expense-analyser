@@ -40,8 +40,8 @@ function toDashboardData(
   recent: ExpenseListDataDto[]
 ): DashboardData {
   const balances: OutstandingBalances = {
-    youOwe: balancesDto.youOwe.map((b) => ({ name: b.userName, amount: b.amount })),
-    owedToYou: balancesDto.owedToYou.map((b) => ({ name: b.userName, amount: b.amount }))
+    youOwe: balancesDto.youOwe.map((b) => ({ userId: b.userId, name: b.userName, amount: b.amount })),
+    owedToYou: balancesDto.owedToYou.map((b) => ({ userId: b.userId, name: b.userName, amount: b.amount }))
   }
 
   return {

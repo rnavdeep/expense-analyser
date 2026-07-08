@@ -52,7 +52,15 @@ const stubs = {
   CategoryDonut: { template: '<div class="stub-donut" />' },
   'router-link': { template: '<a :href="to"><slot /></a>', props: ['to'] },
   'v-icon': { template: '<i><slot /></i>' },
-  'v-progress-circular': { template: '<div class="stub-spinner" />' }
+  'v-progress-circular': { template: '<div class="stub-spinner" />' },
+  'v-btn': { template: '<button @click="$emit(\'click\')"><slot /></button>' },
+  'v-snackbar': { template: '<div class="stub-snackbar" v-if="modelValue"><slot /></div>', props: ['modelValue'] },
+  SettleUpDialog: {
+    props: ['modelValue', 'payeeUserId', 'payeeName', 'maxAmount'],
+    emits: ['update:modelValue', 'settled'],
+    template:
+      '<div class="stub-settle-dialog" v-if="modelValue">{{ payeeName }} - {{ maxAmount }}</div>'
+  }
 }
 
 const mountDashboard = async () => {
@@ -120,5 +128,36 @@ describe('Dashboard.vue', () => {
     expect(wrapper.find('.error-state').exists()).toBe(true)
     expect(wrapper.text()).toContain('down')
     expect(wrapper.find('.state-btn').exists()).toBe(true)
+  })
+
+  it('renders a Settle up button for each you-owe row', async () => {
+    const wrapper = await mountDashboard()
+    const oweRows = wrapper.findAll('.owe-row')
+    expect(oweRows).toHaveLength(1)
+    expect(oweRows[0].text()).toContain('Settle up')
+  })
+
+  it('opens the settle-up dialog prefilled for the clicked row', async () => {
+    const wrapper = await mountDashboard()
+    expect(wrapper.find('.stub-settle-dialog').exists()).toBe(false)
+
+    await wrapper.find('.owe-row .balance-owe-right button').trigger('click')
+
+    const dialog = wrapper.find('.stub-settle-dialog')
+    expect(dialog.exists()).toBe(true)
+    expect(dialog.text()).toBe('Sam - 60')
+  })
+
+  it('refreshes the dashboard and shows a confirmation after settling', async () => {
+    const wrapper = await mountDashboard()
+    await wrapper.find('.owe-row .balance-owe-right button').trigger('click')
+    expect(DashboardService.GetSummary).toHaveBeenCalledTimes(1)
+
+    await wrapper.findComponent(stubs.SettleUpDialog as any).vm.$emit('settled')
+    await flushPromises()
+
+    expect(DashboardService.GetSummary).toHaveBeenCalledTimes(2)
+    expect(wrapper.find('.stub-snackbar').exists()).toBe(true)
+    expect(wrapper.find('.stub-snackbar').text()).toContain('Settled up with Sam')
   })
 })
