@@ -107,27 +107,39 @@
 
         <div class="balance-group">
           <div class="balance-label owe"><span class="kpi-dot owe-dot"></span>You owe</div>
-          <div v-for="b in data.balances.youOwe" :key="'owe-' + b.userId" class="balance-row owe-row">
+          <router-link
+            v-for="b in data.balances.youOwe"
+            :key="'owe-' + b.userId"
+            :to="`/balances/${b.userId}`"
+            class="balance-row owe-row"
+          >
             <div class="balance-person">
               <div class="person-avatar">{{ initialsOf(b.name) }}</div>
               <span>{{ b.name }}</span>
             </div>
             <div class="balance-owe-right">
               <span class="amount balance-amount owe-amount">{{ formatCurrency(b.amount) }}</span>
-              <v-btn size="small" variant="text" color="secondary" @click="openSettleUp(b)">Settle up</v-btn>
+              <v-btn size="small" variant="text" color="secondary" @click="onSettleUpClick(b, $event)"
+                >Settle up</v-btn
+              >
             </div>
-          </div>
+          </router-link>
         </div>
 
         <div class="balance-group">
           <div class="balance-label owed"><span class="kpi-dot owed-dot"></span>Owed to you</div>
-          <div v-for="b in data.balances.owedToYou" :key="'owed-' + b.name" class="balance-row owed-row">
+          <router-link
+            v-for="b in data.balances.owedToYou"
+            :key="'owed-' + b.userId"
+            :to="`/balances/${b.userId}`"
+            class="balance-row owed-row"
+          >
             <div class="balance-person">
               <div class="person-avatar">{{ initialsOf(b.name) }}</div>
               <span>{{ b.name }}</span>
             </div>
             <span class="amount balance-amount owed-amount">{{ formatCurrency(b.amount) }}</span>
-          </div>
+          </router-link>
         </div>
       </div>
     </section>
@@ -245,6 +257,13 @@ export default defineComponent({
       settleUpOpen.value = true
     }
 
+    // The balance row is a router-link; stop the click from also navigating.
+    const onSettleUpClick = (balance: BalanceEntry, event?: Event) => {
+      event?.stopPropagation()
+      event?.preventDefault()
+      openSettleUp(balance)
+    }
+
     const onSettled = () => {
       snackbarText.value = `Settled up with ${settleUpTarget.value?.name}`
       snackbar.value = true
@@ -269,6 +288,7 @@ export default defineComponent({
       snackbar,
       snackbarText,
       openSettleUp,
+      onSettleUpClick,
       onSettled
     }
   }
@@ -523,6 +543,8 @@ export default defineComponent({
   padding: 9px 12px;
   border-radius: 9px;
   margin-bottom: 7px;
+  text-decoration: none;
+  color: inherit;
 }
 .balance-row:last-child { margin-bottom: 0; }
 .owe-row { background: rgba(220, 38, 38, 0.06); }
