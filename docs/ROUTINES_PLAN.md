@@ -57,6 +57,13 @@ PUT  /Budget                        body { category: string, monthlyLimit: numbe
 GET  /Budget?period=month
   → BudgetStatusDto[] { category: string, monthlyLimit: number, spent: number }
      (404 when the user has no budgets — treat as empty list)
+
+GET  /Friends/getFriends            (existing endpoint; gains a field in phase B6)
+  → FriendDto[] { userId: string, username: string, acceptedAt: string /* ISO */, sharedExpenses: ExpenseDto[] }
+
+POST /Expense/{id}/addUser?userId=  (existing endpoint; after B7 rejects non-friends)
+     400 "Users must be friends before sharing an expense." when the caller and {userId}
+     have no accepted FriendRequest row between them.
 ```
 
 ## Codebase orientation (read these before coding)
@@ -81,6 +88,7 @@ GET  /Budget?period=month
 - [x] **F4 — Budget models, service, store**
 - [ ] **F5 — Budget settings page (`/budgets`)**
 - [ ] **F6 — Dashboard budget progress widget**
+- [ ] **F7 — Friends list links to balance/expense history (`/balances/:userId`)**
 
 ---
 
@@ -208,3 +216,29 @@ setup link) and the Dashboard store spec (budgets fetched and adapted, 404 toler
 
 Acceptance: quality gates pass; dashboard renders unchanged for users with no budgets apart
 from the setup link.
+
+### F7 — Friends list links to balance/expense history (`/balances/:userId`)
+
+Context: the dashboard balances panel (F3) only shows counterparties with a non-zero net
+balance, so once a friend is fully settled up they have no way to be reached from the UI —
+their transaction history effectively disappears. The Friends page (`FriendsList.vue`) already
+lists every accepted friend regardless of balance, so it's the natural permanent access point:
+make each row a link into the existing `/balances/:userId` view from F3 (no new route or view
+needed; it already renders "Settled up" correctly for a net-zero counterparty).
+
+Modify:
+- `src/models/FriendsDto.ts` — add `userId: string` to `FriendDto`, per the updated
+  `GET /Friends/getFriends` contract above (backend phase B6 adds the field; the frontend
+  implements against the documented contract without waiting for it, same as every other
+  phase in this file).
+- `src/components/FriendsList.vue` — wrap each `.friend-row` in a `router-link` to
+  `/balances/${friend.userId}`, following the same pattern F3 used on `Dashboard.vue`'s
+  balance rows (`text-decoration: none; color: inherit` on the row class so it doesn't look
+  like a link).
+
+Tests: extend `src/components/__tests__/FriendsList.spec.ts` — asserts each rendered row is a
+`router-link` (or has the resolved `to`) pointing at `/balances/{userId}` for a mocked
+`userId`-bearing `FriendDto`.
+
+Acceptance: quality gates pass; no changes to `FriendsAdd.vue`, the friends store/service
+methods, or any other route.
