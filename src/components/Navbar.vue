@@ -157,9 +157,9 @@ export default defineComponent({
       document.body.style.backgroundColor = next === 'dark' ? '#0f1117' : '#faf9f6'
     }
 
-    const logout = () => {
+    const logout = async () => {
       drawer.value = false
-      authStore.logout()
+      await authStore.logout()
       route.push('/')
     }
 
