@@ -6,6 +6,26 @@ import { SessionData } from '@/models/SessionData'
 import axios from 'axios'
 const BASE_URL = import.meta.env.VITE_APP_API_URL
 const API_URL = BASE_URL + '/auth'
+
+// The backend's Register endpoint returns a plain string (e.g. "User with Email
+// Already Exists"), an array of Identity IdentityError objects (e.g.
+// [{ code: "PasswordRequiresNonAlphanumeric", description: "..." }]), or a
+// ValidationProblemDetails object for model-binding failures — never { message }.
+function extractErrorMessage(data: unknown): string {
+  if (typeof data === 'string' && data) return data
+  if (Array.isArray(data) && data.length) {
+    return data.map((e) => e?.description ?? e?.code).filter(Boolean).join(' ')
+  }
+  if (data && typeof data === 'object') {
+    const obj = data as Record<string, unknown>
+    if (typeof obj.title === 'string') return obj.title
+    if (obj.errors && typeof obj.errors === 'object') {
+      return Object.values(obj.errors as Record<string, string[]>).flat().join(' ')
+    }
+  }
+  return 'Registration failed'
+}
+
 class AuthService {
   async Register(data: RegisterRequestDto): Promise<void> {
     try {
@@ -13,7 +33,7 @@ class AuthService {
       return response.data
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        throw new Error(error.response?.data?.message || 'Registration failed')
+        throw new Error(extractErrorMessage(error.response?.data))
       }
       throw new Error('An unexpected error occurred')
     }
