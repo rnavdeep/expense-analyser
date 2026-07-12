@@ -86,7 +86,7 @@ POST /Expense/{id}/addUser?userId=  (existing endpoint; after B7 rejects non-fri
 - [x] **F2 — Settle-up dialog on the dashboard balances panel**
 - [x] **F3 — Balance detail view (`/balances/:userId`)**
 - [x] **F4 — Budget models, service, store**
-- [ ] **F5 — Budget settings page (`/budgets`)**
+- [x] **F5 — Budget settings page (`/budgets`)**
 - [ ] **F6 — Dashboard budget progress widget**
 - [ ] **F7 — Friends list links to balance/expense history (`/balances/:userId`)**
 

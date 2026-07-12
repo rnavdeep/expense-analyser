@@ -101,6 +101,12 @@ const router = createRouter({
       name: 'BalanceDetail',
       component: () => import('../views/BalanceDetailView.vue'),
       meta: { requiresLogin: true, title: 'Balance detail', description: 'History with a friend' }
+    },
+    {
+      path: '/budgets',
+      name: 'Budgets',
+      component: () => import('../views/BudgetsView.vue'),
+      meta: { requiresLogin: true, title: 'Budgets', description: 'Set monthly spending limits' }
     }
   ]
 })
