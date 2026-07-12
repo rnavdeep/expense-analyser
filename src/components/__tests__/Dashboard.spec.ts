@@ -19,9 +19,13 @@ vi.mock('@/services/DashboardService', () => ({
 vi.mock('@/services/ExpenseService', () => ({
   default: { GetExpenses: vi.fn() }
 }))
+vi.mock('@/services/BudgetService', () => ({
+  default: { GetBudgets: vi.fn() }
+}))
 
 import DashboardService from '@/services/DashboardService'
 import ExpenseService from '@/services/ExpenseService'
+import BudgetService from '@/services/BudgetService'
 
 const summary = {
   totalSpent: 100,
@@ -45,6 +49,11 @@ const recent = {
   ],
   totalRows: 4
 }
+const budgets = [
+  { category: 'Food', monthlyLimit: 200, spent: 60 },
+  { category: 'Travel', monthlyLimit: 100, spent: 85 },
+  { category: 'Gas', monthlyLimit: 50, spent: 70 }
+]
 
 // Stub the chart wrappers / vuetify pieces so nothing renders canvas in jsdom.
 const stubs = {
@@ -53,6 +62,10 @@ const stubs = {
   'router-link': { template: '<a :href="to"><slot /></a>', props: ['to'] },
   'v-icon': { template: '<i><slot /></i>' },
   'v-progress-circular': { template: '<div class="stub-spinner" />' },
+  'v-progress-linear': {
+    template: '<div class="stub-progress" :data-color="color" :data-value="modelValue" />',
+    props: ['modelValue', 'color']
+  },
   'v-btn': { template: '<button @click="$emit(\'click\')"><slot /></button>' },
   'v-snackbar': { template: '<div class="stub-snackbar" v-if="modelValue"><slot /></div>', props: ['modelValue'] },
   SettleUpDialog: {
@@ -78,6 +91,7 @@ describe('Dashboard.vue', () => {
     ;(DashboardService.GetMonthly as any).mockResolvedValue(monthly)
     ;(DashboardService.GetBalances as any).mockResolvedValue(balances)
     ;(ExpenseService.GetExpenses as any).mockResolvedValue(recent)
+    ;(BudgetService.GetBudgets as any).mockResolvedValue(budgets)
   })
 
   it('greets the authenticated user by name', async () => {
@@ -165,5 +179,30 @@ describe('Dashboard.vue', () => {
     expect(DashboardService.GetSummary).toHaveBeenCalledTimes(2)
     expect(wrapper.find('.stub-snackbar').exists()).toBe(true)
     expect(wrapper.find('.stub-snackbar').text()).toContain('Settled up with Sam')
+  })
+
+  it('renders a budget row per budget with color by threshold', async () => {
+    const wrapper = await mountDashboard()
+    const rows = wrapper.findAll('.budget-item')
+    expect(rows).toHaveLength(3)
+
+    const bars = wrapper.findAll('.stub-progress')
+    // Food: 60/200 = 30% -> under 80%
+    expect(bars[0].attributes('data-color')).toBe('secondary')
+    expect(bars[0].attributes('data-value')).toBe('30')
+    // Travel: 85/100 = 85% -> amber
+    expect(bars[1].attributes('data-color')).toBe('warning')
+    // Gas: 70/50 = 140%, capped at 100% and red
+    expect(bars[2].attributes('data-color')).toBe('error')
+    expect(bars[2].attributes('data-value')).toBe('100')
+  })
+
+  it('shows a setup link instead of the budgets card when there are none', async () => {
+    ;(BudgetService.GetBudgets as any).mockResolvedValue([])
+    const wrapper = await mountDashboard()
+    expect(wrapper.find('.budgets-panel').exists()).toBe(false)
+    const link = wrapper.find('.budgets-setup-link')
+    expect(link.exists()).toBe(true)
+    expect(link.attributes('href')).toBe('/budgets')
   })
 })
