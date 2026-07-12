@@ -15,9 +15,7 @@
           @click="toggleSelectMode"
           >{{ selectMode ? 'Done' : 'Select' }}</v-btn
         >
-        <router-link to="/newExpense" class="head-cta">
-          <v-btn color="secondary" size="large">New expense</v-btn>
-        </router-link>
+        <v-btn color="secondary" size="large" @click="showCreateDialog = true">New expense</v-btn>
       </div>
     </header>
 
@@ -48,14 +46,6 @@
         @keyup.enter="performSearch"
       ></v-text-field>
       <v-select
-        v-model="selectedSearchField"
-        :items="searchFields"
-        label="Field"
-        clearable
-        hide-details
-        class="filter-select"
-      ></v-select>
-      <v-select
         v-model="selectedSortField"
         :items="sortFields"
         label="Sort by"
@@ -74,6 +64,19 @@
       <v-btn color="primary" size="large" @click="performSearch">Apply</v-btn>
     </div>
 
+    <!-- Date-range quick filter -->
+    <div v-if="expenses.length" class="chip-row">
+      <button
+        v-for="opt in dateBucketOptions"
+        :key="opt.value"
+        type="button"
+        class="chip"
+        :class="{ 'chip--active': dateBucket === opt.value }"
+        @click="dateBucket = opt.value"
+        >{{ opt.label }}</button
+      >
+    </div>
+
     <!-- Loading -->
     <div v-if="isLoading" class="state-block">
       <v-progress-circular indeterminate color="secondary" :size="44"></v-progress-circular>
@@ -87,37 +90,85 @@
       <h2 class="empty-title">No expenses found</h2>
       <p class="empty-sub">Create your first expense or adjust your filters.</p>
       <div class="empty-actions">
-        <router-link to="/newExpense">
-          <v-btn color="secondary">New expense</v-btn>
-        </router-link>
+        <v-btn color="secondary" @click="showCreateDialog = true">New expense</v-btn>
         <v-btn variant="text" @click="resetList()">Reset filters</v-btn>
       </div>
     </div>
 
-    <!-- Grid -->
+    <!-- List -->
     <template v-else>
-      <div class="expense-grid">
-        <eaExpenseCard
-          v-for="(expense, index) in expenses"
-          :key="expense.id"
-          :expense="expense"
-          :index="index"
-          :isReadOnly="false"
-          :selectable="selectMode"
-          :selected="selectedIds.includes(expense.id)"
-          @edit="editExpense"
-          @delete="deleteExpense(expense)"
-          @toggle-select="toggleSelect"
-        />
+      <div v-if="filteredExpenses.length === 0" class="empty-inline">
+        No expenses in this range.
       </div>
+      <template v-else>
+        <div class="expense-columns">
+          <div></div>
+          <div>Description</div>
+          <div>Date</div>
+          <div class="col-amount">Amount</div>
+          <div class="col-actions">Actions</div>
+        </div>
+        <div class="expense-rows">
+          <eaExpenseRow
+            v-for="(expense, index) in filteredExpenses"
+            :key="expense.id"
+            :expense="expense"
+            :index="index"
+            :isReadOnly="false"
+            :selectable="selectMode"
+            :selected="selectedIds.includes(expense.id)"
+            @edit="editExpense"
+            @delete="deleteExpense(expense)"
+            @toggle-select="toggleSelect"
+          />
+        </div>
+      </template>
 
-      <div class="pagination-row">
-        <v-pagination
-          v-model="currentPage"
-          @update:model-value="onPageChange"
-          :length="200"
-          :show-first-last-page="true"
-        />
+      <div v-if="totalPages > 1" class="pagination-row">
+        <span class="pg-info">{{ pageRangeLabel }}</span>
+        <div class="pg-controls">
+          <button
+            type="button"
+            class="pg-btn"
+            :disabled="currentPage === 1"
+            aria-label="Previous page"
+            @click="goToPage(currentPage - 1)"
+          >
+            <v-icon size="16">mdi-chevron-left</v-icon>
+          </button>
+
+          <button v-if="pageWindow[0] > 1" type="button" class="pg-btn" @click="goToPage(1)">1</button>
+          <span v-if="pageWindow[0] > 2" class="pg-ellipsis">…</span>
+
+          <button
+            v-for="p in pageWindow"
+            :key="p"
+            type="button"
+            class="pg-btn"
+            :class="{ 'pg-btn--active': p === currentPage }"
+            @click="goToPage(p)"
+            >{{ p }}</button
+          >
+
+          <span v-if="pageWindow[pageWindow.length - 1] < totalPages - 1" class="pg-ellipsis">…</span>
+          <button
+            v-if="pageWindow[pageWindow.length - 1] < totalPages"
+            type="button"
+            class="pg-btn"
+            @click="goToPage(totalPages)"
+            >{{ totalPages }}</button
+          >
+
+          <button
+            type="button"
+            class="pg-btn"
+            :disabled="currentPage === totalPages || isLastPage"
+            aria-label="Next page"
+            @click="goToPage(currentPage + 1)"
+          >
+            <v-icon size="16">mdi-chevron-right</v-icon>
+          </button>
+        </div>
       </div>
     </template>
 
@@ -137,27 +188,79 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- New expense: create without leaving the list -->
+    <v-dialog v-model="showCreateDialog" max-width="640" scrollable>
+      <v-card class="create-dialog-card">
+        <eaExpenseCreate v-if="showCreateDialog" />
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, computed, ref } from 'vue'
-import eaExpenseCard from './ExpenseCard.vue'
+import { defineComponent, onMounted, computed, ref, watch } from 'vue'
+import eaExpenseRow from './ExpenseRow.vue'
+import eaExpenseCreate from './ExpenseCreate.vue'
 import { useExpenseStore } from '../stores/Expense'
 import { Pagination } from '../models/Pagination'
 import { SortFilter } from '../models/SortFilter'
 import { FilterBy } from '../models/FilterBy'
 
+// Client-side quick filter over the already-fetched page: no matching signal
+// (category, shared status) exists in the list payload, but createdAt does.
+type DateBucket = 'all' | 'week' | 'month' | 'earlier'
+const MS_PER_DAY = 24 * 60 * 60 * 1000
+const bucketFor = (createdAt: string): Exclude<DateBucket, 'all'> => {
+  const diffDays = (Date.now() - new Date(createdAt).getTime()) / MS_PER_DAY
+  if (diffDays <= 7) return 'week'
+  if (diffDays <= 30) return 'month'
+  return 'earlier'
+}
+
 export default defineComponent({
   name: 'eaExpenseList',
-  components: { eaExpenseCard },
+  components: { eaExpenseRow, eaExpenseCreate },
   setup() {
     const expenseStore = useExpenseStore()
 
     const isLoading = computed(() => expenseStore.isPageLoading)
     const expenses = computed(() => expenseStore.expenses)
+    const showCreateDialog = ref(false)
+    const dateBucket = ref<DateBucket>('all')
+    const dateBucketOptions: { value: DateBucket; label: string }[] = [
+      { value: 'all', label: 'All' },
+      { value: 'week', label: 'This week' },
+      { value: 'month', label: 'This month' },
+      { value: 'earlier', label: 'Earlier' }
+    ]
+    const filteredExpenses = computed(() => {
+      if (dateBucket.value === 'all') return expenses.value
+      return expenses.value.filter((expense) => bucketFor(expense.createdAt) === dateBucket.value)
+    })
     const currentPage = ref(1)
     const itemsPerPage = ref(9)
+    const totalExpenses = computed(() => expenseStore.totalExpenses ?? 0)
+    const totalPages = computed(() => Math.max(1, Math.ceil(totalExpenses.value / itemsPerPage.value)))
+    // Windowed page numbers around the current page, e.g. [3, 4, 5] of 10 —
+    // first/last and ellipses are added around this in the template.
+    const pageWindow = computed(() => {
+      const delta = 2
+      const start = Math.max(1, currentPage.value - delta)
+      const end = Math.min(totalPages.value, currentPage.value + delta)
+      const pages: number[] = []
+      for (let p = start; p <= end; p++) pages.push(p)
+      return pages
+    })
+    const pageRangeLabel = computed(() => {
+      if (totalExpenses.value === 0) return 'No expenses'
+      const start = (currentPage.value - 1) * itemsPerPage.value + 1
+      const end = start + expenses.value.length - 1
+      return `Showing ${start}–${end} of ${totalExpenses.value}`
+    })
+    // The reported total can lag reality (deletions elsewhere, stale count) —
+    // a page that came back short of a full page is trusted over totalPages.
+    const isLastPage = computed(() => expenses.value.length < itemsPerPage.value)
     const searchFields = ['Title', 'Description', 'Amount']
     const sortFields = ['Title', 'Description', 'Amount', 'CreatedAt']
     const isSearchEnabled = ref(false)
@@ -181,17 +284,33 @@ export default defineComponent({
 
     // Function to fetch expenses
     const fetchExpenses = async (searchFilter: FilterBy | null, sortFilter: SortFilter | null) => {
-      await expenseStore.GetExpenses(
-        new Pagination(currentPage.value, itemsPerPage.value),
-        sortFilter,
-        searchFilter
-      )
+      try {
+        await expenseStore.GetExpenses(
+          new Pagination(currentPage.value, itemsPerPage.value),
+          sortFilter,
+          searchFilter
+        )
+      } catch (error) {
+        // A page beyond the last one 404s — step back and retry rather than
+        // leaving the view stuck on an empty page with no way back.
+        if (error == 'Error: 404' && currentPage.value > 1) {
+          currentPage.value -= 1
+          await fetchExpenses(searchFilter, sortFilter)
+        } else {
+          throw error
+        }
+      }
     }
 
     // Pagination logic
     const onPageChange = async (page: number) => {
       currentPage.value = page
       await fetchExpenses(await buildSearchFilter(), await buildSortFilter())
+    }
+    const goToPage = async (page: number) => {
+      if (page < 1 || page > totalPages.value || page === currentPage.value) return
+      if (page > currentPage.value && isLastPage.value) return
+      await onPageChange(page)
     }
     const resetList = async () => {
       currentPage.value = 1
@@ -304,10 +423,28 @@ export default defineComponent({
     const performSort = async () => {
       await fetchExpenses(await buildSearchFilter(), await buildSortFilter())
     }
+
+    // Refresh the list whenever the inline create dialog closes, so a newly
+    // created expense shows up without a full page navigation.
+    watch(showCreateDialog, async (isOpen) => {
+      if (!isOpen) {
+        await fetchExpenses(await buildSearchFilter(), await buildSortFilter())
+      }
+    })
+
     return {
       expenses,
+      showCreateDialog,
+      dateBucket,
+      dateBucketOptions,
+      filteredExpenses,
       currentPage,
+      totalPages,
+      pageWindow,
+      pageRangeLabel,
+      isLastPage,
       onPageChange,
+      goToPage,
       editExpense,
       deleteExpense,
       isLoading,
@@ -344,8 +481,16 @@ export default defineComponent({
   gap: 12px;
 }
 
-.head-cta {
-  text-decoration: none;
+/* v-dialog content has no ambient page background of its own — without an
+   opaque surface here the scrim behind the dialog bleeds through. */
+.create-dialog-card {
+  background: var(--ea-surface);
+}
+
+/* ExpenseCreate.vue is styled for a full page; tighten its outer padding so
+   it doesn't float inside the dialog with a full page's worth of whitespace. */
+.create-dialog-card :deep(.page) {
+  padding: 24px;
 }
 
 /* Bulk selection action bar */
@@ -396,11 +541,67 @@ export default defineComponent({
   flex: 0 0 120px;
 }
 
-/* Card grid */
-.expense-grid {
+/* Date-range quick filter chips */
+.chip-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.chip {
+  font-family: var(--ea-display);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1.5px solid var(--ea-border);
+  background: transparent;
+  color: var(--ea-muted);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.chip:hover {
+  border-color: var(--ea-emerald);
+  color: var(--ea-emerald);
+}
+
+.chip--active {
+  background: var(--ea-ink);
+  border-color: var(--ea-ink);
+  color: #fff;
+}
+
+/* Row list */
+.expense-columns {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
+  grid-template-columns: 36px 2.2fr 1fr 1fr 132px;
+  gap: 14px;
+  padding: 0 16px 8px;
+  font-family: var(--ea-display);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ea-muted);
+  border-bottom: 1.5px solid var(--ea-border);
+  margin-bottom: 10px;
+}
+
+.expense-columns .col-amount {
+  text-align: right;
+}
+
+.expense-columns .col-actions {
+  text-align: right;
+}
+
+.empty-inline {
+  text-align: center;
+  padding: 32px 0;
+  color: var(--ea-muted);
+  font-size: 14px;
 }
 
 /* States */
@@ -456,7 +657,78 @@ export default defineComponent({
 
 .pagination-row {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1.5px solid var(--ea-border);
+}
+
+.pg-info {
+  font-family: var(--ea-mono);
+  font-size: 13px;
+  color: var(--ea-muted);
+}
+
+.pg-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pg-btn {
+  min-width: 30px;
+  height: 30px;
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  margin-top: 36px;
+  font-family: var(--ea-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ea-ink);
+  background: transparent;
+  border: 1.5px solid var(--ea-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.pg-btn:hover:not(:disabled) {
+  border-color: var(--ea-emerald);
+  color: var(--ea-emerald);
+}
+
+.pg-btn:disabled {
+  color: var(--ea-border);
+  cursor: default;
+}
+
+.pg-btn--active {
+  background: var(--ea-ink);
+  border-color: var(--ea-ink);
+  color: #fff;
+}
+
+.pg-btn--active:hover {
+  color: #fff;
+}
+
+.pg-ellipsis {
+  color: var(--ea-muted);
+  padding: 0 2px;
+}
+
+@media (max-width: 720px) {
+  .expense-columns {
+    display: none;
+  }
+
+  .pagination-row {
+    justify-content: center;
+    text-align: center;
+  }
 }
 </style>

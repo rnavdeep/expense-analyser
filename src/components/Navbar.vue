@@ -135,7 +135,6 @@ export default defineComponent({
     const navLinks = [
       { title: 'Dashboard', to: '/dashboard', icon: 'mdi-view-dashboard' },
       { title: 'Expenses', to: '/myExpenses', icon: 'mdi-piggy-bank' },
-      { title: 'New', to: '/newExpense', icon: 'mdi-receipt-text-plus' },
       { title: 'Shared', to: '/sharedExpenses', icon: 'mdi-account-multiple' },
       { title: 'Results', to: '/docResults', icon: 'mdi-file-chart' },
       { title: 'Friends', to: '/friends', icon: 'mdi-account-group' }
