@@ -29,13 +29,18 @@
 
     <!-- Friends -->
     <div v-else class="friend-list">
-      <div v-for="(friend, index) in friends" :key="index" class="friend-row">
+      <router-link
+        v-for="(friend, index) in friends"
+        :key="index"
+        :to="`/balances/${friend.userId}`"
+        class="friend-row"
+      >
         <div class="friend-avatar">{{ (friend.username || '?').charAt(0).toUpperCase() }}</div>
         <div class="friend-info">
           <p class="friend-name">{{ friend.username }}</p>
           <p class="friend-meta">{{ (friend.sharedExpenses?.length || 0) }} shared expenses</p>
         </div>
-      </div>
+      </router-link>
     </div>
   </div>
 </template>
@@ -119,6 +124,8 @@ export default defineComponent({
   padding: 16px 20px;
   border-bottom: 1px solid var(--ea-border);
   transition: background 0.15s ease;
+  text-decoration: none;
+  color: inherit;
 }
 .friend-row:last-child {
   border-bottom: none;

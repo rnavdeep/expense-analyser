@@ -88,7 +88,7 @@ POST /Expense/{id}/addUser?userId=  (existing endpoint; after B7 rejects non-fri
 - [x] **F4 — Budget models, service, store**
 - [x] **F5 — Budget settings page (`/budgets`)**
 - [x] **F6 — Dashboard budget progress widget**
-- [ ] **F7 — Friends list links to balance/expense history (`/balances/:userId`)**
+- [x] **F7 — Friends list links to balance/expense history (`/balances/:userId`)**
 
 ---
 
