@@ -8,7 +8,9 @@ const expenseStoreMock = vi.hoisted(() => ({
   GetDocByExpenseId: vi.fn().mockResolvedValue([]),
   GetAssignedUsersDto: vi.fn().mockResolvedValue([]),
   updateExpense: vi.fn().mockResolvedValue(true),
-  AddUserToExpense: vi.fn().mockResolvedValue('assignment-1')
+  AddUserToExpense: vi.fn().mockResolvedValue('assignment-1'),
+  RemoveUserFromExpense: vi.fn().mockResolvedValue([]),
+  UpdateExpenseUserShares: vi.fn().mockResolvedValue([])
 }))
 
 const docStoreMock = vi.hoisted(() => ({
@@ -40,6 +42,8 @@ beforeEach(() => {
   expenseStoreMock.GetDocByExpenseId.mockReset().mockResolvedValue([])
   expenseStoreMock.GetAssignedUsersDto.mockReset().mockResolvedValue([])
   expenseStoreMock.AddUserToExpense.mockReset().mockResolvedValue('assignment-1')
+  expenseStoreMock.RemoveUserFromExpense.mockReset().mockResolvedValue([])
+  expenseStoreMock.UpdateExpenseUserShares.mockReset().mockResolvedValue([])
   docStoreMock.deleteDocumentFromExpense.mockReset().mockResolvedValue(undefined)
   docStoreMock.uploadExpenseDoc.mockReset().mockResolvedValue(undefined)
   extractStoreMock.startExpenseAnalysis.mockReset().mockResolvedValue('job-1')
@@ -163,6 +167,7 @@ describe('ExpenseRow.vue', () => {
     expenseStoreMock.GetAssignedUsersDto.mockResolvedValue([
       { expenseId: 'e1', userId: 'u1', userName: 'Alex', userShare: 0.5, userAmount: 5 }
     ])
+    expenseStoreMock.RemoveUserFromExpense.mockResolvedValue([])
     const wrapper = shallowMount(ExpenseRow, {
       props: { expense: baseExpense, index: 0, isReadOnly: false }
     })
@@ -173,7 +178,7 @@ describe('ExpenseRow.vue', () => {
 
     await vm.deleteUser('u1')
 
-    expect(docStoreMock.deleteDocumentFromExpense).toHaveBeenCalledWith('u1')
+    expect(expenseStoreMock.RemoveUserFromExpense).toHaveBeenCalledWith('e1', 'u1')
     expect(vm.usersExpense).toHaveLength(0)
   })
 
@@ -194,12 +199,15 @@ describe('ExpenseRow.vue', () => {
 
     // Attempting to remove yourself is a no-op — the store call never fires.
     await vm.deleteUser('u1')
-    expect(docStoreMock.deleteDocumentFromExpense).not.toHaveBeenCalled()
+    expect(expenseStoreMock.RemoveUserFromExpense).not.toHaveBeenCalled()
     expect(vm.usersExpense).toHaveLength(2)
 
-    // Removing someone else still works as before.
+    // Removing someone else still works as before, and the remaining share is re-divided.
+    expenseStoreMock.RemoveUserFromExpense.mockResolvedValue([
+      { expenseId: 'e1', userId: 'u1', userName: 'alex', userShare: 1, userAmount: 10 }
+    ])
     await vm.deleteUser('u2')
-    expect(docStoreMock.deleteDocumentFromExpense).toHaveBeenCalledWith('u2')
+    expect(expenseStoreMock.RemoveUserFromExpense).toHaveBeenCalledWith('e1', 'u2')
     expect(vm.usersExpense).toHaveLength(1)
   })
 

@@ -241,12 +241,56 @@ class ExpenseService {
   }
 
   /**
+   * Removes a user from an expense. The remaining users' shares are re-divided equally.
+   * @param expenseId The ID of the expense (string).
+   * @param userId The ID of the user to remove (string).
+   * @returns The updated list of ExpenseUserDto for the expense.
+   */
+  async RemoveUserFromExpense(expenseId: string, userId: string): Promise<any> {
+    try {
+      const response = await axios.delete(`${API_URL}/${expenseId}/removeUser/${userId}`, {
+        withCredentials: true
+      })
+      return response.data
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || error.response?.data || 'Failed to remove user from expense')
+      }
+      throw new Error('An unexpected error occurred')
+    }
+  }
+
+  /**
+   * Sets custom share percentages for every user assigned to an expense. Must cover exactly the
+   * currently assigned users and the shares (0-1) must sum to 1.
+   * @param expenseId The ID of the expense (string).
+   * @param shares Array of { userId, userShare } covering every user assigned to the expense.
+   * @returns The updated list of ExpenseUserDto for the expense.
+   */
+  async UpdateExpenseUserShares(
+    expenseId: string,
+    shares: { userId: string; userShare: number }[]
+  ): Promise<any> {
+    try {
+      const response = await axios.put(`${API_URL}/${expenseId}/updateShares`, shares, {
+        withCredentials: true
+      })
+      return response.data
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || error.response?.data || 'Failed to update user shares')
+      }
+      throw new Error('An unexpected error occurred')
+    }
+  }
+
+  /**
    *
    * @returns  Expense Users Dto List
    */
   async GetExpenseUsers(expenseId: string): Promise<any> {
     try {
-      const response = await axios.get(`${API_URL}/${expenseId}/getAssignedUsers  `, {
+      const response = await axios.get(`${API_URL}/${expenseId}/getAssignedUsers`, {
         withCredentials: true
       })
 

@@ -110,9 +110,21 @@
       </section>
 
       <section class="er-panel-section">
-        <h4 class="er-panel-title">Shared with</h4>
+        <div class="er-panel-head">
+          <h4 class="er-panel-title">Shared with</h4>
+          <v-btn
+            v-if="sharedLoaded && usersExpense.length > 1"
+            size="small"
+            variant="text"
+            color="secondary"
+            :disabled="isReadOnly"
+            @click="editingShares ? cancelEditShares() : startEditShares()"
+          >
+            {{ editingShares ? 'Cancel' : 'Edit shares' }}
+          </v-btn>
+        </div>
 
-        <div v-if="sharedLoaded" class="er-add-user">
+        <div v-if="sharedLoaded && !editingShares" class="er-add-user">
           <v-select
             v-model="selectedUserId"
             :items="availableUsersToAdd"
@@ -136,6 +148,10 @@
           </v-btn>
         </div>
 
+        <v-alert v-if="sharedError" type="error" variant="tonal" density="compact" class="er-shared-alert">
+          {{ sharedError }}
+        </v-alert>
+
         <div v-if="!sharedLoaded" class="er-panel-loading">
           <v-progress-circular indeterminate color="secondary" size="20"></v-progress-circular>
         </div>
@@ -146,9 +162,26 @@
             <span class="er-user-name"
               >{{ user.userName }}<span v-if="isCurrentUser(user)" class="er-user-you">You</span></span
             >
-            <span class="er-user-share">{{ user.userShare * 100 }}%</span>
-            <span class="er-user-amount amount">${{ user.userAmount }}</span>
-            <v-tooltip :text="isCurrentUser(user) ? `You can't remove yourself` : `Remove ${user.userName}`" location="top">
+            <template v-if="editingShares">
+              <v-text-field
+                v-model.number="editShares[user.userId]"
+                type="number"
+                density="compact"
+                variant="outlined"
+                hide-details
+                suffix="%"
+                class="er-share-input"
+              ></v-text-field>
+            </template>
+            <template v-else>
+              <span class="er-user-share">{{ user.userShare * 100 }}%</span>
+              <span class="er-user-amount amount">${{ user.userAmount }}</span>
+            </template>
+            <v-tooltip
+              v-if="!editingShares"
+              :text="isCurrentUser(user) ? `You can't remove yourself` : `Remove ${user.userName}`"
+              location="top"
+            >
               <template v-slot:activator="{ props }">
                 <v-icon
                   class="er-action er-action--danger"
@@ -159,6 +192,20 @@
                 >
               </template>
             </v-tooltip>
+          </div>
+
+          <div v-if="editingShares" class="er-share-footer">
+            <span :class="{ 'er-share-total--invalid': !sharesValid }" class="er-share-total"
+              >Total: {{ sharesTotal }}%</span
+            >
+            <v-btn
+              size="small"
+              color="secondary"
+              :disabled="!sharesValid || isSavingShares"
+              :loading="isSavingShares"
+              @click="saveShares"
+              >Save</v-btn
+            >
           </div>
         </div>
       </section>
@@ -280,6 +327,24 @@ export default defineComponent({
     const availableUsers = ref<UserDto[]>([])
     const selectedUserId = ref<number | null>(null)
     const isAssigningUser = ref(false)
+    const sharedError = ref('')
+    const editingShares = ref(false)
+    const editShares = ref<Record<string, number>>({})
+    const isSavingShares = ref(false)
+
+    const sharesTotal = computed(() =>
+      Math.round(
+        Object.values(editShares.value).reduce((sum, value) => sum + (Number(value) || 0), 0) * 100
+      ) / 100
+    )
+    const sharesValid = computed(() => sharesTotal.value === 100)
+
+    const showSharedError = (message: string) => {
+      sharedError.value = message
+      setTimeout(() => {
+        sharedError.value = ''
+      }, 5000)
+    }
 
     // Friends already sharing the expense shouldn't show up as addable again.
     const availableUsersToAdd = computed(() =>
@@ -377,16 +442,47 @@ export default defineComponent({
       return !!authStore.userName && user.userName === authStore.userName
     }
 
-    // Mirrors the legacy "Attached Users" dialog's delete action, which reuses
-    // the document-delete store call rather than a dedicated unassign endpoint.
     const deleteUser = async (userId: string) => {
       const user = usersExpense.value.find((u) => u.userId === userId)
       if (user && isCurrentUser(user)) return
       try {
-        await docStore.deleteDocumentFromExpense(userId)
-        usersExpense.value = usersExpense.value.filter((user) => user.userId !== userId)
+        const result = await expenseStore.RemoveUserFromExpense(props.expense.id, userId)
+        usersExpense.value = result ?? usersExpense.value.filter((u) => u.userId !== userId)
       } catch (error) {
-        console.error('Error deleting document:', error)
+        console.error('Error removing user from expense:', error)
+        showSharedError(error instanceof Error ? error.message : 'Failed to remove user from expense')
+      }
+    }
+
+    const startEditShares = () => {
+      editShares.value = Object.fromEntries(
+        usersExpense.value.map((user) => [user.userId, Math.round(user.userShare * 100 * 100) / 100])
+      )
+      editingShares.value = true
+    }
+
+    const cancelEditShares = () => {
+      editingShares.value = false
+      editShares.value = {}
+    }
+
+    const saveShares = async () => {
+      if (!sharesValid.value) return
+      isSavingShares.value = true
+      try {
+        const shares = usersExpense.value.map((user) => ({
+          userId: user.userId,
+          userShare: (editShares.value[user.userId] ?? user.userShare * 100) / 100
+        }))
+        const result = await expenseStore.UpdateExpenseUserShares(props.expense.id, shares)
+        usersExpense.value = result ?? usersExpense.value
+        editingShares.value = false
+        editShares.value = {}
+      } catch (error) {
+        console.error('Error updating user shares:', error)
+        showSharedError(error instanceof Error ? error.message : 'Failed to update user shares')
+      } finally {
+        isSavingShares.value = false
       }
     }
 
@@ -446,6 +542,15 @@ export default defineComponent({
       availableUsersToAdd,
       selectedUserId,
       isAssigningUser,
+      sharedError,
+      editingShares,
+      editShares,
+      isSavingShares,
+      sharesTotal,
+      sharesValid,
+      startEditShares,
+      cancelEditShares,
+      saveShares,
       dialogConfirmProcess,
       selectedDocument,
       fileInput,
@@ -586,6 +691,41 @@ export default defineComponent({
   text-transform: uppercase;
   color: var(--ea-muted);
   margin-bottom: 10px;
+}
+
+.er-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.er-panel-head .er-panel-title {
+  margin-bottom: 0;
+}
+
+.er-shared-alert {
+  margin-bottom: 12px;
+}
+
+.er-share-input {
+  flex: none;
+  width: 90px;
+}
+
+.er-share-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.er-share-total {
+  font-size: 13px;
+  color: var(--ea-muted);
+}
+
+.er-share-total--invalid {
+  color: var(--ea-error, #dc2626);
 }
 
 .er-panel-loading {

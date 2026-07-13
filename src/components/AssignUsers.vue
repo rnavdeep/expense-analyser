@@ -96,13 +96,15 @@ export default defineComponent({
     })
 
     const removeUserFromExpense = async (userId: string) => {
+      if (!props.expenseId) return
+      expenseStore.isUserAssigning = true
       try {
-        //   await expenseStore.removeUserFromExpense({
-        //     expenseId: props.expenseId,
-        //     userId
-        //   })
+        await expenseStore.RemoveUserFromExpense(props.expenseId, userId)
+        await expenseStore.GetAssignedUsers()
       } catch (error) {
         console.error('Error removing user from expense:', error)
+      } finally {
+        expenseStore.isUserAssigning = false
       }
     }
 

@@ -255,6 +255,23 @@ export const useExpenseStore = defineStore('Expense', {
         console.log('Error loading expense documents')
         throw new Error('Failed to load documents')
       }
+    },
+    async RemoveUserFromExpense(expenseId: string, userId: string): Promise<any> {
+      try {
+        return await ExpenseService.RemoveUserFromExpense(expenseId, userId)
+      } catch (error) {
+        throw error instanceof Error ? error : new Error('Failed to remove user from expense')
+      }
+    },
+    async UpdateExpenseUserShares(
+      expenseId: string,
+      shares: { userId: string; userShare: number }[]
+    ): Promise<any> {
+      try {
+        return await ExpenseService.UpdateExpenseUserShares(expenseId, shares)
+      } catch (error) {
+        throw error instanceof Error ? error : new Error('Failed to update user shares')
+      }
     }
   },
 
