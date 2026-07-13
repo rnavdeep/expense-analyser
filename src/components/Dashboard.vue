@@ -143,6 +143,30 @@
         </div>
       </div>
     </section>
+
+    <!-- ── Budgets ── -->
+    <section v-if="data.budgets.length" class="panel budgets-panel">
+      <div class="panel-head">
+        <h2 class="panel-title">Budgets</h2>
+        <router-link to="/budgets" class="panel-link">Manage</router-link>
+      </div>
+
+      <ul class="budget-list">
+        <li v-for="b in data.budgets" :key="b.category" class="budget-item">
+          <div class="budget-item-top">
+            <span class="budget-category">{{ b.category }}</span>
+            <span class="budget-hint">{{ formatCurrency(b.spent) }} of {{ formatCurrency(b.monthlyLimit) }}</span>
+          </div>
+          <v-progress-linear
+            :model-value="budgetProgress(b)"
+            :color="budgetColor(b)"
+            height="8"
+            rounded
+          ></v-progress-linear>
+        </li>
+      </ul>
+    </section>
+    <router-link v-else to="/budgets" class="budgets-setup-link">Set up budgets →</router-link>
     </template>
 
     <SettleUpDialog
@@ -169,6 +193,7 @@ import MonthlyBarChart from './dashboard/MonthlyBarChart.vue'
 import CategoryDonut from './dashboard/CategoryDonut.vue'
 import SettleUpDialog from './SettleUpDialog.vue'
 import type { BalanceEntry, DashboardPeriod } from '@/models/Dashboard'
+import type { BudgetStatusDto } from '@/models/Budget'
 
 export default defineComponent({
   name: 'eaDashboard',
@@ -270,6 +295,17 @@ export default defineComponent({
       dashboardStore.LoadDashboard(period.value)
     }
 
+    // ── Budget progress widget ──
+    const budgetProgress = (b: BudgetStatusDto) =>
+      b.monthlyLimit > 0 ? Math.min((b.spent / b.monthlyLimit) * 100, 100) : 0
+
+    const budgetColor = (b: BudgetStatusDto) => {
+      const pct = b.monthlyLimit > 0 ? b.spent / b.monthlyLimit : 0
+      if (pct >= 1) return 'error'
+      if (pct >= 0.8) return 'warning'
+      return 'secondary'
+    }
+
     return {
       period,
       periodOptions,
@@ -289,7 +325,9 @@ export default defineComponent({
       snackbarText,
       openSettleUp,
       onSettleUpClick,
-      onSettled
+      onSettled,
+      budgetProgress,
+      budgetColor
     }
   }
 })
@@ -583,6 +621,53 @@ export default defineComponent({
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* ── Budgets ── */
+.budgets-panel {
+  margin-top: 18px;
+}
+
+.budget-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.budget-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.budget-category {
+  font-family: var(--ea-display);
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--ea-ink);
+}
+
+.budget-hint {
+  font-size: 12px;
+  color: var(--ea-muted);
+}
+
+.budgets-setup-link {
+  display: inline-block;
+  margin-top: 18px;
+  font-family: var(--ea-display);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--ea-muted);
+  text-decoration: none;
+}
+.budgets-setup-link:hover {
+  color: var(--ea-emerald);
+  text-decoration: underline;
 }
 
 /* ── Loading / error states ── */

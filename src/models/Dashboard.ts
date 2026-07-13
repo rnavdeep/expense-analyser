@@ -1,4 +1,5 @@
 import type { ExpenseListDataDto } from '@/models/ExpenseCreateForm'
+import type { BudgetStatusDto } from '@/models/Budget'
 
 /**
  * Dashboard types. The `*Dto` interfaces mirror the raw JSON returned by the
@@ -50,6 +51,7 @@ export interface DashboardData {
   categories: CategorySlice[]
   recent: ExpenseListDataDto[]
   balances: OutstandingBalances
+  budgets: BudgetStatusDto[]
 }
 
 // Donut/category palette — reuses the redesign token colors. Assigned to
