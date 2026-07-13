@@ -52,4 +52,27 @@ describe('BudgetService', () => {
       BudgetService.UpsertBudget({ category: 'Groceries', monthlyLimit: 300 })
     ).rejects.toThrow('Boom')
   })
+
+  it('DeleteBudget deletes by category', async () => {
+    ;(axios as any).delete = vi.fn().mockResolvedValue({})
+
+    await BudgetService.DeleteBudget('Groceries')
+
+    expect((axios as any).delete).toHaveBeenCalledWith(
+      expect.stringContaining('/Budget'),
+      expect.objectContaining({
+        params: { category: 'Groceries' },
+        withCredentials: true
+      })
+    )
+  })
+
+  it('DeleteBudget surfaces the API error message on failure', async () => {
+    const err: any = new Error('request failed')
+    err.response = { data: { message: 'Boom' } }
+    ;(axios as any).delete = vi.fn().mockRejectedValue(err)
+    ;(axios as any).isAxiosError = () => true
+
+    await expect(BudgetService.DeleteBudget('Groceries')).rejects.toThrow('Boom')
+  })
 })

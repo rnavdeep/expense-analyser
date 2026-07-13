@@ -58,6 +58,9 @@ GET  /Budget?period=month
   → BudgetStatusDto[] { category: string, monthlyLimit: number, spent: number }
      (404 when the user has no budgets — treat as empty list)
 
+DELETE /Budget?category=            (category is the upsert key; BudgetStatusDto carries no id)
+  → 204 No Content
+
 GET  /Friends/getFriends            (existing endpoint; gains a field in phase B6)
   → FriendDto[] { userId: string, username: string, acceptedAt: string /* ISO */, sharedExpenses: ExpenseDto[] }
 
@@ -194,6 +197,12 @@ save calls the action with the edited value, add-budget flow, error state. Exten
 spec if one exists (check `src/components/__tests__`).
 
 Acceptance: quality gates pass.
+
+**Amendment (post-merge):** each row also gets a delete affordance (`mdi-trash-can` icon,
+tooltip "Delete budget") that opens a confirm dialog — mirrors `ExpenseRow.vue`'s
+confirm-delete pattern — then calls the new `DeleteBudget(category)` store action /
+`BudgetService.DeleteBudget` (`DELETE /Budget?category=`, see contracts above). `BudgetDto`/
+`BudgetStatusDto` carry no id, so category is the delete key, same as the upsert key.
 
 ### F6 — Dashboard budget progress widget
 

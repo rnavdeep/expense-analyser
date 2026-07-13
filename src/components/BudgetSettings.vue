@@ -33,6 +33,18 @@
                 class="budget-limit-field"
               ></v-text-field>
               <v-btn size="small" color="secondary" :disabled="isSaving" @click="save(row)">Save</v-btn>
+              <v-tooltip text="Delete budget" location="top">
+                <template v-slot:activator="{ props }">
+                  <v-icon
+                    class="budget-delete"
+                    color="secondary"
+                    :disabled="isSaving"
+                    v-bind="props"
+                    @click="confirmDelete(row)"
+                    >mdi-trash-can</v-icon
+                  >
+                </template>
+              </v-tooltip>
             </div>
           </li>
         </ul>
@@ -70,6 +82,20 @@
         </div>
       </section>
     </template>
+
+    <v-dialog :model-value="!!deleteTarget" max-width="400" @update:model-value="(v) => !v && cancelDelete()">
+      <v-card>
+        <v-card-title>Delete budget</v-card-title>
+        <v-card-text>
+          Are you sure you want to delete the <strong>{{ deleteTarget?.category }}</strong> budget?
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text="Cancel" @click="cancelDelete">Cancel</v-btn>
+          <v-btn text="Delete" color="error" :loading="isSaving" @click="doDelete">Delete</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -132,6 +158,23 @@ export default defineComponent({
       newLimit.value = null
     }
 
+    const deleteTarget = ref<BudgetRow | null>(null)
+    const confirmDelete = (row: BudgetRow) => {
+      deleteTarget.value = row
+    }
+    const cancelDelete = () => {
+      deleteTarget.value = null
+    }
+    const doDelete = async () => {
+      if (!deleteTarget.value) return
+      try {
+        await budgetStore.DeleteBudget(deleteTarget.value.category)
+        deleteTarget.value = null
+      } catch {
+        // store.error already holds the message for display
+      }
+    }
+
     return {
       rows,
       isLoading,
@@ -143,7 +186,11 @@ export default defineComponent({
       canAdd,
       formatCurrency,
       save,
-      addBudget
+      addBudget,
+      deleteTarget,
+      confirmDelete,
+      cancelDelete,
+      doDelete
     }
   }
 })
@@ -245,6 +292,15 @@ export default defineComponent({
 
 .budget-limit-field {
   max-width: 140px;
+}
+
+.budget-delete {
+  color: var(--ea-muted);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.budget-delete:hover {
+  color: var(--ea-error, #dc2626);
 }
 
 /* ── Add budget ── */

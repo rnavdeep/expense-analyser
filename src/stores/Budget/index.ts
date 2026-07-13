@@ -56,6 +56,20 @@ export const useBudgetStore = defineStore('Budget', {
       } finally {
         this.isSaving = false
       }
+    },
+
+    async DeleteBudget(category: string): Promise<void> {
+      this.isSaving = true
+      this.error = null
+      try {
+        await BudgetService.DeleteBudget(category)
+        await this.LoadBudgets()
+      } catch (error) {
+        this.error = error instanceof Error ? error.message : 'Failed to delete budget'
+        throw error
+      } finally {
+        this.isSaving = false
+      }
     }
   }
 })

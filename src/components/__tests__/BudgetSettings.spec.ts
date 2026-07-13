@@ -6,13 +6,14 @@ import { useDashboardStore } from '@/stores/Dashboard'
 import type { DashboardData } from '@/models/Dashboard'
 
 vi.mock('@/services/BudgetService', () => ({
-  default: { GetBudgets: vi.fn(), UpsertBudget: vi.fn() }
+  default: { GetBudgets: vi.fn(), UpsertBudget: vi.fn(), DeleteBudget: vi.fn() }
 }))
 
 import BudgetService from '@/services/BudgetService'
 
 const GetBudgets = BudgetService.GetBudgets as ReturnType<typeof vi.fn>
 const UpsertBudget = BudgetService.UpsertBudget as ReturnType<typeof vi.fn>
+const DeleteBudget = BudgetService.DeleteBudget as ReturnType<typeof vi.fn>
 
 const budgets = [
   { category: 'Food', monthlyLimit: 300, spent: 120 },
@@ -135,5 +136,53 @@ describe('BudgetSettings.vue', () => {
     await vm.addBudget()
 
     expect(UpsertBudget).not.toHaveBeenCalled()
+  })
+
+  it('confirmDelete stages a row for deletion', async () => {
+    GetBudgets.mockResolvedValue(budgets)
+    const wrapper = await mountSettings()
+
+    const vm = wrapper.vm as any
+    vm.confirmDelete(vm.rows[0])
+
+    expect(vm.deleteTarget).toEqual(budgets[0])
+  })
+
+  it('cancelDelete clears the staged row without calling the service', async () => {
+    GetBudgets.mockResolvedValue(budgets)
+    const wrapper = await mountSettings()
+
+    const vm = wrapper.vm as any
+    vm.confirmDelete(vm.rows[0])
+    vm.cancelDelete()
+
+    expect(vm.deleteTarget).toBeNull()
+    expect(DeleteBudget).not.toHaveBeenCalled()
+  })
+
+  it('doDelete deletes the staged budget and clears the target', async () => {
+    GetBudgets.mockResolvedValue(budgets)
+    DeleteBudget.mockResolvedValue(undefined)
+    const wrapper = await mountSettings()
+
+    const vm = wrapper.vm as any
+    vm.confirmDelete(vm.rows[0])
+    await vm.doDelete()
+
+    expect(DeleteBudget).toHaveBeenCalledWith('Food')
+    expect(vm.deleteTarget).toBeNull()
+  })
+
+  it('doDelete leaves the target set and surfaces the error on failure', async () => {
+    GetBudgets.mockResolvedValue(budgets)
+    DeleteBudget.mockRejectedValue(new Error('boom'))
+    const wrapper = await mountSettings()
+
+    const vm = wrapper.vm as any
+    vm.confirmDelete(vm.rows[0])
+    await vm.doDelete()
+
+    expect(vm.error).toBe('boom')
+    expect(vm.deleteTarget).toEqual(budgets[0])
   })
 })

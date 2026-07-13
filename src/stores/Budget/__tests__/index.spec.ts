@@ -5,7 +5,8 @@ import { useBudgetStore } from '@/stores/Budget'
 vi.mock('@/services/BudgetService', () => ({
   default: {
     UpsertBudget: vi.fn(),
-    GetBudgets: vi.fn()
+    GetBudgets: vi.fn(),
+    DeleteBudget: vi.fn()
   }
 }))
 
@@ -13,6 +14,7 @@ import BudgetService from '@/services/BudgetService'
 
 const UpsertBudget = BudgetService.UpsertBudget as ReturnType<typeof vi.fn>
 const GetBudgets = BudgetService.GetBudgets as ReturnType<typeof vi.fn>
+const DeleteBudget = BudgetService.DeleteBudget as ReturnType<typeof vi.fn>
 
 const budget = { category: 'Groceries', monthlyLimit: 300, spent: 120 }
 
@@ -72,6 +74,28 @@ describe('Budget store', () => {
     await expect(store.SaveBudget({ category: 'Groceries', monthlyLimit: 300 })).rejects.toThrow(
       'boom'
     )
+    expect(store.error).toBe('boom')
+    expect(store.isSaving).toBe(false)
+  })
+
+  it('DeleteBudget deletes then reloads the budgets', async () => {
+    DeleteBudget.mockResolvedValue(undefined)
+    GetBudgets.mockResolvedValue([])
+    const store = useBudgetStore()
+
+    await store.DeleteBudget('Groceries')
+
+    expect(DeleteBudget).toHaveBeenCalledWith('Groceries')
+    expect(store.budgets).toEqual([])
+    expect(store.isSaving).toBe(false)
+    expect(store.error).toBeNull()
+  })
+
+  it('DeleteBudget captures the error and rethrows', async () => {
+    DeleteBudget.mockRejectedValue(new Error('boom'))
+    const store = useBudgetStore()
+
+    await expect(store.DeleteBudget('Groceries')).rejects.toThrow('boom')
     expect(store.error).toBe('boom')
     expect(store.isSaving).toBe(false)
   })

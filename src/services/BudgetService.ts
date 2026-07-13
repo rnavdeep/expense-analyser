@@ -43,6 +43,24 @@ class BudgetService {
       throw new Error('An unexpected error occurred')
     }
   }
+
+  /**
+   * @param category the budget to remove (category is the upsert key, so it
+   * doubles as the delete key — BudgetStatusDto carries no id)
+   */
+  async DeleteBudget(category: string): Promise<void> {
+    try {
+      await axios.delete(`${BASE_URL}/Budget`, {
+        params: { category },
+        withCredentials: true
+      })
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to delete budget')
+      }
+      throw new Error('An unexpected error occurred')
+    }
+  }
 }
 
 export default new BudgetService()
