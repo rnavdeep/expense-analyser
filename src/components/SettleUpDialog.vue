@@ -36,6 +36,7 @@
 <script lang="ts">
 import { computed, defineComponent, ref, watch } from 'vue'
 import { useSettlementStore } from '../stores/Settlement'
+import { roundToCents } from '../utils/money'
 
 interface SettleUpDialogProps {
   modelValue: boolean
@@ -92,8 +93,9 @@ export default defineComponent({
     const error = computed(() => settlementStore.error)
 
     const amountError = computed(() => {
-      if (amount.value <= 0) return 'Amount must be greater than 0'
-      if (amount.value > props.maxAmount) return `Amount cannot exceed $${props.maxAmount}`
+      const rounded = roundToCents(amount.value)
+      if (rounded <= 0) return 'Amount must be greater than 0'
+      if (rounded > roundToCents(props.maxAmount)) return `Amount cannot exceed $${props.maxAmount}`
       return ''
     })
 
@@ -106,7 +108,7 @@ export default defineComponent({
       try {
         await settlementStore.CreateSettlement({
           payeeUserId: props.payeeUserId,
-          amount: amount.value,
+          amount: roundToCents(amount.value),
           note: note.value || undefined
         })
         emit('settled')

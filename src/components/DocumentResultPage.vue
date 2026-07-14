@@ -125,6 +125,7 @@ import { useExpenseStore } from '../stores/Expense'
 import type { DocumentDialogDto } from '../models/DocumentDialogDto'
 import { ExpenseListDataDto, UpdateExpenseDto } from '../models/ExpenseCreateForm'
 import ExpenseResults from '../models/ExpenseResults'
+import { roundToCents } from '../utils/money'
 
 export default defineComponent({
   name: 'eaDocResultPage',
@@ -151,7 +152,7 @@ export default defineComponent({
       const raw = expenseResults.value?.extractSummary().TOTAL
       if (!raw) return null
       const parsed = parseFloat(String(raw).replace(/[^0-9.-]/g, ''))
-      return Number.isFinite(parsed) ? parsed : null
+      return Number.isFinite(parsed) ? roundToCents(parsed) : null
     })
     const loadDocuments = async () => {
       documents.value = []
@@ -194,7 +195,7 @@ export default defineComponent({
       isAddingToAmount.value = true
       addAmountError.value = ''
       try {
-        const newAmount = (selectedExpense.value.amount ?? 0) + scannedTotalAmount.value
+        const newAmount = roundToCents((selectedExpense.value.amount ?? 0) + scannedTotalAmount.value)
         const updatedExpense = new UpdateExpenseDto(
           selectedExpense.value.id,
           selectedExpense.value.title,

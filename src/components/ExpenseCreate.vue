@@ -117,6 +117,7 @@ import { useExpenseStore } from '../stores/Expense'
 import { useDocumentStore } from '../stores/Document'
 import eaUploadDocs from './DocumentUpload.vue'
 import eaAssignUsers from './AssignUsers.vue'
+import { roundToCents } from '../utils/money'
 export default defineComponent({
   name: 'eaExpenseCreate',
   components: { eaUploadDocs, eaAssignUsers },
@@ -161,7 +162,7 @@ export default defineComponent({
           const expenseFormDto = new ExpenseDataDto(
             formInput.value.title,
             formInput.value.description,
-            formInput.value.amount,
+            roundToCents(formInput.value.amount),
             formInput.value.allowReceipts
           )
           const resp = await expenseStore.createExpense(expenseFormDto)

@@ -284,6 +284,7 @@ import { useDocumentStore } from '../stores/Document'
 import { useExtractStore } from '../stores/Extract'
 import { useAuthStore } from '../stores/Auth'
 import { useFriendsStore } from '../stores/Friends'
+import { roundToCents } from '../utils/money'
 
 interface ExpenseRowProps {
   expense: ExpenseListDataDto
@@ -358,7 +359,7 @@ export default defineComponent({
     // added/removed/reassigned, not on a plain amount edit — derive it from
     // the current amount instead of trusting the (possibly stale) userAmount.
     const shareAmount = (user: UserAssignedDto): number =>
-      Math.round(props.expense.amount * user.userShare * 100) / 100
+      roundToCents(props.expense.amount * user.userShare)
 
     const showSharedError = (message: string) => {
       sharedError.value = message
@@ -426,6 +427,7 @@ export default defineComponent({
     }
 
     const saveExpense = async (id: string) => {
+      editAmount.value = roundToCents(editAmount.value)
       const scannedReceiptsTotal = props.expense.scannedReceiptsTotal ?? 0
       if (editAmount.value < scannedReceiptsTotal) {
         editAmountError.value = `Amount cannot be less than $${scannedReceiptsTotal} already scanned from receipts.`
