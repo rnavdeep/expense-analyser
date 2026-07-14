@@ -5,6 +5,14 @@
         <h1 class="page-title">New expense</h1>
         <p class="page-sub">Add the details, then attach bills and assign users.</p>
       </div>
+      <v-switch
+        v-model="formInput.allowReceipts"
+        :label="formInput.allowReceipts ? 'With receipt(s)' : 'Without receipt(s)'"
+        color="secondary"
+        :disabled="uploadSuccess"
+        hide-details
+        class="receipts-switch"
+      ></v-switch>
     </header>
 
     <div class="form-card">
@@ -28,19 +36,6 @@
           textarea
           :disabled="uploadSuccess"
         ></v-text-field>
-
-        <!-- Receipts toggle -->
-        <v-btn-toggle
-          v-model="formInput.allowReceipts"
-          mandatory
-          color="secondary"
-          variant="outlined"
-          :disabled="uploadSuccess"
-          class="mb-4"
-        >
-          <v-btn :value="true">With receipt(s)</v-btn>
-          <v-btn :value="false">Without receipt(s)</v-btn>
-        </v-btn-toggle>
 
         <!-- Amount Field -->
         <v-text-field
@@ -227,6 +222,15 @@ export default defineComponent({
 <style scoped>
 .page--narrow {
   max-width: 720px;
+}
+
+.receipts-switch {
+  align-self: center;
+  flex: 0 0 auto;
+}
+
+.receipts-switch :deep(.v-label) {
+  white-space: nowrap;
 }
 
 .form-card {
