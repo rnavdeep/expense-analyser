@@ -64,6 +64,26 @@
           <span class="kv-val amount">{{ expenseResults?.extractSummary().TOTAL }}</span>
         </div>
       </div>
+
+      <div class="add-amount-row" v-if="scannedTotalAmount !== null">
+        <v-btn
+          v-if="!addedToAmount"
+          size="small"
+          color="secondary"
+          :loading="isAddingToAmount"
+          :disabled="isAddingToAmount"
+          @click="addScannedTotalToExpense"
+        >
+          Add ${{ scannedTotalAmount }} to expense amount
+        </v-btn>
+        <span v-else class="add-amount-done">
+          <v-icon size="16" color="success">mdi-check-circle</v-icon>
+          Added to expense amount
+        </span>
+        <v-alert v-if="addAmountError" type="error" variant="tonal" density="compact" class="mt-2">
+          {{ addAmountError }}
+        </v-alert>
+      </div>
     </div>
 
     <!-- Line items -->
@@ -103,7 +123,7 @@
 import { computed, defineComponent, onMounted, ref, watch } from 'vue'
 import { useExpenseStore } from '../stores/Expense'
 import type { DocumentDialogDto } from '../models/DocumentDialogDto'
-import { ExpenseListDataDto } from '../models/ExpenseCreateForm'
+import { ExpenseListDataDto, UpdateExpenseDto } from '../models/ExpenseCreateForm'
 import ExpenseResults from '../models/ExpenseResults'
 
 export default defineComponent({
@@ -120,6 +140,19 @@ export default defineComponent({
     const columns = ref<Array<any>>([])
     const loading = ref<boolean>(false)
     const isSummaryAvailable = ref<boolean>(false)
+    const isAddingToAmount = ref<boolean>(false)
+    const addedToAmount = ref<boolean>(false)
+    const addAmountError = ref<string>('')
+
+    // TOTAL comes back as a currency-ish string (e.g. "$12.34"); strip
+    // everything but digits/./- before parsing so the Add button can show
+    // and compute a real number.
+    const scannedTotalAmount = computed<number | null>(() => {
+      const raw = expenseResults.value?.extractSummary().TOTAL
+      if (!raw) return null
+      const parsed = parseFloat(String(raw).replace(/[^0-9.-]/g, ''))
+      return Number.isFinite(parsed) ? parsed : null
+    })
     const loadDocuments = async () => {
       documents.value = []
       if (selectedExpense.value && selectedExpense.value.id) {
@@ -141,6 +174,8 @@ export default defineComponent({
           columnData.value = JSON.parse(result.resultLineItems)
           expenseResults.value = new ExpenseResults(JSON.parse(result.summaryFields))
           isSummaryAvailable.value = true
+          addedToAmount.value = false
+          addAmountError.value = ''
           loading.value = false
         } catch (error) {
           console.log(error)
@@ -150,6 +185,31 @@ export default defineComponent({
     }
     const removeSummary = () => {
       isSummaryAvailable.value = false
+    }
+
+    // The already-existing amount on the expense is preserved — the scanned
+    // total is added on top of it, not used to replace it.
+    const addScannedTotalToExpense = async () => {
+      if (!selectedExpense.value || scannedTotalAmount.value === null) return
+      isAddingToAmount.value = true
+      addAmountError.value = ''
+      try {
+        const newAmount = (selectedExpense.value.amount ?? 0) + scannedTotalAmount.value
+        const updatedExpense = new UpdateExpenseDto(
+          selectedExpense.value.id,
+          selectedExpense.value.title,
+          selectedExpense.value.description,
+          newAmount
+        )
+        await expenseStore.updateExpense(selectedExpense.value.id, updatedExpense)
+        selectedExpense.value.amount = newAmount
+        addedToAmount.value = true
+      } catch (error) {
+        console.error('Error adding scanned total to expense amount:', error)
+        addAmountError.value = 'Failed to add scanned total to expense amount.'
+      } finally {
+        isAddingToAmount.value = false
+      }
     }
     watch(selectedExpense, (newExpense) => {
       if (newExpense) {
@@ -186,7 +246,12 @@ export default defineComponent({
       columnData,
       expenseResults,
       isSummaryAvailable,
-      removeSummary
+      removeSummary,
+      scannedTotalAmount,
+      isAddingToAmount,
+      addedToAmount,
+      addAmountError,
+      addScannedTotalToExpense
     }
   }
 })
@@ -291,6 +356,20 @@ export default defineComponent({
 }
 .kv-val.amount {
   font-size: 18px;
+}
+
+.add-amount-row {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ea-border);
+}
+
+.add-amount-done {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--ea-muted);
 }
 
 /* Results table */

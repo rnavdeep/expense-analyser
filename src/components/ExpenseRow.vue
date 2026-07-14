@@ -430,6 +430,12 @@ export default defineComponent({
       emit('edit', props.index, updatedExpense)
       await expenseStore.updateExpense(id, updatedExpense)
       dialogEdit.value = false
+
+      // Amount changed — refresh per-user share amounts so they don't go stale.
+      if (sharedLoaded.value) {
+        const result = await expenseStore.GetAssignedUsersDto(id)
+        usersExpense.value = result ?? usersExpense.value
+      }
     }
 
     const confirmDeletion = () => {

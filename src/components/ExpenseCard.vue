@@ -248,6 +248,7 @@ export default defineComponent({
     const editAmountError = ref('')
     const documents = ref<DocumentDialogDto[]>([])
     const usersExpense = ref<UserAssignedDto[]>([])
+    const usersLoaded = ref(false)
     const selectedDocument = ref<DocumentDialogDto | null>(null)
     const expenseStore = useExpenseStore()
     const docStore = useDocumentStore()
@@ -277,6 +278,7 @@ export default defineComponent({
       console.log(props.expense.id)
       console.log(result)
       usersExpense.value = result
+      usersLoaded.value = true
     }
 
     const confirmDeletion = () => {
@@ -320,6 +322,12 @@ export default defineComponent({
       emit('edit', props.index, updatedExpense)
       await expenseStore.updateExpense(id, updatedExpense)
       dialogEdit.value = false
+
+      // Amount changed — refresh per-user share amounts so they don't go stale.
+      if (usersLoaded.value) {
+        const result = await expenseStore.GetAssignedUsersDto(id)
+        usersExpense.value = result ?? usersExpense.value
+      }
     }
 
     const deleteFile = async (docId: string) => {
