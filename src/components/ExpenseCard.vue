@@ -140,7 +140,7 @@
             <span>{{ index + 1 }}</span>
             <p class="userName">{{ user.userName }}</p>
             <p class="userShare">{{ user.userShare * 100 + '%' }}</p>
-            <p class="userAmount">{{ user.userAmount + ' AUD' }}</p>
+            <p class="userAmount">{{ shareAmount(user) + ' AUD' }}</p>
             <v-tooltip :text="`Delete ${user.userName}`" location="top">
               <template v-slot:activator="{ props }">
                 <v-icon :disabled="isReadOnly" @click="deleteUser(user.userId)" v-bind="props"
@@ -248,7 +248,6 @@ export default defineComponent({
     const editAmountError = ref('')
     const documents = ref<DocumentDialogDto[]>([])
     const usersExpense = ref<UserAssignedDto[]>([])
-    const usersLoaded = ref(false)
     const selectedDocument = ref<DocumentDialogDto | null>(null)
     const expenseStore = useExpenseStore()
     const docStore = useDocumentStore()
@@ -278,8 +277,13 @@ export default defineComponent({
       console.log(props.expense.id)
       console.log(result)
       usersExpense.value = result
-      usersLoaded.value = true
     }
+
+    // The backend only recomputes a user's stored dollar share when they're
+    // added/removed/reassigned, not on a plain amount edit — derive it from
+    // the current amount instead of trusting the (possibly stale) userAmount.
+    const shareAmount = (user: UserAssignedDto): number =>
+      Math.round(props.expense.amount * user.userShare * 100) / 100
 
     const confirmDeletion = () => {
       return (deleteConfirmed.value = true)
@@ -322,12 +326,6 @@ export default defineComponent({
       emit('edit', props.index, updatedExpense)
       await expenseStore.updateExpense(id, updatedExpense)
       dialogEdit.value = false
-
-      // Amount changed — refresh per-user share amounts so they don't go stale.
-      if (usersLoaded.value) {
-        const result = await expenseStore.GetAssignedUsersDto(id)
-        usersExpense.value = result ?? usersExpense.value
-      }
     }
 
     const deleteFile = async (docId: string) => {
@@ -387,6 +385,7 @@ export default defineComponent({
       deleteConfirmed,
       openUsersDialog,
       usersExpense,
+      shareAmount,
       deleteUser
     }
   }

@@ -179,7 +179,7 @@
             </template>
             <template v-else>
               <span class="er-user-share">{{ user.userShare * 100 }}%</span>
-              <span class="er-user-amount amount">${{ user.userAmount }}</span>
+              <span class="er-user-amount amount">${{ shareAmount(user) }}</span>
             </template>
             <v-tooltip
               v-if="!editingShares"
@@ -354,6 +354,12 @@ export default defineComponent({
     )
     const sharesValid = computed(() => sharesTotal.value === 100)
 
+    // The backend only recomputes a user's stored dollar share when they're
+    // added/removed/reassigned, not on a plain amount edit — derive it from
+    // the current amount instead of trusting the (possibly stale) userAmount.
+    const shareAmount = (user: UserAssignedDto): number =>
+      Math.round(props.expense.amount * user.userShare * 100) / 100
+
     const showSharedError = (message: string) => {
       sharedError.value = message
       setTimeout(() => {
@@ -430,12 +436,6 @@ export default defineComponent({
       emit('edit', props.index, updatedExpense)
       await expenseStore.updateExpense(id, updatedExpense)
       dialogEdit.value = false
-
-      // Amount changed — refresh per-user share amounts so they don't go stale.
-      if (sharedLoaded.value) {
-        const result = await expenseStore.GetAssignedUsersDto(id)
-        usersExpense.value = result ?? usersExpense.value
-      }
     }
 
     const confirmDeletion = () => {
@@ -576,6 +576,7 @@ export default defineComponent({
       isSavingShares,
       sharesTotal,
       sharesValid,
+      shareAmount,
       startEditShares,
       cancelEditShares,
       saveShares,
