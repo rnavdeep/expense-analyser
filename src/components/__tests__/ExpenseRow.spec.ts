@@ -36,7 +36,15 @@ vi.mock('@/stores/Extract', () => ({ useExtractStore: () => extractStoreMock }))
 vi.mock('@/stores/Auth', () => ({ useAuthStore: () => authStoreMock }))
 vi.mock('@/stores/Friends', () => ({ useFriendsStore: () => friendsStoreMock }))
 
-const baseExpense = { id: 'e1', title: 'Coffee', description: 'Team catchup', amount: 10, createdAt: '2026-01-01' }
+const baseExpense = {
+  id: 'e1',
+  title: 'Coffee',
+  description: 'Team catchup',
+  amount: 10,
+  createdAt: '2026-01-01',
+  allowReceipts: true,
+  scannedReceiptsTotal: 0
+}
 
 beforeEach(() => {
   expenseStoreMock.GetDocByExpenseId.mockReset().mockResolvedValue([])
@@ -275,5 +283,62 @@ describe('ExpenseRow.vue', () => {
     expect(expenseStoreMock.GetDocByExpenseId).toHaveBeenCalledTimes(2)
     expect(vm.documents).toHaveLength(1)
     expect(vm.isAttaching).toBe(false)
+  })
+
+  it('blocks saving an amount below the scanned receipts total', async () => {
+    const expense = { ...baseExpense, scannedReceiptsTotal: 100 }
+    const wrapper = shallowMount(ExpenseRow, {
+      props: { expense, index: 0, isReadOnly: false }
+    })
+    const vm = wrapper.vm as any
+    vm.openEditDialog()
+    vm.editAmount = 50
+
+    await vm.saveExpense('e1')
+
+    expect(expenseStoreMock.updateExpense).not.toHaveBeenCalled()
+    expect(vm.editAmountError).toContain('100')
+    expect(vm.dialogEdit).toBe(true)
+  })
+
+  it('saves an amount at or above the scanned receipts total', async () => {
+    const expense = { ...baseExpense, scannedReceiptsTotal: 100 }
+    const wrapper = shallowMount(ExpenseRow, {
+      props: { expense, index: 0, isReadOnly: false }
+    })
+    const vm = wrapper.vm as any
+    vm.openEditDialog()
+    vm.editAmount = 150
+
+    await vm.saveExpense('e1')
+
+    expect(expenseStoreMock.updateExpense).toHaveBeenCalledWith(
+      'e1',
+      expect.objectContaining({ amount: 150 })
+    )
+    expect(vm.dialogEdit).toBe(false)
+  })
+
+  it('shows the attach-document control when receipts are allowed', async () => {
+    const wrapper = shallowMount(ExpenseRow, {
+      props: { expense: baseExpense, index: 0, isReadOnly: false }
+    })
+    const vm = wrapper.vm as any
+    vm.toggleExpand()
+    await flushPromises()
+
+    expect(wrapper.find('.er-attach-slot').exists()).toBe(true)
+  })
+
+  it('hides the attach-document control for receipt-locked expenses', async () => {
+    const expense = { ...baseExpense, allowReceipts: false }
+    const wrapper = shallowMount(ExpenseRow, {
+      props: { expense, index: 0, isReadOnly: false }
+    })
+    const vm = wrapper.vm as any
+    vm.toggleExpand()
+    await flushPromises()
+
+    expect(wrapper.find('.er-attach-slot').exists()).toBe(false)
   })
 })

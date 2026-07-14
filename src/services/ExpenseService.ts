@@ -17,10 +17,7 @@ class ExpenseService {
   async CreateExpense(data: any): Promise<string> {
     try {
       const response = await axios.post(`${API_URL}`, data, {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+        withCredentials: true
       })
       return response.data.id
     } catch (error) {

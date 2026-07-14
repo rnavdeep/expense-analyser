@@ -16,7 +16,6 @@ interface NewExpense {
   expenseId: string | null
   title: string
   description: string
-  amount: string
   isUploading: boolean
   uploadSuccess: boolean
   dialogUploadDocs: boolean
@@ -37,7 +36,6 @@ export const useExpenseStore = defineStore('Expense', {
     expenseId: null,
     title: '',
     description: '',
-    amount: '',
     isUploading: false,
     uploadSuccess: false,
     dialogUploadDocs: false,

@@ -57,6 +57,15 @@
         <v-card-text>
           <v-text-field label="Title" v-model="editTitle"></v-text-field>
           <v-textarea label="Description" v-model="editDescription"></v-textarea>
+          <v-text-field
+            label="Amount"
+            type="number"
+            prefix="$"
+            v-model.number="editAmount"
+          ></v-text-field>
+          <v-alert v-if="editAmountError" type="error" variant="tonal" density="compact">{{
+            editAmountError
+          }}</v-alert>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -235,6 +244,8 @@ export default defineComponent({
     const dialogConfirmProcess = ref(false)
     const editTitle = ref(props.expense.title)
     const editDescription = ref(props.expense.description)
+    const editAmount = ref(props.expense.amount)
+    const editAmountError = ref('')
     const documents = ref<DocumentDialogDto[]>([])
     const usersExpense = ref<UserAssignedDto[]>([])
     const selectedDocument = ref<DocumentDialogDto | null>(null)
@@ -249,6 +260,8 @@ export default defineComponent({
       dialogEdit.value = true
       editTitle.value = props.expense.title
       editDescription.value = props.expense.description
+      editAmount.value = props.expense.amount
+      editAmountError.value = ''
     }
 
     const openDocumentsDialog = async () => {
@@ -297,14 +310,15 @@ export default defineComponent({
     }
 
     const saveExpense = async (id: string) => {
-      const updatedExpense = new UpdateExpenseDto(id, editTitle.value, editDescription.value)
-      emit('edit', props.index, updatedExpense)
-      const success = await expenseStore.updateExpense(id, updatedExpense)
-
-      if (success) {
-        expenseStore.updateExpense(id, updatedExpense)
+      const scannedReceiptsTotal = props.expense.scannedReceiptsTotal ?? 0
+      if (editAmount.value < scannedReceiptsTotal) {
+        editAmountError.value = `Amount cannot be less than $${scannedReceiptsTotal} already scanned from receipts.`
+        return
       }
-
+      editAmountError.value = ''
+      const updatedExpense = new UpdateExpenseDto(id, editTitle.value, editDescription.value, editAmount.value)
+      emit('edit', props.index, updatedExpense)
+      await expenseStore.updateExpense(id, updatedExpense)
       dialogEdit.value = false
     }
 
@@ -344,6 +358,8 @@ export default defineComponent({
       dialogConfirmProcess,
       editTitle,
       editDescription,
+      editAmount,
+      editAmountError,
       openEditDialog,
       deleteExpense,
       saveExpense,

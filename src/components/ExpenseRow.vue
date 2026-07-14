@@ -95,7 +95,11 @@
             </div>
           </div>
 
-          <label class="er-attach-slot" :class="{ 'er-attach-slot--disabled': isReadOnly || isAttaching }">
+          <label
+            v-if="expense.allowReceipts"
+            class="er-attach-slot"
+            :class="{ 'er-attach-slot--disabled': isReadOnly || isAttaching }"
+          >
             <v-icon size="18">mdi-plus</v-icon>
             {{ isAttaching ? 'Uploading…' : 'Attach another document' }}
             <input
@@ -218,6 +222,15 @@
         <v-card-text>
           <v-text-field label="Title" v-model="editTitle"></v-text-field>
           <v-textarea label="Description" v-model="editDescription"></v-textarea>
+          <v-text-field
+            label="Amount"
+            type="number"
+            prefix="$"
+            v-model.number="editAmount"
+          ></v-text-field>
+          <v-alert v-if="editAmountError" type="error" variant="tonal" density="compact">{{
+            editAmountError
+          }}</v-alert>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -317,6 +330,8 @@ export default defineComponent({
     const dialogEdit = ref(false)
     const editTitle = ref(props.expense.title)
     const editDescription = ref(props.expense.description)
+    const editAmount = ref(props.expense.amount)
+    const editAmountError = ref('')
     const deleteConfirmed = ref(false)
 
     const expanded = ref(false)
@@ -400,15 +415,20 @@ export default defineComponent({
       dialogEdit.value = true
       editTitle.value = props.expense.title
       editDescription.value = props.expense.description
+      editAmount.value = props.expense.amount
+      editAmountError.value = ''
     }
 
     const saveExpense = async (id: string) => {
-      const updatedExpense = new UpdateExpenseDto(id, editTitle.value, editDescription.value)
-      emit('edit', props.index, updatedExpense)
-      const success = await expenseStore.updateExpense(id, updatedExpense)
-      if (success) {
-        expenseStore.updateExpense(id, updatedExpense)
+      const scannedReceiptsTotal = props.expense.scannedReceiptsTotal ?? 0
+      if (editAmount.value < scannedReceiptsTotal) {
+        editAmountError.value = `Amount cannot be less than $${scannedReceiptsTotal} already scanned from receipts.`
+        return
       }
+      editAmountError.value = ''
+      const updatedExpense = new UpdateExpenseDto(id, editTitle.value, editDescription.value, editAmount.value)
+      emit('edit', props.index, updatedExpense)
+      await expenseStore.updateExpense(id, updatedExpense)
       dialogEdit.value = false
     }
 
@@ -533,6 +553,8 @@ export default defineComponent({
       dialogEdit,
       editTitle,
       editDescription,
+      editAmount,
+      editAmountError,
       deleteConfirmed,
       expanded,
       documentsLoaded,
