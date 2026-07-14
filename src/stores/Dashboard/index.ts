@@ -42,9 +42,17 @@ function toDashboardData(
   recent: ExpenseListDataDto[],
   budgets: BudgetStatusDto[]
 ): DashboardData {
+  // A settled-up balance (0, or floating-point noise that rounds to $0.00)
+  // shouldn't show up in either list.
+  const isOwed = (amount: number) => Math.round(amount * 100) !== 0
+
   const balances: OutstandingBalances = {
-    youOwe: balancesDto.youOwe.map((b) => ({ userId: b.userId, name: b.userName, amount: b.amount })),
-    owedToYou: balancesDto.owedToYou.map((b) => ({ userId: b.userId, name: b.userName, amount: b.amount }))
+    youOwe: balancesDto.youOwe
+      .filter((b) => isOwed(b.amount))
+      .map((b) => ({ userId: b.userId, name: b.userName, amount: b.amount })),
+    owedToYou: balancesDto.owedToYou
+      .filter((b) => isOwed(b.amount))
+      .map((b) => ({ userId: b.userId, name: b.userName, amount: b.amount }))
   }
 
   return {
