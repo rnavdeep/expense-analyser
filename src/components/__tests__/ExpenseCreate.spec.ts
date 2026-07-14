@@ -35,4 +35,27 @@ describe('ExpenseCreate.vue', () => {
     expect(expenseStoreMock.createExpense).toHaveBeenCalled()
     expect((wrapper.vm as any).alertMessage.length).toBeGreaterThan(0)
   })
+
+  it('submits the manual amount and receipts toggle', async () => {
+    const wrapper = shallowMount(ExpenseCreate)
+    ;(wrapper.vm as any).formInput.title = 'Lunch'
+    ;(wrapper.vm as any).formInput.description = 'Team lunch'
+    ;(wrapper.vm as any).formInput.amount = 42
+    ;(wrapper.vm as any).formInput.allowReceipts = false
+    ;(wrapper.vm as any).isFormValid = true
+
+    await (wrapper.vm as any).submitForm()
+
+    expect(expenseStoreMock.createExpense).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'Lunch', description: 'Team lunch', amount: 42, allowReceipts: false })
+    )
+  })
+
+  it('hides the upload-bills trigger when receipts are not allowed', async () => {
+    const wrapper = shallowMount(ExpenseCreate)
+    ;(wrapper.vm as any).formInput.allowReceipts = false
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).not.toContain('Upload bills')
+  })
 })

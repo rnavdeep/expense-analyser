@@ -29,18 +29,44 @@
           :disabled="uploadSuccess"
         ></v-text-field>
 
+        <!-- Receipts toggle -->
+        <v-btn-toggle
+          v-model="formInput.allowReceipts"
+          mandatory
+          color="secondary"
+          variant="outlined"
+          :disabled="uploadSuccess"
+          class="mb-4"
+        >
+          <v-btn :value="true">With receipt(s)</v-btn>
+          <v-btn :value="false">Without receipt(s)</v-btn>
+        </v-btn-toggle>
+
+        <!-- Amount Field -->
+        <v-text-field
+          v-model.number="formInput.amount"
+          label="Amount"
+          type="number"
+          prefix="$"
+          :rules="[rules.nonNegative]"
+          :disabled="uploadSuccess"
+          class="mb-2"
+        ></v-text-field>
+
         <!-- Attach bills + assign users -->
         <div class="attach-row">
-          <eaUploadDocs :expense-id="expenseId.value" />
-          <v-btn
-            variant="tonal"
-            color="secondary"
-            @click="openDocumentDialog"
-            :disabled="!uploadSuccess"
-          >
-            <v-icon start>mdi-upload</v-icon>
-            Upload bills
-          </v-btn>
+          <template v-if="formInput.allowReceipts">
+            <eaUploadDocs :expense-id="expenseId.value" />
+            <v-btn
+              variant="tonal"
+              color="secondary"
+              @click="openDocumentDialog"
+              :disabled="!uploadSuccess"
+            >
+              <v-icon start>mdi-upload</v-icon>
+              Upload bills
+            </v-btn>
+          </template>
 
           <eaAssignUsers :expense-id="expenseId.value" />
           <v-btn
@@ -104,6 +130,8 @@ export default defineComponent({
     const formInput = ref<ExpenseCreateForm>({
       title: '',
       description: '',
+      amount: 0,
+      allowReceipts: true,
       files: [] as File[]
     })
     expenseStore.expenseId = null
@@ -118,7 +146,8 @@ export default defineComponent({
     expenseId.value = computed(() => expenseStore.expenseId)
 
     const rules = {
-      required: (value: any) => !!value || 'This field is required'
+      required: (value: any) => !!value || 'This field is required',
+      nonNegative: (value: any) => value >= 0 || 'Amount cannot be negative'
     }
 
     const openDocumentDialog = () => {
@@ -135,7 +164,9 @@ export default defineComponent({
         try {
           const expenseFormDto = new ExpenseDataDto(
             formInput.value.title,
-            formInput.value.description
+            formInput.value.description,
+            formInput.value.amount,
+            formInput.value.allowReceipts
           )
           const resp = await expenseStore.createExpense(expenseFormDto)
           // Set the alert message based on the upload success
@@ -162,6 +193,8 @@ export default defineComponent({
       formInput.value = {
         title: '',
         description: '',
+        amount: 0,
+        allowReceipts: true,
         files: [] as File[]
       }
       if (fileInput.value) {
