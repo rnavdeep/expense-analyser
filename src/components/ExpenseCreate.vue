@@ -35,6 +35,7 @@
           required
           textarea
           :disabled="uploadSuccess"
+          class="mb-2"
         ></v-text-field>
 
         <!-- Amount Field -->
