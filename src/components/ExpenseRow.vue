@@ -24,24 +24,25 @@
       <div class="er-amount amount">${{ expense.amount }}</div>
 
       <div class="er-actions">
-        <v-tooltip text="Edit Expense" location="top">
-          <template v-slot:activator="{ props }">
-            <v-icon class="er-action" :disabled="isReadOnly" v-bind="props" @click="openEditDialog"
-              >mdi-pencil</v-icon
-            >
-          </template>
-        </v-tooltip>
-        <v-tooltip text="Delete Expense" location="top">
-          <template v-slot:activator="{ props }">
-            <v-icon
-              class="er-action er-action--danger"
-              :disabled="isReadOnly"
-              v-bind="props"
-              @click="confirmDeletion"
-              >mdi-trash-can</v-icon
-            >
-          </template>
-        </v-tooltip>
+        <template v-if="!isReadOnly">
+          <v-tooltip text="Edit Expense" location="top">
+            <template v-slot:activator="{ props }">
+              <v-icon class="er-action" v-bind="props" @click="openEditDialog"
+                >mdi-pencil</v-icon
+              >
+            </template>
+          </v-tooltip>
+          <v-tooltip text="Delete Expense" location="top">
+            <template v-slot:activator="{ props }">
+              <v-icon
+                class="er-action er-action--danger"
+                v-bind="props"
+                @click="confirmDeletion"
+                >mdi-trash-can</v-icon
+              >
+            </template>
+          </v-tooltip>
+        </template>
         <v-tooltip :text="expanded ? 'Collapse' : 'Show attached documents & shared users'" location="top">
           <template v-slot:activator="{ props }">
             <v-icon class="er-action er-chevron" :class="{ 'er-chevron--open': expanded }" v-bind="props" @click="toggleExpand"
