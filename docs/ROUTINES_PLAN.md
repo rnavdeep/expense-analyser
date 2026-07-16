@@ -66,6 +66,61 @@ POST /Expense/{id}/addUser?userId=  (existing endpoint; after B7 rejects non-fri
      have no accepted FriendRequest row between them.
 ```
 
+## Line-item assignment (phases F8–F10 / backend B8–B10)
+
+Feature: on the Document Results page, each OCR'd line item gets an "Assigned to" chip
+(avatar-stack + name(s)) that opens a checklist of the current user's friends to multi-select
+who that item is split between. The Expenses/Shared-Expenses row's "Shared with" section then
+displays per-person totals *derived* from those assignments — no separate manual add/edit-share
+step remains once an expense has at least one scanned line item. Design reference:
+`docs/Line Item User Assignment (standalone).html` — a compressed dc-runtime wireframe bundle;
+the real markup is JSON-encoded inside a `<script type="__bundler/template">` tag, extract and
+`json.loads()` it to view (do not try to read the file directly, it's 400KB+ of mostly base64
+font/bundler data). Confirmed product rules (mirror the backend plan verbatim):
+
+- Every line item always has ≥1 assignee; unchecking the sole remaining assignee must be
+  blocked client-side (disable the checkbox, matching the server's 400).
+- Split is even per line item only — no custom %/amount UI.
+- Only friends are assignable (source: `friendsStore.getDropdownUsers()`, already used by
+  `ExpenseRow.vue`/`AssignUsers.vue`).
+- "Assign all items to X" is additive only.
+- Expenses with no line items keep the existing manual add/remove/edit-shares flow in
+  `ExpenseRow.vue` completely unchanged — the new UI is conditional on the expense having ≥1
+  line item (signalled by `totalItemsCount != null` on its assigned users, see contract below).
+
+New API contracts (fixed — must match the ExpenseApi plan verbatim):
+
+```
+GET  /Expense/{expenseId}/doc/{docId}          (existing; response gains `lineItems`)
+  → existing response shape, unchanged, plus:
+     lineItems: LineItemDto[]
+     LineItemDto { id: string, description: string | null, quantity: string | null,
+                   amount: number | null, sortOrder: number, assignees: LineItemAssigneeDto[] }
+     LineItemAssigneeDto = { userId: string, userName: string }
+
+PUT  /Expense/lineItem/{lineItemId}/assignees/{userId}
+  → 200 LineItemDto
+
+DELETE /Expense/lineItem/{lineItemId}/assignees/{userId}
+  → 200 LineItemDto
+     400 "Cannot remove the last remaining assignee from a line item." when this would leave
+         zero assignees
+
+PUT  /Expense/{expenseId}/lineItems/assignAll/{userId}
+  → 200 LineItemDto[]   (additive only — never removes existing assignees on any item)
+
+GET  /Expense/{id}/getAssignedUsers   (existing; ExpenseUserDto/UserAssignedDto gain two fields)
+  → UserAssignedDto[] { ...existing fields, itemsAssignedCount: number | null,
+                        totalItemsCount: number | null }
+     Both null when the expense has zero line items; otherwise itemsAssignedCount = how many of
+     the expense's line items this user is on, totalItemsCount = the expense's line item count.
+
+POST /Expense/{id}/addUser?userId=       (existing; after backend B9 all three reject with 400
+DELETE /Expense/{id}/removeUser/{userId}  "This expense's sharing is managed by line-item
+PUT  /Expense/{id}/updateShares           assignment — use the Document Results page instead."
+                                           once the target expense has any line item)
+```
+
 ## Codebase orientation (read these before coding)
 
 - Service pattern: `src/services/DashboardService.ts` — class with async PascalCase methods,
@@ -79,6 +134,13 @@ POST /Expense/{id}/addUser?userId=  (existing endpoint; after B7 rejects non-fri
   `vi.mock('@/services/...')`, Vuetify/chart/router-link stubs, `flushPromises()`.
 - Routing: `src/router/index.ts` — flat routes with `meta: { requiresLogin: true, title, description }`;
   nav items in the `navLinks` array in `src/components/Navbar.vue`.
+- Document Results page: `src/components/DocumentResultPage.vue` (route `/docResults`, no
+  params — expense/document chosen via in-page `v-select`s, then `expenseStore.GetDocResults`).
+  Line items today render via a fully dynamic Vuetify `v-data-table` off JSON parsed from the
+  response — no stable row id existed before phase F8/backend B8-B9 added one.
+  Avatar-initial convention: `.friend-avatar` CSS class in `FriendsList.vue`/`FriendsAdd.vue`
+  (`username.charAt(0).toUpperCase()` in a colored circle) — reuse this styling, there is no
+  shared component for it yet.
 
 ## Phase checklist
 
@@ -89,6 +151,9 @@ POST /Expense/{id}/addUser?userId=  (existing endpoint; after B7 rejects non-fri
 - [x] **F5 — Budget settings page (`/budgets`)**
 - [x] **F6 — Dashboard budget progress widget**
 - [x] **F7 — Friends list links to balance/expense history (`/balances/:userId`)**
+- [ ] **F8 — Line-item models, service, store additions**
+- [ ] **F9 — LineItemAssigneeChip component + wire into DocumentResultPage.vue**
+- [ ] **F10 — ExpenseRow.vue derived "shared with" display**
 
 ---
 
@@ -242,3 +307,99 @@ Tests: extend `src/components/__tests__/FriendsList.spec.ts` — asserts each re
 
 Acceptance: quality gates pass; no changes to `FriendsAdd.vue`, the friends store/service
 methods, or any other route.
+
+### F8 — Line-item models, service, store additions
+
+Create/modify (mirror F1's structure — models+service+store only, no components this phase):
+
+- `src/models/LineItemDto.ts` — `LineItemAssigneeDto { userId: string; userName: string }` and
+  `LineItemDto { id: string; description: string | null; quantity: string | null; amount: number | null; sortOrder: number; assignees: LineItemAssigneeDto[] }`
+  per the contract above.
+- `src/models/UserAssignedDto.ts` — add `itemsAssignedCount: number | null` and
+  `totalItemsCount: number | null` to the existing `UserAssignedDto` interface.
+- `src/services/ExpenseService.ts` — three new methods on the existing singleton class, same
+  `axios`/`withCredentials: true`/`API_URL` conventions and try/catch-rethrow style as
+  `AddUserToExpense`/`RemoveUserFromExpense`:
+  - `AssignUserToLineItem(lineItemId: string, userId: string): Promise<LineItemDto>` →
+    `PUT ${API_URL}/lineItem/${lineItemId}/assignees/${userId}`
+  - `RemoveUserFromLineItem(lineItemId: string, userId: string): Promise<LineItemDto>` →
+    `DELETE` same URL
+  - `AssignUserToAllLineItems(expenseId: string, userId: string): Promise<LineItemDto[]>` →
+    `PUT ${API_URL}/${expenseId}/lineItems/assignAll/${userId}`
+  `GetDocResults`'s signature stays `Promise<any>` (no change needed) — its response now simply
+  includes `lineItems` per the fixed contract.
+- `src/stores/Expense/index.ts` — new actions `AssignUserToLineItem`, `RemoveUserFromLineItem`,
+  `AssignUserToAllLineItems`, following the try/catch-rethrow pattern of the existing
+  `RemoveUserFromExpense`/`UpdateExpenseUserShares` actions (rethrow
+  `error instanceof Error ? error : new Error('...')`).
+
+Tests: check whether `src/services/__tests__/ExpenseService.spec.ts` and
+`src/stores/Expense/__tests__/index.spec.ts` already exist (search `src/services/__tests__` and
+`src/stores/Expense/__tests__`); create or extend them following `DashboardService.spec.ts`'s
+mocking pattern (`vi.mock('axios')`, assert URL/method/`withCredentials`, error paths) for the
+three new service methods and three new store actions.
+
+Acceptance: quality gates pass; no components changed in this phase.
+
+### F9 — LineItemAssigneeChip component + wire into DocumentResultPage.vue
+
+Create:
+- `src/components/LineItemAssigneeChip.vue` (component name `eaLineItemAssigneeChip`). Props:
+  `assignees: LineItemAssigneeDto[]`, `friends: UserDto[]`, `creatorUserId: string`,
+  `lineItemId: string`. Emits `toggle-assignee(userId: string, checked: boolean)` — the parent
+  owns the actual API call and state patch, this component is presentational only. Renders an
+  avatar-stack chip (reuse the `.friend-avatar` initials-circle CSS block from
+  `FriendsList.vue`/`FriendsAdd.vue`, duplicated locally since Vuetify SFC `scoped` styles aren't
+  shared across components) plus name text matching the wireframe: "You" for a single
+  self-assignee, "You + Priya" for two, "3 people" for three or more. Clicking opens a `v-menu`
+  with a checkbox per friend (plus the creator row) and a search `v-text-field` pinned at the
+  bottom (per the wireframe layout). Disable un-checking the sole remaining checked box
+  client-side (grey out + tooltip) to give instant feedback ahead of the server's 400.
+- Wire into `src/components/DocumentResultPage.vue`: parse the new `lineItems` array from the
+  (already-called) `GetDocResults` response alongside the existing `columnNames`/`resultLineItems`
+  parsing. Append a synthetic "Assigned to" column to the existing `v-data-table`, rendering
+  `LineItemAssigneeChip` per row keyed by the now-stable `item.id`. Load `friends` once on mount
+  via `friendsStore.getDropdownUsers()` (the same source `ExpenseRow.vue` already uses). On
+  `toggle-assignee`, call `expenseStore.AssignUserToLineItem`/`RemoveUserFromLineItem`, patch the
+  local `lineItems` array optimistically, and re-fetch `GetDocResults` on failure to resync. Add
+  a small "Assign all items to…" `v-menu` next to the existing search field, calling
+  `expenseStore.AssignUserToAllLineItems` and replacing `lineItems` with the response.
+
+Tests: `src/components/__tests__/LineItemAssigneeChip.spec.ts` — renders chip text for
+single/two/many assignees, checklist opens and toggling emits `toggle-assignee`, the sole
+remaining checkbox is disabled. Extend `src/components/__tests__/DocumentResultPage.spec.ts`
+(check the existing spec file's name/mocking pattern first) for the new column rendering, the
+toggle wiring to the store, and the bulk-assign menu.
+
+Acceptance: quality gates pass; existing dynamic column/table rendering for non-assignment data
+is unchanged.
+
+### F10 — ExpenseRow.vue derived "shared with" display
+
+Context: with F8/F9 landed, `ExpenseRow.vue`'s existing manual add-friend + edit-shares UI needs
+to give way to a read-only, line-item-derived display once an expense has line items, while
+continuing to work completely unmodified for expenses that have none.
+
+- Treat `totalItemsCount != null` on a loaded `UserAssignedDto` entry as the signal that this
+  expense's sharing is line-item-derived (mirrors the backend: both new fields are null only
+  when the expense has zero line items). Add a small computed, e.g. `hasLineItemAssignments`,
+  based on this.
+- Gate the existing "Add a friend" `v-select` block and the entire
+  `editingShares`/`startEditShares`/`cancelEditShares`/`saveShares` UI (including the per-user
+  delete icon) behind `!hasLineItemAssignments` — none of that renders for a line-item-derived
+  expense.
+- For the line-item-derived case, render each assigned user's row as: avatar (`.friend-avatar`
+  initials pattern), name, the existing "You" badge logic (unchanged), a caption
+  "on {itemsAssignedCount} of {totalItemsCount} items", and the dollar amount read directly from
+  `user.userAmount` (no longer client-recomputed via `expense.amount * user.userShare` — that
+  distrust-and-recompute path, and its explanatory comment, remains only for the manual
+  non-line-item branch, since it's now server-recomputed on every assignment change). Add a
+  small hint/link ("Manage sharing on the Document Results page") in place of the removed delete
+  icon.
+
+Tests: extend `src/components/__tests__/ExpenseRow.spec.ts` — new cases for the derived display
+(renders N-of-M + amount, hides the manual add/edit UI and per-user delete icon) alongside the
+existing manual-flow cases, which must keep passing unmodified for a `UserAssignedDto` with
+`totalItemsCount: null`.
+
+Acceptance: quality gates pass; manual flow entirely unchanged for expenses without line items.
