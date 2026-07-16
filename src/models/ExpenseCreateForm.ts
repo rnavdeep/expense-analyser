@@ -27,6 +27,7 @@ export class ExpenseListDataDto {
   createdAt: string
   allowReceipts: boolean
   scannedReceiptsTotal: number
+  sharedByUsername?: string
 
   constructor(
     id: string,
@@ -35,7 +36,8 @@ export class ExpenseListDataDto {
     amount: number,
     createdAt: string,
     allowReceipts: boolean = true,
-    scannedReceiptsTotal: number = 0
+    scannedReceiptsTotal: number = 0,
+    sharedByUsername?: string
   ) {
     this.id = id
     this.title = title
@@ -44,6 +46,7 @@ export class ExpenseListDataDto {
     this.createdAt = createdAt
     this.allowReceipts = allowReceipts
     this.scannedReceiptsTotal = scannedReceiptsTotal
+    this.sharedByUsername = sharedByUsername
   }
 }
 export class UpdateExpenseDto {
