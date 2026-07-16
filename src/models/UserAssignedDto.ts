@@ -4,4 +4,6 @@ export interface UserAssignedDto {
   userName: string
   userShare: number
   userAmount: number | null
+  itemsAssignedCount: number | null
+  totalItemsCount: number | null
 }

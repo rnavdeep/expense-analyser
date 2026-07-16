@@ -1,6 +1,7 @@
 import type { DocumentDialogDto } from '@/models/DocumentDialogDto'
 import type { ExpenseListDataDto, UpdateExpenseDto } from '@/models/ExpenseCreateForm'
 import type { FilterBy } from '@/models/FilterBy'
+import type { LineItemDto } from '@/models/LineItemDto'
 import type { Pagination } from '@/models/Pagination'
 import type { SortFilter } from '@/models/SortFilter'
 import axios from 'axios'
@@ -341,6 +342,66 @@ class ExpenseService {
           throw new Error(error.response?.status.toString())
         }
         throw new Error(error.response?.data?.message || 'Failed to fetch expenses')
+      }
+      throw new Error('An unexpected error occurred')
+    }
+  }
+
+  /**
+   * Assigns a user to a line item.
+   * @param lineItemId The ID of the line item (string).
+   * @param userId The ID of the user to assign (string).
+   * @returns The updated LineItemDto.
+   */
+  async AssignUserToLineItem(lineItemId: string, userId: string): Promise<LineItemDto> {
+    try {
+      const response = await axios.put(`${API_URL}/lineItem/${lineItemId}/assignees/${userId}`, null, {
+        withCredentials: true
+      })
+      return response.data
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to assign user to line item')
+      }
+      throw new Error('An unexpected error occurred')
+    }
+  }
+
+  /**
+   * Removes a user from a line item.
+   * @param lineItemId The ID of the line item (string).
+   * @param userId The ID of the user to remove (string).
+   * @returns The updated LineItemDto.
+   */
+  async RemoveUserFromLineItem(lineItemId: string, userId: string): Promise<LineItemDto> {
+    try {
+      const response = await axios.delete(`${API_URL}/lineItem/${lineItemId}/assignees/${userId}`, {
+        withCredentials: true
+      })
+      return response.data
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to remove user from line item')
+      }
+      throw new Error('An unexpected error occurred')
+    }
+  }
+
+  /**
+   * Assigns a user to every line item of an expense (additive only).
+   * @param expenseId The ID of the expense (string).
+   * @param userId The ID of the user to assign (string).
+   * @returns The updated list of LineItemDto for the expense.
+   */
+  async AssignUserToAllLineItems(expenseId: string, userId: string): Promise<LineItemDto[]> {
+    try {
+      const response = await axios.put(`${API_URL}/${expenseId}/lineItems/assignAll/${userId}`, null, {
+        withCredentials: true
+      })
+      return response.data
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to assign user to line items')
       }
       throw new Error('An unexpected error occurred')
     }
