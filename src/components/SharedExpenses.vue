@@ -62,27 +62,70 @@
       </div>
     </div>
 
-    <!-- Grid -->
+    <!-- List -->
     <template v-else>
-      <div class="expense-grid">
-        <eaExpenseCard
+      <div class="expense-columns">
+        <div></div>
+        <div>Description</div>
+        <div>Date</div>
+        <div class="col-amount">Amount</div>
+        <div class="col-actions">Actions</div>
+      </div>
+      <div class="expense-rows">
+        <eaExpenseRow
           v-for="(expense, index) in expenses"
           :key="expense.id"
           :expense="expense"
           :index="index"
           :isReadOnly="true"
-          @edit="editExpense"
-          @delete="deleteExpense(expense)"
         />
       </div>
 
-      <div class="pagination-row">
-        <v-pagination
-          v-model="currentPage"
-          @update:model-value="onPageChange"
-          :length="200"
-          :show-first-last-page="true"
-        />
+      <div v-if="totalPages > 1" class="pagination-row">
+        <span class="pg-info">{{ pageRangeLabel }}</span>
+        <div class="pg-controls">
+          <button
+            type="button"
+            class="pg-btn"
+            :disabled="currentPage === 1"
+            aria-label="Previous page"
+            @click="goToPage(currentPage - 1)"
+          >
+            <v-icon size="16">mdi-chevron-left</v-icon>
+          </button>
+
+          <button v-if="pageWindow[0] > 1" type="button" class="pg-btn" @click="goToPage(1)">1</button>
+          <span v-if="pageWindow[0] > 2" class="pg-ellipsis">…</span>
+
+          <button
+            v-for="p in pageWindow"
+            :key="p"
+            type="button"
+            class="pg-btn"
+            :class="{ 'pg-btn--active': p === currentPage }"
+            @click="goToPage(p)"
+            >{{ p }}</button
+          >
+
+          <span v-if="pageWindow[pageWindow.length - 1] < totalPages - 1" class="pg-ellipsis">…</span>
+          <button
+            v-if="pageWindow[pageWindow.length - 1] < totalPages"
+            type="button"
+            class="pg-btn"
+            @click="goToPage(totalPages)"
+            >{{ totalPages }}</button
+          >
+
+          <button
+            type="button"
+            class="pg-btn"
+            :disabled="currentPage === totalPages || isLastPage"
+            aria-label="Next page"
+            @click="goToPage(currentPage + 1)"
+          >
+            <v-icon size="16">mdi-chevron-right</v-icon>
+          </button>
+        </div>
       </div>
     </template>
   </div>
@@ -90,7 +133,7 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, computed, ref } from 'vue'
-import eaExpenseCard from './ExpenseCard.vue'
+import eaExpenseRow from './ExpenseRow.vue'
 import { useExpenseStore } from '../stores/Expense'
 import { Pagination } from '../models/Pagination'
 import { SortFilter } from '../models/SortFilter'
@@ -98,7 +141,7 @@ import { FilterBy } from '../models/FilterBy'
 
 export default defineComponent({
   name: 'eaSharedExpenses',
-  components: { eaExpenseCard },
+  components: { eaExpenseRow },
   setup() {
     const expenseStore = useExpenseStore()
 
@@ -106,6 +149,27 @@ export default defineComponent({
     const expenses = computed(() => expenseStore.expenses)
     const currentPage = ref(1)
     const itemsPerPage = ref(9)
+    const totalExpenses = computed(() => expenseStore.totalExpenses ?? 0)
+    const totalPages = computed(() => Math.max(1, Math.ceil(totalExpenses.value / itemsPerPage.value)))
+    // Windowed page numbers around the current page, e.g. [3, 4, 5] of 10 —
+    // first/last and ellipses are added around this in the template.
+    const pageWindow = computed(() => {
+      const delta = 2
+      const start = Math.max(1, currentPage.value - delta)
+      const end = Math.min(totalPages.value, currentPage.value + delta)
+      const pages: number[] = []
+      for (let p = start; p <= end; p++) pages.push(p)
+      return pages
+    })
+    const pageRangeLabel = computed(() => {
+      if (totalExpenses.value === 0) return 'No shared expenses'
+      const start = (currentPage.value - 1) * itemsPerPage.value + 1
+      const end = start + expenses.value.length - 1
+      return `Showing ${start}–${end} of ${totalExpenses.value}`
+    })
+    // The reported total can lag reality (deletions elsewhere, stale count) —
+    // a page that came back short of a full page is trusted over totalPages.
+    const isLastPage = computed(() => expenses.value.length < itemsPerPage.value)
     const searchFields = ['Title', 'Description', 'Amount']
     const sortFields = ['Title', 'Description', 'Amount', 'CreatedAt']
     const isSearchEnabled = ref(false)
@@ -125,17 +189,33 @@ export default defineComponent({
 
     // Function to fetch expenses
     const fetchExpenses = async (searchFilter: FilterBy | null, sortFilter: SortFilter | null) => {
-      await expenseStore.GetSharedExpenses(
-        new Pagination(currentPage.value, itemsPerPage.value),
-        sortFilter,
-        searchFilter
-      )
+      try {
+        await expenseStore.GetSharedExpenses(
+          new Pagination(currentPage.value, itemsPerPage.value),
+          sortFilter,
+          searchFilter
+        )
+      } catch (error) {
+        // A page beyond the last one 404s — step back and retry rather than
+        // leaving the view stuck on an empty page with no way back.
+        if (error == 'Error: 404' && currentPage.value > 1) {
+          currentPage.value -= 1
+          await fetchExpenses(searchFilter, sortFilter)
+        } else {
+          throw error
+        }
+      }
     }
 
     // Pagination logic
     const onPageChange = async (page: number) => {
       currentPage.value = page
       await fetchExpenses(await buildSearchFilter(), await buildSortFilter())
+    }
+    const goToPage = async (page: number) => {
+      if (page < 1 || page > totalPages.value || page === currentPage.value) return
+      if (page > currentPage.value && isLastPage.value) return
+      await onPageChange(page)
     }
     const resetList = async () => {
       currentPage.value = 1
@@ -144,26 +224,6 @@ export default defineComponent({
       searchValue.value = null
       sortOrder.value = null
       await fetchExpenses(await buildSearchFilter(), await buildSortFilter())
-    }
-    // Edit expense handler
-    const editExpense = (index: number) => {
-      console.log(`Edit expense at index: ${index}`)
-      const expense = expenses.value[index]
-    }
-
-    // Delete expense handler
-    const deleteExpense = async (expense: any) => {
-      console.log(`Delete expense: ${expense.title}`)
-      try {
-        await expenseStore.DeleteExpense(expense)
-        await fetchExpenses(await buildSearchFilter(), await buildSortFilter())
-      } catch (error) {
-        if (error == 'Error: 404' && currentPage.value > 1) {
-          currentPage.value -= 1
-          await fetchExpenses(await buildSearchFilter(), await buildSortFilter())
-        }
-        console.error('Error deleting expense:', error)
-      }
     }
 
     //open search box
@@ -209,9 +269,11 @@ export default defineComponent({
     return {
       expenses,
       currentPage,
-      onPageChange,
-      editExpense,
-      deleteExpense,
+      totalPages,
+      pageWindow,
+      pageRangeLabel,
+      isLastPage,
+      goToPage,
       isLoading,
       itemsPerPage,
       resetList,
@@ -255,10 +317,27 @@ export default defineComponent({
   flex: 0 0 120px;
 }
 
-.expense-grid {
+.expense-columns {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
+  grid-template-columns: 36px 2.2fr 1fr 1fr 132px;
+  gap: 14px;
+  padding: 0 16px 8px;
+  font-family: var(--ea-display);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ea-muted);
+  border-bottom: 1.5px solid var(--ea-border);
+  margin-bottom: 10px;
+}
+
+.expense-columns .col-amount {
+  text-align: right;
+}
+
+.expense-columns .col-actions {
+  text-align: right;
 }
 
 .state-block {
@@ -310,7 +389,78 @@ export default defineComponent({
 
 .pagination-row {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1.5px solid var(--ea-border);
+}
+
+.pg-info {
+  font-family: var(--ea-mono);
+  font-size: 13px;
+  color: var(--ea-muted);
+}
+
+.pg-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pg-btn {
+  min-width: 30px;
+  height: 30px;
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  margin-top: 36px;
+  font-family: var(--ea-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ea-ink);
+  background: transparent;
+  border: 1.5px solid var(--ea-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.pg-btn:hover:not(:disabled) {
+  border-color: var(--ea-emerald);
+  color: var(--ea-emerald);
+}
+
+.pg-btn:disabled {
+  color: var(--ea-border);
+  cursor: default;
+}
+
+.pg-btn--active {
+  background: var(--ea-ink);
+  border-color: var(--ea-ink);
+  color: #fff;
+}
+
+.pg-btn--active:hover {
+  color: #fff;
+}
+
+.pg-ellipsis {
+  color: var(--ea-muted);
+  padding: 0 2px;
+}
+
+@media (max-width: 720px) {
+  .expense-columns {
+    display: none;
+  }
+
+  .pagination-row {
+    justify-content: center;
+    text-align: center;
+  }
 }
 </style>

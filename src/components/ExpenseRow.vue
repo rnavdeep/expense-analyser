@@ -73,19 +73,25 @@
             </div>
             <div class="er-doc-actions">
               <v-btn
-                v-if="canProcess(doc)"
+                v-if="!isReadOnly && canProcess(doc)"
                 size="small"
                 color="primary"
-                :disabled="isReadOnly"
                 @click="openConfirmProcessDialog(doc)"
                 >Process</v-btn
               >
-              <v-btn v-else size="small" variant="outlined" :href="doc.url" target="_blank">Download</v-btn>
-              <v-tooltip :text="`Delete ${doc.name}`" location="top">
+              <v-btn
+                v-else
+                size="small"
+                variant="outlined"
+                :disabled="canProcess(doc)"
+                :href="canProcess(doc) ? undefined : doc.url"
+                target="_blank"
+                >Download</v-btn
+              >
+              <v-tooltip v-if="!isReadOnly" :text="`Delete ${doc.name}`" location="top">
                 <template v-slot:activator="{ props }">
                   <v-icon
                     class="er-action er-action--danger"
-                    :disabled="isReadOnly"
                     v-bind="props"
                     @click="deleteFile(doc.id)"
                     >mdi-trash-can</v-icon
@@ -96,9 +102,9 @@
           </div>
 
           <label
-            v-if="expense.allowReceipts"
+            v-if="expense.allowReceipts && !isReadOnly"
             class="er-attach-slot"
-            :class="{ 'er-attach-slot--disabled': isReadOnly || isAttaching }"
+            :class="{ 'er-attach-slot--disabled': isAttaching }"
           >
             <v-icon size="18">mdi-plus</v-icon>
             {{ isAttaching ? 'Uploading…' : 'Attach another document' }}
@@ -113,7 +119,7 @@
         </div>
       </section>
 
-      <section class="er-panel-section">
+      <section v-if="!isReadOnly" class="er-panel-section">
         <div class="er-panel-head">
           <h4 class="er-panel-title">Shared with</h4>
           <v-btn
@@ -414,7 +420,7 @@ export default defineComponent({
       expanded.value = !expanded.value
       if (expanded.value) {
         if (!documentsLoaded.value) loadDocuments()
-        if (!sharedLoaded.value) loadShared()
+        if (!props.isReadOnly && !sharedLoaded.value) loadShared()
       }
     }
 

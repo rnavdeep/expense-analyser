@@ -5,8 +5,8 @@ import SharedExpenses from '../SharedExpenses.vue'
 const expenseStoreMock = vi.hoisted(() => ({
   isPageLoading: false,
   expenses: [],
-  GetSharedExpenses: vi.fn().mockResolvedValue(undefined),
-  DeleteExpense: vi.fn().mockResolvedValue(true)
+  totalExpenses: 0,
+  GetSharedExpenses: vi.fn().mockResolvedValue(undefined)
 }))
 
 vi.mock('@/stores/Expense', () => ({ useExpenseStore: () => expenseStoreMock }))

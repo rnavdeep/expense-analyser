@@ -68,7 +68,7 @@ const router = createRouter({
       component: SharedExpensesView,
       meta: {
         requiresLogin: true,
-        title: 'Shared Expenses',
+        title: 'Shared With Me',
         description: 'Shared Expenses Listing'
       }
     },
