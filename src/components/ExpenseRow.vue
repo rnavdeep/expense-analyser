@@ -17,6 +17,9 @@
       <div class="er-desc">
         <div class="er-title">{{ expense.title }}</div>
         <p class="er-sub">{{ expense.description }}</p>
+        <p v-if="isReadOnly && expense.sharedByUsername" class="er-shared-by">
+          Shared by {{ expense.sharedByUsername }}
+        </p>
       </div>
 
       <div class="er-date">{{ expense.createdAt }}</div>
@@ -675,6 +678,16 @@ export default defineComponent({
   text-overflow: ellipsis;
   white-space: nowrap;
   margin-top: 2px;
+}
+
+.er-shared-by {
+  font-size: 12px;
+  color: var(--ea-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 2px;
+  font-style: italic;
 }
 
 .er-date {
