@@ -10,6 +10,7 @@ import type { Pagination } from '@/models/Pagination'
 import type { SortFilter } from '@/models/SortFilter'
 import type { FilterBy } from '@/models/FilterBy'
 import type { UserAssignedDto } from '@/models/UserAssignedDto'
+import type { LineItemDto } from '@/models/LineItemDto'
 
 // Define the interface for NewExpense
 interface NewExpense {
@@ -269,6 +270,27 @@ export const useExpenseStore = defineStore('Expense', {
         return await ExpenseService.UpdateExpenseUserShares(expenseId, shares)
       } catch (error) {
         throw error instanceof Error ? error : new Error('Failed to update user shares')
+      }
+    },
+    async AssignUserToLineItem(lineItemId: string, userId: string): Promise<LineItemDto> {
+      try {
+        return await ExpenseService.AssignUserToLineItem(lineItemId, userId)
+      } catch (error) {
+        throw error instanceof Error ? error : new Error('Failed to assign user to line item')
+      }
+    },
+    async RemoveUserFromLineItem(lineItemId: string, userId: string): Promise<LineItemDto> {
+      try {
+        return await ExpenseService.RemoveUserFromLineItem(lineItemId, userId)
+      } catch (error) {
+        throw error instanceof Error ? error : new Error('Failed to remove user from line item')
+      }
+    },
+    async AssignUserToAllLineItems(expenseId: string, userId: string): Promise<LineItemDto[]> {
+      try {
+        return await ExpenseService.AssignUserToAllLineItems(expenseId, userId)
+      } catch (error) {
+        throw error instanceof Error ? error : new Error('Failed to assign user to line items')
       }
     }
   },
