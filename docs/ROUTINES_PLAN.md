@@ -152,7 +152,7 @@ PUT  /Expense/{id}/updateShares           assignment — use the Document Result
 - [x] **F6 — Dashboard budget progress widget**
 - [x] **F7 — Friends list links to balance/expense history (`/balances/:userId`)**
 - [x] **F8 — Line-item models, service, store additions**
-- [ ] **F9 — LineItemAssigneeChip component + wire into DocumentResultPage.vue**
+- [x] **F9 — LineItemAssigneeChip component + wire into DocumentResultPage.vue**
 - [ ] **F10 — ExpenseRow.vue derived "shared with" display**
 
 ---
