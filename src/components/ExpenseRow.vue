@@ -127,7 +127,7 @@
         <div class="er-panel-head">
           <h4 class="er-panel-title">Shared with</h4>
           <v-btn
-            v-if="sharedLoaded && usersExpense.length > 1"
+            v-if="!hasLineItemAssignments && sharedLoaded && usersExpense.length > 1"
             size="small"
             variant="text"
             color="secondary"
@@ -138,7 +138,7 @@
           </v-btn>
         </div>
 
-        <div v-if="sharedLoaded && !editingShares" class="er-add-user">
+        <div v-if="!hasLineItemAssignments && sharedLoaded && !editingShares" class="er-add-user">
           <v-select
             v-model="selectedUserId"
             :items="availableUsersToAdd"
@@ -172,40 +172,50 @@
         <p v-else-if="usersExpense.length === 0" class="er-panel-empty">Not shared with anyone.</p>
         <div v-else class="er-user-list">
           <div v-for="user in usersExpense" :key="user.userId" class="er-user">
-            <v-icon size="18" color="secondary">mdi-account-circle-outline</v-icon>
-            <span class="er-user-name"
-              >{{ user.userName }}<span v-if="isCurrentUser(user)" class="er-user-you">You</span></span
-            >
-            <template v-if="editingShares">
-              <v-text-field
-                v-model.number="editShares[user.userId]"
-                type="number"
-                density="compact"
-                variant="outlined"
-                hide-details
-                suffix="%"
-                class="er-share-input"
-              ></v-text-field>
+            <template v-if="hasLineItemAssignments">
+              <div class="friend-avatar er-user-avatar">{{ (user.userName || '?').charAt(0).toUpperCase() }}</div>
+              <span class="er-user-name"
+                >{{ user.userName }}<span v-if="isCurrentUser(user)" class="er-user-you">You</span></span
+              >
+              <span class="er-user-progress">on {{ user.itemsAssignedCount }} of {{ user.totalItemsCount }} items</span>
+              <span class="er-user-amount amount">${{ user.userAmount }}</span>
             </template>
             <template v-else>
-              <span class="er-user-share">{{ user.userShare * 100 }}%</span>
-              <span class="er-user-amount amount">${{ shareAmount(user) }}</span>
-            </template>
-            <v-tooltip
-              v-if="!editingShares"
-              :text="isCurrentUser(user) ? `You can't remove yourself` : `Remove ${user.userName}`"
-              location="top"
-            >
-              <template v-slot:activator="{ props }">
-                <v-icon
-                  class="er-action er-action--danger"
-                  :disabled="isReadOnly || isCurrentUser(user)"
-                  v-bind="props"
-                  @click="deleteUser(user.userId)"
-                  >mdi-close</v-icon
-                >
+              <v-icon size="18" color="secondary">mdi-account-circle-outline</v-icon>
+              <span class="er-user-name"
+                >{{ user.userName }}<span v-if="isCurrentUser(user)" class="er-user-you">You</span></span
+              >
+              <template v-if="editingShares">
+                <v-text-field
+                  v-model.number="editShares[user.userId]"
+                  type="number"
+                  density="compact"
+                  variant="outlined"
+                  hide-details
+                  suffix="%"
+                  class="er-share-input"
+                ></v-text-field>
               </template>
-            </v-tooltip>
+              <template v-else>
+                <span class="er-user-share">{{ user.userShare * 100 }}%</span>
+                <span class="er-user-amount amount">${{ shareAmount(user) }}</span>
+              </template>
+              <v-tooltip
+                v-if="!editingShares"
+                :text="isCurrentUser(user) ? `You can't remove yourself` : `Remove ${user.userName}`"
+                location="top"
+              >
+                <template v-slot:activator="{ props }">
+                  <v-icon
+                    class="er-action er-action--danger"
+                    :disabled="isReadOnly || isCurrentUser(user)"
+                    v-bind="props"
+                    @click="deleteUser(user.userId)"
+                    >mdi-close</v-icon
+                  >
+                </template>
+              </v-tooltip>
+            </template>
           </div>
 
           <div v-if="editingShares" class="er-share-footer">
@@ -221,6 +231,10 @@
               >Save</v-btn
             >
           </div>
+
+          <router-link v-if="hasLineItemAssignments" to="/docResults" class="er-manage-sharing-hint">
+            Manage sharing on the Document Results page
+          </router-link>
         </div>
       </section>
     </div>
@@ -357,6 +371,13 @@ export default defineComponent({
     const editingShares = ref(false)
     const editShares = ref<Record<string, number>>({})
     const isSavingShares = ref(false)
+
+    // Both new UserAssignedDto fields are null only when the expense has zero
+    // line items (mirrors the backend) — presence of either signals that
+    // sharing is now derived from line-item assignments, not manually edited.
+    const hasLineItemAssignments = computed(() =>
+      usersExpense.value.some((user) => user.totalItemsCount != null)
+    )
 
     const sharesTotal = computed(() =>
       Math.round(
@@ -579,6 +600,7 @@ export default defineComponent({
       documents,
       sharedLoaded,
       usersExpense,
+      hasLineItemAssignments,
       availableUsersToAdd,
       selectedUserId,
       isAssigningUser,
@@ -927,6 +949,26 @@ export default defineComponent({
 .er-user-amount {
   font-size: 13px;
   color: var(--ea-ink);
+}
+
+.er-user-avatar {
+  width: 24px;
+  height: 24px;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.er-user-progress {
+  font-size: 12px;
+  color: var(--ea-muted);
+  white-space: nowrap;
+}
+
+.er-manage-sharing-hint {
+  font-size: 12px;
+  color: var(--ea-muted);
+  text-decoration: underline;
+  margin-top: 2px;
 }
 
 @media (max-width: 720px) {

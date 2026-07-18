@@ -341,4 +341,64 @@ describe('ExpenseRow.vue', () => {
 
     expect(wrapper.find('.er-attach-slot').exists()).toBe(false)
   })
+
+  it('renders the line-item-derived display and hides the manual add/edit UI for a line-item expense', async () => {
+    expenseStoreMock.GetAssignedUsersDto.mockResolvedValue([
+      {
+        expenseId: 'e1',
+        userId: 'u1',
+        userName: 'alex',
+        userShare: 0.5,
+        userAmount: 6,
+        itemsAssignedCount: 2,
+        totalItemsCount: 3
+      },
+      {
+        expenseId: 'e1',
+        userId: 'u2',
+        userName: 'sam',
+        userShare: 0.5,
+        userAmount: 4,
+        itemsAssignedCount: 1,
+        totalItemsCount: 3
+      }
+    ])
+    const wrapper = shallowMount(ExpenseRow, {
+      props: { expense: baseExpense, index: 0, isReadOnly: false }
+    })
+    const vm = wrapper.vm as any
+    vm.toggleExpand()
+    await flushPromises()
+
+    expect(vm.hasLineItemAssignments).toBe(true)
+    expect(wrapper.text()).toContain('on 2 of 3 items')
+    expect(wrapper.text()).toContain('on 1 of 3 items')
+    expect(wrapper.find('.er-user-amount').text()).toBe('$6')
+    expect(wrapper.text()).toContain('Manage sharing on the Document Results page')
+    expect(wrapper.find('.er-add-user').exists()).toBe(false)
+  })
+
+  it('keeps the manual add/edit-shares flow for an expense with no line items', async () => {
+    expenseStoreMock.GetAssignedUsersDto.mockResolvedValue([
+      {
+        expenseId: 'e1',
+        userId: 'u1',
+        userName: 'sam',
+        userShare: 0.5,
+        userAmount: 5,
+        itemsAssignedCount: null,
+        totalItemsCount: null
+      }
+    ])
+    const wrapper = shallowMount(ExpenseRow, {
+      props: { expense: baseExpense, index: 0, isReadOnly: false }
+    })
+    const vm = wrapper.vm as any
+    vm.toggleExpand()
+    await flushPromises()
+
+    expect(vm.hasLineItemAssignments).toBe(false)
+    expect(wrapper.find('.er-add-user').exists()).toBe(true)
+    expect(wrapper.text()).not.toContain('Manage sharing on the Document Results page')
+  })
 })
