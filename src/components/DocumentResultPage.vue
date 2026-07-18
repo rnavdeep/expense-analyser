@@ -90,22 +90,51 @@
     <div class="results-card">
       <div class="results-head">
         <h3 class="results-title">Line items</h3>
-        <v-text-field
-          v-model="search"
-          placeholder="Search items…"
-          prepend-inner-icon="mdi-magnify"
-          hide-details
-          density="comfortable"
-          class="results-search"
-        ></v-text-field>
+        <div class="results-head-actions">
+          <v-text-field
+            v-model="search"
+            placeholder="Search items…"
+            prepend-inner-icon="mdi-magnify"
+            hide-details
+            density="comfortable"
+            class="results-search"
+          ></v-text-field>
+
+          <v-menu v-if="lineItems.length" :close-on-content-click="true">
+            <template v-slot:activator="{ props: menuProps }">
+              <v-btn v-bind="menuProps" variant="outlined" size="small" class="assign-all-btn">
+                Assign all items to…
+              </v-btn>
+            </template>
+            <v-list density="compact">
+              <v-list-item
+                v-for="row in assignAllTargets"
+                :key="row.userId"
+                :title="row.userName"
+                @click="assignAllTo(row.userId)"
+              ></v-list-item>
+            </v-list>
+          </v-menu>
+        </div>
       </div>
 
       <v-data-table
-        :headers="columns"
+        :headers="tableHeaders"
         :items="columnData"
         :search="search"
         class="results-table"
-      ></v-data-table>
+      >
+        <template v-if="lineItems.length" v-slot:[assignedToSlotName]="{ item }">
+          <eaLineItemAssigneeChip
+            v-if="lineItemFor(item.id)"
+            :assignees="lineItemFor(item.id)?.assignees ?? []"
+            :friends="friends"
+            :creator-user-id="creatorUserId"
+            :line-item-id="item.id"
+            @toggle-assignee="(userId, checked) => onToggleAssignee(item.id, userId, checked)"
+          ></eaLineItemAssigneeChip>
+        </template>
+      </v-data-table>
 
       <div class="loading" v-if="loading">
         <v-progress-circular
@@ -122,15 +151,23 @@
 <script lang="ts">
 import { computed, defineComponent, onMounted, ref, watch } from 'vue'
 import { useExpenseStore } from '../stores/Expense'
+import { useFriendsStore } from '../stores/Friends'
+import { useAuthStore } from '../stores/Auth'
 import type { DocumentDialogDto } from '../models/DocumentDialogDto'
 import { ExpenseListDataDto, UpdateExpenseDto } from '../models/ExpenseCreateForm'
+import type { LineItemDto } from '../models/LineItemDto'
+import type { UserDto } from '../models/UserDto'
 import ExpenseResults from '../models/ExpenseResults'
 import { roundToCents } from '../utils/money'
+import LineItemAssigneeChip from './LineItemAssigneeChip.vue'
 
 export default defineComponent({
   name: 'eaDocResultPage',
+  components: { eaLineItemAssigneeChip: LineItemAssigneeChip },
   setup() {
     const expenseStore = useExpenseStore()
+    const friendsStore = useFriendsStore()
+    const authStore = useAuthStore()
     const search = ''
     const columnData = ref<Array<any>>([])
     const expenseResults = ref<ExpenseResults | null>(null)
@@ -144,6 +181,48 @@ export default defineComponent({
     const isAddingToAmount = ref<boolean>(false)
     const addedToAmount = ref<boolean>(false)
     const addAmountError = ref<string>('')
+    const lineItems = ref<LineItemDto[]>([])
+    const friends = ref<UserDto[]>([])
+    // eslint-plugin-vue's vue/valid-v-slot flags a literal dotted slot name
+    // (v-slot:item.__assignedTo) as an unsupported modifier, so the v-data-table
+    // dynamic-item-slot name is passed through a dynamic [argument] instead.
+    const assignedToSlotName = 'item.__assignedTo'
+
+    const tableHeaders = computed(() =>
+      lineItems.value.length
+        ? [...columns.value, { title: 'Assigned to', key: '__assignedTo', sortable: false }]
+        : columns.value
+    )
+
+    // No creator/self userId is exposed anywhere on the client (AuthStore only
+    // tracks userName) — derive it by matching the logged-in userName against
+    // whichever line item already has the current user among its assignees.
+    const creatorUserId = computed(() => {
+      for (const item of lineItems.value) {
+        const self = item.assignees.find((a) => a.userName === authStore.userName)
+        if (self) return self.userId
+      }
+      return ''
+    })
+
+    const lineItemFor = (rowId: string): LineItemDto | undefined =>
+      lineItems.value.find((li) => li.id === rowId)
+
+    const assignAllTargets = computed(() => {
+      const rows = [{ userId: creatorUserId.value, userName: 'You' }]
+      for (const friend of friends.value) {
+        const friendUserId = String(friend.id)
+        if (friendUserId === creatorUserId.value) continue
+        rows.push({ userId: friendUserId, userName: friend.username })
+      }
+      return rows
+    })
+
+    const nameForUserId = (userId: string): string => {
+      if (userId === creatorUserId.value) return 'You'
+      const friend = friends.value.find((f) => String(f.id) === userId)
+      return friend?.username ?? ''
+    }
 
     // TOTAL comes back as a currency-ish string (e.g. "$12.34"); strip
     // everything but digits/./- before parsing so the Add button can show
@@ -174,6 +253,7 @@ export default defineComponent({
           columns.value = JSON.parse(result.columnNames)
           columnData.value = JSON.parse(result.resultLineItems)
           expenseResults.value = new ExpenseResults(JSON.parse(result.summaryFields))
+          lineItems.value = result.lineItems ?? []
           isSummaryAvailable.value = true
           addedToAmount.value = false
           addAmountError.value = ''
@@ -186,6 +266,33 @@ export default defineComponent({
     }
     const removeSummary = () => {
       isSummaryAvailable.value = false
+    }
+
+    const onToggleAssignee = async (lineItemId: string, userId: string, checked: boolean) => {
+      const target = lineItemFor(lineItemId)
+      if (!target) return
+      const previousAssignees = target.assignees
+      target.assignees = checked
+        ? [...previousAssignees, { userId, userName: nameForUserId(userId) }]
+        : previousAssignees.filter((a) => a.userId !== userId)
+      try {
+        target.assignees = checked
+          ? (await expenseStore.AssignUserToLineItem(lineItemId, userId)).assignees
+          : (await expenseStore.RemoveUserFromLineItem(lineItemId, userId)).assignees
+      } catch (error) {
+        console.error('Error updating line item assignment:', error)
+        target.assignees = previousAssignees
+        await getResults()
+      }
+    }
+
+    const assignAllTo = async (userId: string) => {
+      if (!selectedExpense.value) return
+      try {
+        lineItems.value = await expenseStore.AssignUserToAllLineItems(selectedExpense.value.id, userId)
+      } catch (error) {
+        console.error('Error assigning user to all line items:', error)
+      }
     }
 
     // The already-existing amount on the expense is preserved — the scanned
@@ -233,6 +340,11 @@ export default defineComponent({
 
     onMounted(async () => {
       await expenseStore.GetExpensesDropdown()
+      try {
+        friends.value = await friendsStore.getDropdownUsers()
+      } catch (error) {
+        console.error('Error loading friends:', error)
+      }
     })
 
     return {
@@ -243,6 +355,7 @@ export default defineComponent({
       getResults,
       loading,
       columns,
+      tableHeaders,
       search,
       columnData,
       expenseResults,
@@ -252,7 +365,15 @@ export default defineComponent({
       isAddingToAmount,
       addedToAmount,
       addAmountError,
-      addScannedTotalToExpense
+      addScannedTotalToExpense,
+      lineItems,
+      friends,
+      assignedToSlotName,
+      creatorUserId,
+      lineItemFor,
+      assignAllTargets,
+      onToggleAssignee,
+      assignAllTo
     }
   }
 })
@@ -398,8 +519,19 @@ export default defineComponent({
   color: var(--ea-ink);
 }
 
+.results-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .results-search {
   flex: 0 1 260px;
+}
+
+.assign-all-btn {
+  flex-shrink: 0;
 }
 
 .results-table {
