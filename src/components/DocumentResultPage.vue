@@ -118,6 +118,10 @@
         </div>
       </div>
 
+      <v-alert v-if="assignAllError" type="error" variant="tonal" density="compact" class="mb-3">
+        {{ assignAllError }}
+      </v-alert>
+
       <v-data-table
         :headers="tableHeaders"
         :items="columnData"
@@ -183,6 +187,7 @@ export default defineComponent({
     const addAmountError = ref<string>('')
     const lineItems = ref<LineItemDto[]>([])
     const friends = ref<UserDto[]>([])
+    const assignAllError = ref<string>('')
     // eslint-plugin-vue's vue/valid-v-slot flags a literal dotted slot name
     // (v-slot:item.__assignedTo) as an unsupported modifier, so the v-data-table
     // dynamic-item-slot name is passed through a dynamic [argument] instead.
@@ -254,6 +259,16 @@ export default defineComponent({
           columnData.value = JSON.parse(result.resultLineItems)
           expenseResults.value = new ExpenseResults(JSON.parse(result.summaryFields))
           lineItems.value = result.lineItems ?? []
+          // resultLineItems is arbitrary OCR column JSON with no id of its own —
+          // it has no field in common with LineItemDto. The two arrays come from
+          // the same extraction pass in the same order, so correlate rows to
+          // their LineItemDto positionally (by sortOrder) and stamp the id onto
+          // the row so lineItemFor(item.id) can look it up like any other field.
+          const rowLineItems = [...lineItems.value].sort((a, b) => a.sortOrder - b.sortOrder)
+          columnData.value.forEach((row, index) => {
+            const match = rowLineItems[index]
+            if (match) row.id = match.id
+          })
           isSummaryAvailable.value = true
           addedToAmount.value = false
           addAmountError.value = ''
@@ -288,10 +303,12 @@ export default defineComponent({
 
     const assignAllTo = async (userId: string) => {
       if (!selectedExpense.value) return
+      assignAllError.value = ''
       try {
         lineItems.value = await expenseStore.AssignUserToAllLineItems(selectedExpense.value.id, userId)
       } catch (error) {
         console.error('Error assigning user to all line items:', error)
+        assignAllError.value = error instanceof Error ? error.message : 'Failed to assign all items.'
       }
     }
 
@@ -373,7 +390,8 @@ export default defineComponent({
       lineItemFor,
       assignAllTargets,
       onToggleAssignee,
-      assignAllTo
+      assignAllTo,
+      assignAllError
     }
   }
 })

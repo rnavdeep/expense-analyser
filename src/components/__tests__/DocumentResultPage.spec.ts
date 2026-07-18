@@ -31,9 +31,12 @@ vi.mock('@/stores/Auth', () => ({ useAuthStore: () => authStoreMock }))
 // A factory (not a shared const) so each call gets its own object — the
 // component assigns `result.lineItems` by reference, and mutating one test's
 // optimistic-patch would otherwise leak into a second mocked response.
+// resultLineItems is arbitrary OCR column JSON — it never carries an id of
+// its own, so this deliberately omits one to match what the real backend
+// sends; the component must correlate rows to lineItems positionally.
 const makeLineItemResults = () => ({
   columnNames: '[{"title":"Name","key":"name"}]',
-  resultLineItems: '[{"id":"li1","name":"line1"}]',
+  resultLineItems: '[{"name":"line1"}]',
   summaryFields: '{"NAME":"Store"}',
   lineItems: [
     {
@@ -109,6 +112,29 @@ describe('DocumentResultPage.vue', () => {
     expect(vm.lineItemFor('li1').assignees).toEqual([{ userId: 'u-nav', userName: 'nav' }])
   })
 
+  it('correlates resultLineItems rows to lineItems by sortOrder even though the rows carry no id', async () => {
+    expenseStoreMock.GetDocResults.mockResolvedValue({
+      columnNames: '[{"title":"Name","key":"name"}]',
+      resultLineItems: '[{"name":"line-a"},{"name":"line-b"}]',
+      summaryFields: '{"NAME":"Store"}',
+      lineItems: [
+        // Deliberately returned out of extraction order to prove the match
+        // is keyed on sortOrder, not array position within lineItems.
+        { id: 'li-b', description: 'line-b', quantity: '1', amount: 5, sortOrder: 1, assignees: [] },
+        { id: 'li-a', description: 'line-a', quantity: '1', amount: 5, sortOrder: 0, assignees: [] }
+      ]
+    })
+    const wrapper = shallowMount(DocumentResultPage)
+    await flushPromises()
+    await selectExpenseAndDocument(wrapper)
+
+    const vm = wrapper.vm as any
+    expect(vm.columnData[0].id).toBe('li-a')
+    expect(vm.columnData[1].id).toBe('li-b')
+    expect(vm.lineItemFor(vm.columnData[0].id)?.description).toBe('line-a')
+    expect(vm.lineItemFor(vm.columnData[1].id)?.description).toBe('line-b')
+  })
+
   it('optimistically patches assignees and calls the store on toggle', async () => {
     expenseStoreMock.GetDocResults.mockResolvedValue(makeLineItemResults())
     expenseStoreMock.AssignUserToLineItem.mockResolvedValue({
@@ -173,5 +199,17 @@ describe('DocumentResultPage.vue', () => {
       { userId: 'u-nav', userName: 'nav' },
       { userId: '1', userName: 'priya' }
     ])
+  })
+
+  it('surfaces an error when the bulk-assign call fails', async () => {
+    expenseStoreMock.GetDocResults.mockResolvedValue(makeLineItemResults())
+    expenseStoreMock.AssignUserToAllLineItems.mockRejectedValue(new Error('Users must be friends.'))
+    const wrapper = shallowMount(DocumentResultPage)
+    await flushPromises()
+    await selectExpenseAndDocument(wrapper)
+
+    await (wrapper.vm as any).assignAllTo('1')
+
+    expect((wrapper.vm as any).assignAllError).toBe('Users must be friends.')
   })
 })
