@@ -370,7 +370,7 @@ export default defineComponent({
 }
 
 .budget-limit-field {
-  max-width: 140px;
+  max-width: 190px;
 }
 
 /* ── Add budget ── */
