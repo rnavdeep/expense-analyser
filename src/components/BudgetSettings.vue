@@ -16,12 +16,25 @@
     <template v-else>
       <section class="panel">
         <ul v-if="rows.length" class="budget-list">
-          <li v-for="row in rows" :key="row.category" class="budget-row">
-            <div class="budget-row-main">
-              <span class="budget-category">{{ row.category }}</span>
+          <li v-for="row in rows" :key="row.category" class="budget-row" :class="`status-${statusOf(row)}`">
+            <span class="budget-avatar" :style="{ background: categoryColor(row.category) }">{{
+              row.category.charAt(0).toUpperCase()
+            }}</span>
+            <div class="budget-row-body">
+              <div class="budget-row-main">
+                <span class="budget-category">{{ row.category }}</span>
+                <span class="budget-badge" :class="`badge-${statusOf(row)}`">{{ statusLabel(row) }}</span>
+              </div>
               <span class="budget-hint"
                 >{{ formatCurrency(row.spent) }} of {{ formatCurrency(row.monthlyLimit) }} spent</span
               >
+              <div class="budget-progress-track">
+                <div
+                  class="budget-progress-fill"
+                  :class="`fill-${statusOf(row)}`"
+                  :style="{ width: progressPct(row) + '%' }"
+                ></div>
+              </div>
             </div>
             <div class="budget-row-actions">
               <v-text-field
@@ -42,6 +55,12 @@
       <section class="panel">
         <h2 class="panel-title">Add budget</h2>
         <div class="add-budget-row">
+          <span
+            v-if="newCategory"
+            class="budget-avatar avatar-preview"
+            :style="{ background: categoryColor(newCategory) }"
+            >{{ newCategory.charAt(0).toUpperCase() }}</span
+          >
           <v-combobox
             v-model="newCategory"
             :items="categoryOptions"
@@ -58,6 +77,7 @@
             density="compact"
             hide-details
             class="budget-limit-field"
+            @keyup.enter="addBudget"
           ></v-text-field>
           <v-btn
             size="small"
@@ -68,6 +88,7 @@
             >Add budget</v-btn
           >
         </div>
+        <p v-if="addHint" class="add-budget-hint">{{ addHint }}</p>
       </section>
     </template>
   </div>
@@ -78,6 +99,7 @@ import { computed, defineComponent, onMounted, reactive, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useBudgetStore } from '../stores/Budget'
 import { useDashboardStore } from '../stores/Dashboard'
+import { CATEGORY_COLORS } from '../models/Dashboard'
 
 interface BudgetRow {
   category: string
@@ -119,6 +141,36 @@ export default defineComponent({
     const formatCurrency = (n: number) =>
       n.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
 
+    // Deterministic color per category name so a category always gets the same
+    // avatar color across renders (categories are free-text, so no id to key off).
+    const categoryColor = (name: string) => {
+      const hash = [...name].reduce((sum, ch) => sum + ch.charCodeAt(0), 0)
+      return CATEGORY_COLORS[hash % CATEGORY_COLORS.length]
+    }
+
+    const ratioOf = (row: BudgetRow) => (row.monthlyLimit > 0 ? row.spent / row.monthlyLimit : 0)
+
+    const statusOf = (row: BudgetRow): 'over' | 'warn' | 'ok' => {
+      const ratio = ratioOf(row)
+      if (ratio >= 1) return 'over'
+      if (ratio >= 0.8) return 'warn'
+      return 'ok'
+    }
+
+    const statusLabel = (row: BudgetRow) =>
+      ({ over: 'Over budget', warn: 'Near limit', ok: 'On track' })[statusOf(row)]
+
+    // Capped at 100 — the bar shows how full the budget is, not how far over.
+    const progressPct = (row: BudgetRow) => Math.min(ratioOf(row) * 100, 100)
+
+    const addHint = computed(() => {
+      if (canAdd.value) return ''
+      if (!newCategory.value && !newLimit.value) return ''
+      if (!newCategory.value) return 'Enter a category name to continue.'
+      if (!newLimit.value || newLimit.value <= 0) return 'Enter a monthly limit greater than $0.'
+      return ''
+    })
+
     const save = (row: BudgetRow) =>
       budgetStore.SaveBudget({ category: row.category, monthlyLimit: row.monthlyLimit })
 
@@ -142,6 +194,11 @@ export default defineComponent({
       newLimit,
       canAdd,
       formatCurrency,
+      categoryColor,
+      statusOf,
+      statusLabel,
+      progressPct,
+      addHint,
       save,
       addBudget
     }
@@ -210,19 +267,41 @@ export default defineComponent({
 .budget-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 12px 0;
+  gap: 12px;
+  padding: 10px 0;
   border-bottom: 1px solid var(--ea-border);
 }
 .budget-row:last-child {
   border-bottom: none;
 }
 
-.budget-row-main {
+/* ── Category avatar ── */
+.budget-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: #fff;
+  font-family: var(--ea-display);
+  font-weight: 600;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.budget-row-body {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
+}
+
+.budget-row-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .budget-category {
@@ -232,15 +311,60 @@ export default defineComponent({
   color: var(--ea-ink);
 }
 
+.budget-badge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.badge-ok {
+  color: var(--ea-emerald);
+  background: var(--ea-emerald-tint);
+}
+.badge-warn {
+  color: #d97706;
+  background: rgba(217, 119, 6, 0.12);
+}
+.badge-over {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.1);
+}
+
 .budget-hint {
   font-size: 12px;
   color: var(--ea-muted);
+}
+
+.budget-progress-track {
+  height: 5px;
+  border-radius: 999px;
+  background: var(--ea-border);
+  overflow: hidden;
+}
+
+.budget-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
+.fill-ok {
+  background: var(--ea-emerald);
+}
+.fill-warn {
+  background: #d97706;
+}
+.fill-over {
+  background: #dc2626;
 }
 
 .budget-row-actions {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
 }
 
 .budget-limit-field {
@@ -250,12 +374,22 @@ export default defineComponent({
 /* ── Add budget ── */
 .add-budget-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
 }
 
 .add-budget-category {
   flex: 1;
+}
+
+.avatar-preview {
+  flex-shrink: 0;
+}
+
+.add-budget-hint {
+  font-size: 12px;
+  color: var(--ea-muted);
+  margin: 10px 0 0;
 }
 
 /* ── Loading state ── */
