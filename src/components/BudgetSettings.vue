@@ -43,6 +43,7 @@
                 prefix="$"
                 density="compact"
                 hide-details
+                hide-spin-buttons
                 class="budget-limit-field"
               ></v-text-field>
               <v-btn size="small" color="secondary" :disabled="isSaving" @click="save(row)">Save</v-btn>
@@ -76,6 +77,7 @@
             label="Monthly limit"
             density="compact"
             hide-details
+            hide-spin-buttons
             class="budget-limit-field"
             @keyup.enter="addBudget"
           ></v-text-field>
