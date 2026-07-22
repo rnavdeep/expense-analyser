@@ -49,6 +49,15 @@
           class="mb-2"
         ></v-text-field>
 
+        <!-- Category Field: we don't auto-detect category yet, so let the user assign one -->
+        <v-combobox
+          v-model="formInput.category"
+          :items="categoryOptions"
+          label="Category (optional)"
+          :disabled="uploadSuccess"
+          class="mb-2"
+        ></v-combobox>
+
         <!-- Attach bills + assign users -->
         <div class="attach-row">
           <template v-if="formInput.allowReceipts">
@@ -111,10 +120,11 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref } from 'vue'
+import { computed, defineComponent, onMounted, ref } from 'vue'
 import { ExpenseDataDto, type ExpenseCreateForm } from '../models/ExpenseCreateForm'
 import { useExpenseStore } from '../stores/Expense'
 import { useDocumentStore } from '../stores/Document'
+import { useCategoryStore } from '../stores/Category'
 import eaUploadDocs from './DocumentUpload.vue'
 import eaAssignUsers from './AssignUsers.vue'
 import { roundToCents } from '../utils/money'
@@ -124,13 +134,20 @@ export default defineComponent({
   setup() {
     const expenseStore = useExpenseStore()
     const docStore = useDocumentStore()
+    const categoryStore = useCategoryStore()
     const formInput = ref<ExpenseCreateForm>({
       title: '',
       description: '',
       amount: 0,
+      category: '',
       allowReceipts: true,
       files: [] as File[]
     })
+
+    onMounted(() => categoryStore.LoadCategories())
+
+    // The dropdown lists categories already set up on the Categories page.
+    const categoryOptions = computed(() => categoryStore.categories.map((c) => c.name))
     expenseStore.expenseId = null
     docStore.documents = []
     expenseStore.uploadSuccess = false
@@ -163,7 +180,8 @@ export default defineComponent({
             formInput.value.title,
             formInput.value.description,
             roundToCents(formInput.value.amount),
-            formInput.value.allowReceipts
+            formInput.value.allowReceipts,
+            formInput.value.category || undefined
           )
           const resp = await expenseStore.createExpense(expenseFormDto)
           // Set the alert message based on the upload success
@@ -191,6 +209,7 @@ export default defineComponent({
         title: '',
         description: '',
         amount: 0,
+        category: '',
         allowReceipts: true,
         files: [] as File[]
       }
@@ -205,6 +224,7 @@ export default defineComponent({
 
     return {
       formInput,
+      categoryOptions,
       isFormValid,
       rules,
       submitForm,

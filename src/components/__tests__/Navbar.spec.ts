@@ -54,7 +54,7 @@ describe('Navbar.vue', () => {
     expect(vm.navLinks.map((l: any) => l.to)).toEqual([
       '/dashboard',
       '/myExpenses',
-      '/budgets',
+      '/categories',
       '/sharedExpenses',
       '/docResults',
       '/friends'

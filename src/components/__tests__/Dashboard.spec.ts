@@ -19,13 +19,13 @@ vi.mock('@/services/DashboardService', () => ({
 vi.mock('@/services/ExpenseService', () => ({
   default: { GetExpenses: vi.fn() }
 }))
-vi.mock('@/services/BudgetService', () => ({
-  default: { GetBudgets: vi.fn() }
+vi.mock('@/services/CategoryService', () => ({
+  default: { GetCategories: vi.fn() }
 }))
 
 import DashboardService from '@/services/DashboardService'
 import ExpenseService from '@/services/ExpenseService'
-import BudgetService from '@/services/BudgetService'
+import CategoryService from '@/services/CategoryService'
 
 const summary = {
   totalSpent: 100,
@@ -49,10 +49,10 @@ const recent = {
   ],
   totalRows: 4
 }
-const budgets = [
-  { category: 'Food', monthlyLimit: 200, spent: 60 },
-  { category: 'Travel', monthlyLimit: 100, spent: 85 },
-  { category: 'Gas', monthlyLimit: 50, spent: 70 }
+const categoryLimits = [
+  { name: 'Food', monthlyLimit: 200, spent: 60 },
+  { name: 'Travel', monthlyLimit: 100, spent: 85 },
+  { name: 'Gas', monthlyLimit: 50, spent: 70 }
 ]
 
 // Stub the chart wrappers / vuetify pieces so nothing renders canvas in jsdom.
@@ -91,7 +91,7 @@ describe('Dashboard.vue', () => {
     ;(DashboardService.GetMonthly as any).mockResolvedValue(monthly)
     ;(DashboardService.GetBalances as any).mockResolvedValue(balances)
     ;(ExpenseService.GetExpenses as any).mockResolvedValue(recent)
-    ;(BudgetService.GetBudgets as any).mockResolvedValue(budgets)
+    ;(CategoryService.GetCategories as any).mockResolvedValue(categoryLimits)
   })
 
   it('greets the authenticated user by name', async () => {
@@ -181,9 +181,9 @@ describe('Dashboard.vue', () => {
     expect(wrapper.find('.stub-snackbar').text()).toContain('Settled up with Sam')
   })
 
-  it('renders a budget row per budget with color by threshold', async () => {
+  it('renders a category row per category with color by threshold', async () => {
     const wrapper = await mountDashboard()
-    const rows = wrapper.findAll('.budget-item')
+    const rows = wrapper.findAll('.category-item')
     expect(rows).toHaveLength(3)
 
     const bars = wrapper.findAll('.stub-progress')
@@ -197,12 +197,12 @@ describe('Dashboard.vue', () => {
     expect(bars[2].attributes('data-value')).toBe('100')
   })
 
-  it('shows a setup link instead of the budgets card when there are none', async () => {
-    ;(BudgetService.GetBudgets as any).mockResolvedValue([])
+  it('shows a setup link instead of the categories card when there are none', async () => {
+    ;(CategoryService.GetCategories as any).mockResolvedValue([])
     const wrapper = await mountDashboard()
-    expect(wrapper.find('.budgets-panel').exists()).toBe(false)
-    const link = wrapper.find('.budgets-setup-link')
+    expect(wrapper.find('.categories-panel').exists()).toBe(false)
+    const link = wrapper.find('.categories-setup-link')
     expect(link.exists()).toBe(true)
-    expect(link.attributes('href')).toBe('/budgets')
+    expect(link.attributes('href')).toBe('/categories')
   })
 })

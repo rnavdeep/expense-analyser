@@ -12,13 +12,13 @@ vi.mock('@/services/DashboardService', () => ({
 vi.mock('@/services/ExpenseService', () => ({
   default: { GetExpenses: vi.fn() }
 }))
-vi.mock('@/services/BudgetService', () => ({
-  default: { GetBudgets: vi.fn() }
+vi.mock('@/services/CategoryService', () => ({
+  default: { GetCategories: vi.fn() }
 }))
 
 import DashboardService from '@/services/DashboardService'
 import ExpenseService from '@/services/ExpenseService'
-import BudgetService from '@/services/BudgetService'
+import CategoryService from '@/services/CategoryService'
 
 const summary = {
   totalSpent: 100,
@@ -46,13 +46,13 @@ const recent = {
   expenses: [{ id: '1', title: 'Cab', description: 'ride', amount: 100, createdAt: '2026-07-04' }],
   totalRows: 1
 }
-const budgets = [{ category: 'Travel', monthlyLimit: 200, spent: 60 }]
+const categoryLimits = [{ name: 'Travel', monthlyLimit: 200, spent: 60 }]
 
 const GetSummary = DashboardService.GetSummary as ReturnType<typeof vi.fn>
 const GetMonthly = DashboardService.GetMonthly as ReturnType<typeof vi.fn>
 const GetBalances = DashboardService.GetBalances as ReturnType<typeof vi.fn>
 const GetExpenses = ExpenseService.GetExpenses as ReturnType<typeof vi.fn>
-const GetBudgets = BudgetService.GetBudgets as ReturnType<typeof vi.fn>
+const GetCategories = CategoryService.GetCategories as ReturnType<typeof vi.fn>
 
 describe('Dashboard store', () => {
   beforeEach(() => {
@@ -62,7 +62,7 @@ describe('Dashboard store', () => {
     GetMonthly.mockResolvedValue(monthly)
     GetBalances.mockResolvedValue(balances)
     GetExpenses.mockResolvedValue(recent)
-    GetBudgets.mockResolvedValue(budgets)
+    GetCategories.mockResolvedValue(categoryLimits)
   })
 
   it('LoadDashboard maps API DTOs into the UI shape', async () => {
@@ -93,7 +93,7 @@ describe('Dashboard store', () => {
     ])
     expect(d.balances.youOwe[0]).toEqual({ userId: 'u1', name: 'Sam', amount: 60 })
     expect(d.recent).toHaveLength(1)
-    expect(d.budgets).toEqual(budgets)
+    expect(d.categoryLimits).toEqual(categoryLimits)
   })
 
   it('requests a 12-month window for the year period', async () => {
@@ -115,14 +115,14 @@ describe('Dashboard store', () => {
     expect(store.data!.recent).toEqual([])
   })
 
-  it('tolerates a failing budgets call (empty budgets, no error)', async () => {
-    GetBudgets.mockRejectedValueOnce(new Error('404'))
+  it('tolerates a failing categories call (empty categoryLimits, no error)', async () => {
+    GetCategories.mockRejectedValueOnce(new Error('404'))
     const store = useDashboardStore()
 
     await store.LoadDashboard('month')
 
     expect(store.error).toBeNull()
-    expect(store.data!.budgets).toEqual([])
+    expect(store.data!.categoryLimits).toEqual([])
   })
 
   it('captures the error when a summary call fails', async () => {

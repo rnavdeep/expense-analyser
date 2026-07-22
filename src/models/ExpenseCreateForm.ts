@@ -2,6 +2,7 @@ export interface ExpenseCreateForm {
   title: string
   description: string
   amount: number
+  category: string
   allowReceipts: boolean
   files: File[] // Array of File objects
 }
@@ -9,13 +10,21 @@ export class ExpenseDataDto {
   title: string
   description: string
   amount: number
+  category?: string
   allowReceipts: boolean
 
-  constructor(title: string, description: string, amount: number = 0, allowReceipts: boolean = true) {
+  constructor(
+    title: string,
+    description: string,
+    amount: number = 0,
+    allowReceipts: boolean = true,
+    category?: string
+  ) {
     this.title = title
     this.description = description
     this.amount = amount
     this.allowReceipts = allowReceipts
+    this.category = category
   }
 }
 

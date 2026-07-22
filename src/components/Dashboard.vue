@@ -144,29 +144,29 @@
       </div>
     </section>
 
-    <!-- ── Budgets ── -->
-    <section v-if="data.budgets.length" class="panel budgets-panel">
+    <!-- ── Categories ── -->
+    <section v-if="data.categoryLimits.length" class="panel categories-panel">
       <div class="panel-head">
-        <h2 class="panel-title">Budgets</h2>
-        <router-link to="/budgets" class="panel-link">Manage</router-link>
+        <h2 class="panel-title">Categories</h2>
+        <router-link to="/categories" class="panel-link">Manage</router-link>
       </div>
 
-      <ul class="budget-list">
-        <li v-for="b in data.budgets" :key="b.category" class="budget-item">
-          <div class="budget-item-top">
-            <span class="budget-category">{{ b.category }}</span>
-            <span class="budget-hint">{{ formatCurrency(b.spent) }} of {{ formatCurrency(b.monthlyLimit) }}</span>
+      <ul class="category-list">
+        <li v-for="c in data.categoryLimits" :key="c.name" class="category-item">
+          <div class="category-item-top">
+            <span class="category-name">{{ c.name }}</span>
+            <span class="category-hint">{{ formatCurrency(c.spent) }} of {{ formatCurrency(c.monthlyLimit) }}</span>
           </div>
           <v-progress-linear
-            :model-value="budgetProgress(b)"
-            :color="budgetColor(b)"
+            :model-value="categoryProgress(c)"
+            :color="categoryStatusColor(c)"
             height="8"
             rounded
           ></v-progress-linear>
         </li>
       </ul>
     </section>
-    <router-link v-else to="/budgets" class="budgets-setup-link">Set up budgets →</router-link>
+    <router-link v-else to="/categories" class="categories-setup-link">Set up categories →</router-link>
     </template>
 
     <SettleUpDialog
@@ -193,7 +193,7 @@ import MonthlyBarChart from './dashboard/MonthlyBarChart.vue'
 import CategoryDonut from './dashboard/CategoryDonut.vue'
 import SettleUpDialog from './SettleUpDialog.vue'
 import type { BalanceEntry, DashboardPeriod } from '@/models/Dashboard'
-import type { BudgetStatusDto } from '@/models/Budget'
+import type { CategoryStatusDto } from '@/models/Category'
 
 export default defineComponent({
   name: 'eaDashboard',
@@ -295,12 +295,12 @@ export default defineComponent({
       dashboardStore.LoadDashboard(period.value)
     }
 
-    // ── Budget progress widget ──
-    const budgetProgress = (b: BudgetStatusDto) =>
-      b.monthlyLimit > 0 ? Math.min((b.spent / b.monthlyLimit) * 100, 100) : 0
+    // ── Category limit progress widget ──
+    const categoryProgress = (c: CategoryStatusDto) =>
+      c.monthlyLimit > 0 ? Math.min((c.spent / c.monthlyLimit) * 100, 100) : 0
 
-    const budgetColor = (b: BudgetStatusDto) => {
-      const pct = b.monthlyLimit > 0 ? b.spent / b.monthlyLimit : 0
+    const categoryStatusColor = (c: CategoryStatusDto) => {
+      const pct = c.monthlyLimit > 0 ? c.spent / c.monthlyLimit : 0
       if (pct >= 1) return 'error'
       if (pct >= 0.8) return 'warning'
       return 'secondary'
@@ -326,8 +326,8 @@ export default defineComponent({
       openSettleUp,
       onSettleUpClick,
       onSettled,
-      budgetProgress,
-      budgetColor
+      categoryProgress,
+      categoryStatusColor
     }
   }
 })
@@ -623,12 +623,12 @@ export default defineComponent({
   gap: 8px;
 }
 
-/* ── Budgets ── */
-.budgets-panel {
+/* ── Categories ── */
+.categories-panel {
   margin-top: 18px;
 }
 
-.budget-list {
+.category-list {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -637,26 +637,26 @@ export default defineComponent({
   gap: 14px;
 }
 
-.budget-item-top {
+.category-item-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 6px;
 }
 
-.budget-category {
+.category-name {
   font-family: var(--ea-display);
   font-weight: 600;
   font-size: 13.5px;
   color: var(--ea-ink);
 }
 
-.budget-hint {
+.category-hint {
   font-size: 12px;
   color: var(--ea-muted);
 }
 
-.budgets-setup-link {
+.categories-setup-link {
   display: inline-block;
   margin-top: 18px;
   font-family: var(--ea-display);
@@ -665,7 +665,7 @@ export default defineComponent({
   color: var(--ea-muted);
   text-decoration: none;
 }
-.budgets-setup-link:hover {
+.categories-setup-link:hover {
   color: var(--ea-emerald);
   text-decoration: underline;
 }

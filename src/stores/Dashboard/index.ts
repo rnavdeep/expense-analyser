@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
 import DashboardService from '@/services/DashboardService'
 import ExpenseService from '@/services/ExpenseService'
-import BudgetService from '@/services/BudgetService'
+import CategoryService from '@/services/CategoryService'
 import { Pagination } from '@/models/Pagination'
 import { SortFilter } from '@/models/SortFilter'
 import type { ExpenseListDataDto } from '@/models/ExpenseCreateForm'
-import type { BudgetStatusDto } from '@/models/Budget'
+import type { CategoryStatusDto } from '@/models/Category'
 import {
   CATEGORY_COLORS,
   type BalancesDto,
@@ -40,7 +40,7 @@ function toDashboardData(
   monthly: MonthlySpendingDto[],
   balancesDto: BalancesDto,
   recent: ExpenseListDataDto[],
-  budgets: BudgetStatusDto[]
+  categoryLimits: CategoryStatusDto[]
 ): DashboardData {
   // A settled-up balance (0, or floating-point noise that rounds to $0.00)
   // shouldn't show up in either list.
@@ -79,7 +79,7 @@ function toDashboardData(
     })),
     recent,
     balances,
-    budgets
+    categoryLimits
   }
 }
 
@@ -95,7 +95,7 @@ export const useDashboardStore = defineStore('Dashboard', {
       this.isLoading = true
       this.error = null
       try {
-        const [summary, monthly, balancesDto, expensesResp, budgets] = await Promise.all([
+        const [summary, monthly, balancesDto, expensesResp, categoryLimits] = await Promise.all([
           DashboardService.GetSummary(period),
           DashboardService.GetMonthly(monthsFor(period)),
           DashboardService.GetBalances(),
@@ -106,8 +106,8 @@ export const useDashboardStore = defineStore('Dashboard', {
             new SortFilter('CreatedAt', false),
             null
           ).catch(() => ({ expenses: [], totalRows: 0 })),
-          // A user with no budgets makes this call throw (404) too.
-          BudgetService.GetBudgets('month').catch(() => [])
+          // A user with no categories makes this call throw (404) too.
+          CategoryService.GetCategories('month').catch(() => [])
         ])
 
         this.data = toDashboardData(
@@ -116,7 +116,7 @@ export const useDashboardStore = defineStore('Dashboard', {
           monthly,
           balancesDto,
           (expensesResp?.expenses ?? []) as ExpenseListDataDto[],
-          budgets
+          categoryLimits
         )
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to load dashboard'
