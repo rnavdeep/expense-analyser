@@ -103,10 +103,10 @@ const router = createRouter({
       meta: { requiresLogin: true, title: 'Balance detail', description: 'History with a friend' }
     },
     {
-      path: '/budgets',
-      name: 'Budgets',
-      component: () => import('../views/BudgetsView.vue'),
-      meta: { requiresLogin: true, title: 'Budgets', description: 'Set monthly spending limits' }
+      path: '/categories',
+      name: 'Categories',
+      component: () => import('../views/CategoriesView.vue'),
+      meta: { requiresLogin: true, title: 'Categories', description: 'Set monthly spending limits' }
     }
   ]
 })
